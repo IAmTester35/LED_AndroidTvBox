@@ -78,4 +78,12 @@
         *   Lắng nghe sự kiện `BOOT_COMPLETED` (hệ điều hành đã khởi động xong) để tự động khởi chạy ứng dụng, đảm bảo ứng dụng luôn chạy khi Android Box được bật nguồn (Yêu cầu 4.3).
 
 *   **Tên:** **DownloadManager**
-    *   **L
+    *   **Lý do sử dụng:** Là một dịch vụ hệ thống của Android được tối ưu hóa cho việc tải các tệp lớn. Nó tự xử lý các vấn đề về kết nối mạng, chạy ngầm và thông báo khi hoàn tất, giúp việc tải file APK trở nên đáng tin cậy.
+    *   **Chức năng trong dự án:**
+        *   Thực hiện việc tải tệp cài đặt APK của phiên bản mới từ URL do server cung cấp (REQ-4.3).
+
+*   **Tên:** **PackageInstaller**
+    *   **Lý do sử dụng:** Là API chính thức và an toàn để một ứng dụng có thể yêu cầu hệ thống cài đặt một tệp APK.
+    *   **Chức năng trong dự án:**
+        *   Sau khi `DownloadManager` tải xong file APK, ứng dụng sẽ gọi `PackageInstaller` để bắt đầu quá trình cập nhật phần mềm (REQ-4.4).
+        *   **Lưu ý:** Chức năng này yêu cầu quyền `REQUEST_INSTALL_PACKAGES` và người dùng có thể cần cấp quyền này một lần cho ứng dụng.
