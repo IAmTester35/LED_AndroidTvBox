@@ -1,7 +1,5 @@
 package com.factory.display.data.repository
 
-import com.factory.display.data.remote.FactoryWebSocketListener
-import com.factory.display.domain.repository.DeviceRepository
 import com.factory.display.data.model.DisplayData
 import com.factory.display.data.remote.FactoryWebSocketListener
 import com.factory.display.domain.repository.DeviceRepository

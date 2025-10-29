@@ -2,8 +2,6 @@ package com.factory.display.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.factory.display.data.model.DisplayData
 import com.factory.display.domain.usecase.GetDeviceIdUseCase
 import com.factory.display.domain.usecase.GetDisplayDataUseCase
