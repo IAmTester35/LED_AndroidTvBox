@@ -35,14 +35,15 @@ Dưới đây là danh sách các User Story được chọn để thực hiện
 **Story 2: Hiển thị Màn hình Chờ Đăng ký**
 
 *   **ID:** `BOX-02`
-*   **Tiêu đề:** Hiển thị Device ID và mã QR khi chờ kích hoạt
+*   **Tiêu đề:** Hiển thị Device ID và nút yêu cầu kích hoạt
 *   **As a** System Administrator (Người Quản trị Hệ thống)
-*   **I want** nhìn thấy Device ID và một mã QR tương ứng được hiển thị trên màn hình khi thiết bị chưa được đăng ký trong hệ thống
-*   **So that** tôi có thể dễ dàng dùng Admin Panel để quét hoặc nhập ID và cấp phép hoạt động cho thiết bị.
+*   **I want** nhìn thấy Device ID và một nút bấm trên màn hình khi thiết bị chưa được đăng ký
+*   **So that** tôi có thể cấp phép hoạt động cho thiết bị và người dùng có thể chủ động yêu cầu kiểm tra kích hoạt.
 *   **Tiêu chí Chấp nhận (Acceptance Criteria):**
     1.  Nếu thiết bị chưa được đăng ký, màn hình phải hiển thị rõ ràng Device ID đã được tạo ở story `BOX-01`.
-    2.  Một mã QR chứa chuỗi Device ID phải được hiển thị cùng lúc.
-    3.  Màn hình phải có một dòng trạng thái rõ ràng, ví dụ: "Đang chờ kích hoạt từ hệ thống..."
+    2.  Một nút bấm với tiêu đề "Yêu cầu Kích hoạt" phải được hiển thị.
+    3.  Khi nhấn nút, ứng dụng phải ngay lập tức gửi yêu cầu đến server để kiểm tra trạng thái kích hoạt.
+    4.  Màn hình phải có một dòng trạng thái rõ ràng, ví dụ: "Đang chờ kích hoạt từ hệ thống..."
 
 **Story 3: Thiết lập Kết nối WebSocket Cơ bản**
 
