@@ -57,4 +57,24 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Networking (Retrofit, OkHttp, Moshi)
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.moshi.kotlin)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // QR Code Generator
+    implementation(libs.zxing.core)
+    implementation(libs.journeyapps.zxing.android.embedded)
 }

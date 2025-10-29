@@ -1,4 +1,4 @@
-package com.reecotech.androidtvbox.ui.theme
+package com.factory.display.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
