@@ -70,6 +70,7 @@ Chúng ta sử dụng một node duy nhất là `devices` để quản lý tất
   "devices": {
     "DEVICE_ID_1": {
       "status": "activate",
+      "name": "DEVICE_ID_1",
       "description": "Khách hàng VIP",
       "createDay": 1678886400000,
       "updateDate": 1678886500000,
@@ -77,6 +78,7 @@ Chúng ta sử dụng một node duy nhất là `devices` để quản lý tất
     },
     "DEVICE_ID_2": {
       "status": "pending",
+      "name": "DEVICE_ID_2",
       "description": null,
       "createDay": 1678887400000,
       "updateDate": 1678887400000,
@@ -84,6 +86,7 @@ Chúng ta sử dụng một node duy nhất là `devices` để quản lý tất
     },
     "DEVICE_ID_3": {
       "status": "disable",
+      "name": "DEVICE_ID_3",
       "description": "Hết hạn thanh toán.",
       "createDay": 1678888400000,
       "updateDate": 1678889500000,
@@ -93,6 +96,7 @@ Chúng ta sử dụng một node duy nhất là `devices` để quản lý tất
 }
 ```
 - `DEVICE_ID_*`: Là mã UUID duy nhất của mỗi thiết bị.
+- `name`: Tên của thiết bị, mặc định là `DEVICE_ID`. Tên này không thể thay đổi.
 - `status`: Trạng thái hiện tại của thiết bị. Có 3 giá trị:
     - `"pending"`: Thiết bị đang chờ được kích hoạt.
     - `"activate"`: Thiết bị đã được kích hoạt và được phép hoạt động.
