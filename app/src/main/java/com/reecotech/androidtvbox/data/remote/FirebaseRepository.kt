@@ -4,34 +4,37 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.reecotech.androidtvbox.data.model.DeviceStatus
+import com.reecotech.androidtvbox.domain.FirebaseRepository
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
-class FirebaseRepository @Inject constructor(
+class FirebaseRepositoryImpl @Inject constructor(
     private val database: FirebaseDatabase
-) {
+) : FirebaseRepository {
 
     companion object {
-        private const val PENDING_DEVICES_PATH = "pending_devices"
-        private const val APPROVED_DEVICES_PATH = "approved_devices"
+        private const val DEVICES_PATH = "devices"
     }
 
-    fun requestActivation(deviceId: String) {
+    override fun requestActivation(deviceId: String) {
         val deviceData = mapOf(
-            "requestedAt" to System.currentTimeMillis(),
-            "status" to "pending"
+            "status" to "pending",
+            "createDay" to System.currentTimeMillis(),
+            "updateDate" to System.currentTimeMillis(),
         )
-        database.getReference(PENDING_DEVICES_PATH).child(deviceId).setValue(deviceData)
+        database.getReference(DEVICES_PATH).child(deviceId).setValue(deviceData)
     }
 
-    fun listenForActivation(deviceId: String): Flow<Boolean> = callbackFlow {
-        val approvedDeviceRef = database.getReference(APPROVED_DEVICES_PATH).child(deviceId)
+    override fun listenForDeviceStatus(deviceId: String): Flow<DeviceStatus> = callbackFlow {
+        val deviceRef = database.getReference(DEVICES_PATH).child(deviceId)
 
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                trySend(snapshot.exists())
+                val deviceStatus = snapshot.getValue(DeviceStatus::class.java)
+                trySend(deviceStatus ?: DeviceStatus(status = "pending")) // Default to pending if null
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -39,10 +42,10 @@ class FirebaseRepository @Inject constructor(
             }
         }
 
-        approvedDeviceRef.addValueEventListener(listener)
+        deviceRef.addValueEventListener(listener)
 
         awaitClose {
-            approvedDeviceRef.removeEventListener(listener)
+            deviceRef.removeEventListener(listener)
         }
     }
 }

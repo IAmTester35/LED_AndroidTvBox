@@ -2,26 +2,22 @@ package com.reecotech.androidtvbox.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reecotech.androidtvbox.data.model.DisplayData
-import com.reecotech.androidtvbox.data.remote.FirebaseRepository
+import com.reecotech.androidtvbox.domain.DeviceRepository
 import com.reecotech.androidtvbox.domain.WebSocketRepository
+import com.reecotech.androidtvbox.domain.model.DeviceStatusState
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
+import com.reecotech.androidtvbox.domain.usecase.GetDeviceStatusUseCase
 import com.reecotech.androidtvbox.domain.usecase.ParseDisplayDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class MainUiState {
-    object Loading : MainUiState()
-    data class WaitingForActivation(val deviceId: String, val statusMessage: String) : MainUiState()
-    data class DisplayingData(val data: List<DisplayData>) : MainUiState()
-}
-
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getDeviceIDUseCase: GetDeviceIDUseCase,
-    private val firebaseRepository: FirebaseRepository,
+    private val deviceRepository: DeviceRepository,
+    private val getDeviceStatusUseCase: GetDeviceStatusUseCase,
     private val webSocketRepository: WebSocketRepository,
     private val parseDisplayDataUseCase: ParseDisplayDataUseCase
 ) : ViewModel() {
@@ -35,17 +31,25 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val id = getDeviceIDUseCase()
             deviceId = id
-            _uiState.value = MainUiState.WaitingForActivation(id, "Đang chờ kích hoạt từ hệ thống...")
-            observeActivation(id)
+            observeDeviceStatus(id)
         }
     }
 
-    private fun observeActivation(deviceId: String) {
+    private fun observeDeviceStatus(deviceId: String) {
         viewModelScope.launch {
-            firebaseRepository.listenForActivation(deviceId).collect { isActivated ->
-                if (isActivated) {
-                    _uiState.value = MainUiState.DisplayingData(emptyList())
-                    connectWebSocket(deviceId)
+            getDeviceStatusUseCase(deviceId).collect { (status, description) ->
+                when (status) {
+                    DeviceStatusState.PENDING -> {
+                        webSocketRepository.disconnect()
+                        _uiState.value = MainUiState.WaitingForActivation(deviceId, "Đang chờ kích hoạt từ hệ thống...")
+                    }
+                    DeviceStatusState.ACTIVATED -> {
+                        connectWebSocket(deviceId)
+                    }
+                    DeviceStatusState.DISABLED -> {
+                        webSocketRepository.disconnect()
+                        _uiState.value = MainUiState.DeviceDisabled(description)
+                    }
                 }
             }
         }
@@ -58,6 +62,8 @@ class MainViewModel @Inject constructor(
                 val data = parseDisplayDataUseCase(jsonString)
                 if (data.isNotEmpty()) {
                     _uiState.value = MainUiState.DisplayingData(data)
+                } else {
+                     _uiState.value = MainUiState.DisplayingData(emptyList())
                 }
             }
         }
@@ -65,8 +71,8 @@ class MainViewModel @Inject constructor(
 
     fun requestActivation() {
         deviceId?.let {
-            firebaseRepository.requestActivation(it)
-             _uiState.value = MainUiState.WaitingForActivation(it, "Đã gửi yêu cầu. Vui lòng chờ...")
+            deviceRepository.requestActivation(it)
+            _uiState.value = MainUiState.WaitingForActivation(it, "Đã gửi yêu cầu. Vui lòng chờ...")
         }
     }
 }
