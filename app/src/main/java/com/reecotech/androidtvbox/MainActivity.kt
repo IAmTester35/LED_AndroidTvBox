@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.reecotech.androidtvbox.ui.screen.DeviceDisabledScreen
 import com.reecotech.androidtvbox.ui.screen.MainDataScreen
 import com.reecotech.androidtvbox.ui.screen.WaitingForActivationScreen
 import com.reecotech.androidtvbox.ui.theme.AndroidTVBoxTheme
@@ -64,6 +65,9 @@ fun MainScreen(
             }
             is MainUiState.DisplayingData -> {
                 MainDataScreen(displayDataList = uiState.data)
+            }
+            is MainUiState.DeviceDisabled -> {
+                DeviceDisabledScreen(reason = uiState.reason)
             }
         }
     }

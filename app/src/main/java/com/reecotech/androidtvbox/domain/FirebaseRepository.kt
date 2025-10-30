@@ -3,9 +3,7 @@ package com.reecotech.androidtvbox.domain
 import com.reecotech.androidtvbox.data.model.DeviceStatus
 import kotlinx.coroutines.flow.Flow
 
-interface DeviceRepository {
-    fun getDeviceId(): Flow<String?>
-    suspend fun saveDeviceId(deviceId: String)
+interface FirebaseRepository {
     fun requestActivation(deviceId: String)
     fun listenForDeviceStatus(deviceId: String): Flow<DeviceStatus>
 }
