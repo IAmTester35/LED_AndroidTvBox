@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,9 +38,10 @@ fun WaitingForActivationScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = deviceId,
-                fontSize = 48.sp,
+                fontSize = 24.sp,
+                fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Medium,
-                color = Color.Green,
+                color = Color.LightGray,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(48.dp))
@@ -49,7 +51,7 @@ fun WaitingForActivationScreen(
             ) {
                 Text(
                     text = "Yêu cầu Kích hoạt",
-                    fontSize = 24.sp,
+                    fontSize = 14.sp,
                     color = Color.White,
                     modifier = Modifier.padding(16.dp)
                 )
