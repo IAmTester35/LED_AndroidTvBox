@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "419803794807",
+    "firebase_url": "https://android-tv-box-e7c81-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "android-tv-box-e7c81",
+    "storage_bucket": "android-tv-box-e7c81.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419803794807:android:72f13561a9feabed99e572",
+        "android_client_info": {
+          "package_name": "com.reecotech.androidtvbox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoq09-naxto8uatk2oUEbMkn9Ym0SL5K8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
