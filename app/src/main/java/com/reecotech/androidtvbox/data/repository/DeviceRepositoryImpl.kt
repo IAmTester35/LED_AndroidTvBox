@@ -1,4 +1,4 @@
-package com.reecotech.androidtvbox.data
+package com.reecotech.androidtvbox.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

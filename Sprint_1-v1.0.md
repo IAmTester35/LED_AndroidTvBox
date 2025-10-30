@@ -29,7 +29,7 @@ Dưới đây là danh sách các User Story được chọn để thực hiện
 *   **So that** thiết bị này có thể được nhận diện và quản lý một cách độc lập trong toàn bộ hệ thống.
 *   **Tiêu chí Chấp nhận (Acceptance Criteria):**
     1.  Khi ứng dụng được khởi chạy lần đầu tiên, một chuỗi định danh duy nhất (ví dụ: UUID) phải được tạo ra.
-    2.  Device ID này phải được lưu trữ bền vững trên bộ nhớ cục bộ của thiết bị (ví dụ: SharedPreferences).
+    2.  Device ID này phải được lưu trữ bền vững trên bộ nhớ cục bộ của thiết bị (ví dụ: Jetpack DataStore).
     3.  Trong những lần khởi chạy tiếp theo, ứng dụng phải đọc lại Device ID đã được lưu thay vì tạo một cái mới.
 
 **Story 2: Hiển thị Màn hình Chờ Đăng ký**
