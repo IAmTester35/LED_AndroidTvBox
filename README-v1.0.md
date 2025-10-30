@@ -49,7 +49,7 @@
 *   **4.3 Yêu cầu về Độ tin cậy (Reliability):**
     *   Ứng dụng phải có cơ chế tự động kết nối lại khi mất kết nối mạng.
     *   Ứng dụng phải có khả năng xử lý các gói tin JSON không hợp lệ mà không bị treo hoặc dừng hoạt động.
-    *   Ứng dụng phải tự khởi động lại cùng hệ điều hành khi Android Box được bật nguồn.
+    *   Ứng dụng phải tự khởi động lại cùng hệ điều hành khi Android Box được bật nguồn. Để thực hiện điều này, ứng dụng sử dụng một `BootCompletedReceiver` để lắng nghe sự kiện `BOOT_COMPLETED` của hệ thống. Khi nhận được tín hiệu này, ứng dụng sẽ tự động khởi chạy `MainActivity`, đảm bảo hoạt động liên tục mà không cần can thiệp thủ công sau khi thiết bị khởi động lại.
 *   **4.4 Yêu cầu về Khả năng sử dụng (Usability):**
     *   Giao diện hiển thị phải rõ ràng, dễ đọc từ khoảng cách xa trong môi trường nhà máy.
     *   Sử dụng font chữ lớn, độ tương phản cao.
