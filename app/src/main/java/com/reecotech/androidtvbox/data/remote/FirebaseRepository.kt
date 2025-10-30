@@ -22,6 +22,7 @@ class FirebaseRepositoryImpl @Inject constructor(
     override fun requestActivation(deviceId: String) {
         val deviceData = mapOf(
             "status" to "pending",
+            "name" to deviceId,
             "createDay" to System.currentTimeMillis(),
             "updateDate" to System.currentTimeMillis(),
         )
