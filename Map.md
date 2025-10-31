@@ -43,6 +43,9 @@ Dự án được cấu trúc theo mô hình Clean Architecture, chia thành cá
 
 -   **`di/`**: Chứa các Hilt Module (`AppModule.kt`, `DataModule.kt`) để cung cấp các phụ thuộc cần thiết cho toàn bộ ứng dụng, ví dụ như `DataStore`, `OkHttpClient`, và các `Repository`.
 
+### **Receiver (Broadcast Receivers)**
+- **`receiver/BootCompletedReceiver.kt`**: Một `BroadcastReceiver` lắng nghe sự kiện `BOOT_COMPLETED` của hệ điều hành. Khi thiết bị khởi động xong, nó sẽ tự động khởi chạy lại ứng dụng để đảm bảo ứng dụng luôn hoạt động.
+
 ### **File Cấu hình (Liệt kê đơn giản)**
 
 -   **`build.gradle.kts`** (cấp app và project): Quản lý các thư viện phụ thuộc và cấu hình build.
