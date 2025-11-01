@@ -21,8 +21,10 @@ firebaseBom = "33.1.2"
 googleServices = "4.4.4"
 firebaseCrashlytics = "3.0.6"
 socketio-client = "2.1.1"
+timber = "5.0.1"
 
 [libraries]
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 socketio-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio-client" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }

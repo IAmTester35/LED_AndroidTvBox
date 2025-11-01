@@ -86,6 +86,9 @@ dependencies {
     // DataStore
     implementation(libs.datastore.preferences)
 
+    // Logging
+    implementation(libs.timber)
+
     // ViewModel & Navigation
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
