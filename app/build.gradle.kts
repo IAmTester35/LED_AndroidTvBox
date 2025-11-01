@@ -69,6 +69,11 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // Socket.IO
+    implementation(libs.socketio.client) {
+        exclude(group = "org.json", module = "json")
+    }
+
     // OkHttp & Retrofit
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
@@ -80,6 +85,9 @@ dependencies {
 
     // DataStore
     implementation(libs.datastore.preferences)
+
+    // Logging
+    implementation(libs.timber)
 
     // ViewModel & Navigation
     implementation(libs.androidx.lifecycle.viewmodel.compose)

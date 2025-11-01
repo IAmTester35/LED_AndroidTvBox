@@ -64,7 +64,7 @@ fun MainScreen(
                 )
             }
             is MainUiState.DisplayingData -> {
-                MainDataScreen(displayDataList = uiState.data)
+                MainDataScreen(state = uiState)
             }
             is MainUiState.DeviceDisabled -> {
                 DeviceDisabledScreen(reason = uiState.reason)

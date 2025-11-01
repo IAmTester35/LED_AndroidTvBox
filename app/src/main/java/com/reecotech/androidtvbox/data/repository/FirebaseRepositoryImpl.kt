@@ -1,4 +1,4 @@
-package com.reecotech.androidtvbox.data.remote
+package com.reecotech.androidtvbox.data.repository
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -14,6 +14,27 @@ import javax.inject.Inject
 class FirebaseRepositoryImpl @Inject constructor(
     private val database: FirebaseDatabase
 ) : FirebaseRepository {
+
+    override val connectionStatus: Flow<Boolean> = callbackFlow {
+        val connectedRef = database.getReference(".info/connected")
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val connected = snapshot.getValue(Boolean::class.java) ?: false
+                trySend(connected)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+
+        connectedRef.addValueEventListener(listener)
+
+        awaitClose {
+            connectedRef.removeEventListener(listener)
+        }
+    }
 
     companion object {
         private const val DEVICES_PATH = "devices"
