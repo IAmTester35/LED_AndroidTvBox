@@ -24,20 +24,19 @@ Dự án được cấu trúc theo mô hình Clean Architecture, chia thành cá
 
 ### **Lớp `domain` (Logic nghiệp vụ)**
 
--   **`domain/repository/`**: Chứa các `interface` định nghĩa "hợp đồng" cho các hoạt động dữ liệu. Việc này giúp tách biệt logic nghiệp vụ khỏi chi tiết triển khai của lớp `data`.
+-   **`domain/`**: Chứa các `interface` Repository định nghĩa "hợp đồng" cho các hoạt động dữ liệu và các `UseCase` chứa logic nghiệp vụ cụ thể.
     -   `DeviceRepository.kt`, `FirebaseRepository.kt`, `WebSocketRepository.kt`.
--   **`domain/usecase/`**: Chứa các lớp đại diện cho một logic nghiệp vụ cụ thể.
+-   **`domain/usecase/`**:
     -   `GetDeviceIDUseCase.kt`: Đóng gói logic lấy Device ID đã lưu hoặc tạo mới.
     -   `GetDeviceStatusUseCase.kt`: Cung cấp luồng dữ liệu (Flow) về trạng thái của thiết bị.
     -   `ParseDisplayDataUseCase.kt`: Chịu trách nhiệm phân tích chuỗi JSON từ WebSocket thành dữ liệu có thể hiển thị.
 
 ### **Lớp `data` (Dữ liệu)**
 
--   **`data/repository/`**: Chứa các lớp triển khai (implementation) của các `interface` trong `domain/repository`.
-    -   `DeviceRepositoryImpl.kt`: Quản lý Device ID bằng Jetpack DataStore và tương tác với Firebase.
+-   **`data/repository/`**: Chứa các lớp triển khai (implementation) của các `interface` trong `domain`.
+    -   `DeviceRepositoryImpl.kt`: Quản lý Device ID bằng Jetpack DataStore.
     -   `FirebaseRepositoryImpl.kt`: Xử lý toàn bộ giao tiếp với Firebase Realtime Database.
-    -   `WebSocketRepositoryImpl.kt`: Quản lý kết nối WebSocket (kết nối, ngắt, lắng nghe) bằng OkHttp.
--   **`data/remote/WebSocketListener.kt`**: Một `WebSocketListener` tùy chỉnh cho OkHttp, giúp chuyển đổi các sự kiện WebSocket thành một `Flow` để dễ dàng xử lý bất đồng bộ.
+    -   `WebSocketRepositoryImpl.kt`: Quản lý kết nối real-time bằng thư viện Socket.IO để tương thích với backend.
 
 ### **`di` (Dependency Injection)**
 
