@@ -2,12 +2,15 @@ package com.reecotech.androidtvbox.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reecotech.androidtvbox.domain.ConnectionStatus
 import com.reecotech.androidtvbox.domain.DeviceRepository
+import com.reecotech.androidtvbox.domain.FirebaseRepository
 import com.reecotech.androidtvbox.domain.WebSocketRepository
 import com.reecotech.androidtvbox.domain.model.DeviceStatusState
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceStatusUseCase
 import com.reecotech.androidtvbox.domain.usecase.ParseDisplayDataUseCase
+import com.reecotech.androidtvbox.domain.usecase.ParseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,13 +22,17 @@ class MainViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val getDeviceStatusUseCase: GetDeviceStatusUseCase,
     private val webSocketRepository: WebSocketRepository,
+    private val firebaseRepository: FirebaseRepository, // Injected
     private val parseDisplayDataUseCase: ParseDisplayDataUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<MainUiState>(MainUiState.Loading)
-    val uiState: StateFlow<MainUiState> = _uiState
+    val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     private var deviceId: String? = null
+
+    // A trigger to restart the data flow when activation happens
+    private val activationTrigger = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -41,10 +48,14 @@ class MainViewModel @Inject constructor(
                 when (status) {
                     DeviceStatusState.PENDING -> {
                         webSocketRepository.disconnect()
-                        _uiState.value = MainUiState.WaitingForActivation(deviceId, "Đang chờ kích hoạt từ hệ thống...")
+                        _uiState.value = MainUiState.WaitingForActivation(deviceId, "Đang chờ kích hoạt...")
                     }
                     DeviceStatusState.ACTIVATED -> {
-                        connectWebSocket(deviceId)
+                        // Trigger the data observation flow to start
+                        if (!activationTrigger.value) {
+                             activationTrigger.value = true
+                             observeDataFlow(deviceId)
+                        }
                     }
                     DeviceStatusState.DISABLED -> {
                         webSocketRepository.disconnect()
@@ -55,16 +66,39 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun connectWebSocket(deviceId: String) {
+    private fun observeDataFlow(deviceId: String) {
         webSocketRepository.connect(deviceId)
+
         viewModelScope.launch {
-            webSocketRepository.messages.collect { jsonString ->
-                val data = parseDisplayDataUseCase(jsonString)
-                if (data.isNotEmpty()) {
-                    _uiState.value = MainUiState.DisplayingData(data)
+            combine(
+                firebaseRepository.connectionStatus,
+                webSocketRepository.status,
+                webSocketRepository.messages
+            ) { isFirebaseConnected, wsStatus, jsonMessage ->
+
+                val isWebSocketConnected = wsStatus is ConnectionStatus.Connected
+                val parseResult = parseDisplayDataUseCase(jsonMessage)
+                val hasJsonError = parseResult is ParseResult.JsonError
+
+                // Get current data if the state is already DisplayingData
+                val currentData = (_uiState.value as? MainUiState.DisplayingData)?.data ?: emptyList()
+
+                val newData = if (parseResult is ParseResult.Success) {
+                    parseResult.data.ifEmpty { currentData } // Keep old data if new message is empty
                 } else {
-                     _uiState.value = MainUiState.DisplayingData(emptyList())
+                    currentData // Keep old data on error
                 }
+
+                MainUiState.DisplayingData(
+                    data = newData,
+                    isFirebaseConnected = isFirebaseConnected,
+                    isWebSocketConnected = isWebSocketConnected,
+                    hasJsonError = hasJsonError
+                )
+
+            }.distinctUntilChanged()
+             .collect { newState ->
+                _uiState.value = newState
             }
         }
     }
