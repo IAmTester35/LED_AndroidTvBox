@@ -11,7 +11,6 @@ import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceStatusUseCase
 import com.reecotech.androidtvbox.domain.usecase.ParseDisplayDataUseCase
 import com.reecotech.androidtvbox.domain.usecase.ParseResult
-import com.reecotech.androidtvbox.domain.usecase.ParseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
