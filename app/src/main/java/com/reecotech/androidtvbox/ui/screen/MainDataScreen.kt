@@ -1,12 +1,14 @@
 package com.reecotech.androidtvbox.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,13 +37,15 @@ fun MainDataScreen(state: MainUiState.DisplayingData) {
                     )
                 }
             } else {
-                LazyColumn(
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp) // Add padding to avoid overlap
+                    contentPadding = PaddingValues(top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(state.data, key = { it.id }) { data ->
                         DisplayDataItem(data = data)
-                        Divider(color = Color.DarkGray, thickness = 1.dp)
                     }
                 }
             }
@@ -101,6 +105,7 @@ fun DisplayDataItem(data: com.reecotech.androidtvbox.data.model.DisplayData) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.dp, Color.DarkGray, RoundedCornerShape(8.dp))
             .padding(vertical = 24.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

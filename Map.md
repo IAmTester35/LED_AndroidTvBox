@@ -18,7 +18,7 @@ Dự án được cấu trúc theo mô hình Clean Architecture, chia thành cá
 -   **`ui/viewmodel/MainViewModel.kt`**: Hạt nhân xử lý logic của lớp UI. `ViewModel` điều phối các `UseCase` và `Repository` để quản lý trạng thái của ứng dụng và cung cấp trạng thái đó cho `MainActivity` thông qua `StateFlow`.
 -   **`ui/screen/`**: Thư mục chứa các hàm Composable định nghĩa các màn hình của ứng dụng.
     -   `WaitingForActivationScreen.kt`: Màn hình chờ kích hoạt, hiển thị Device ID.
-    -   `MainDataScreen.kt`: Màn hình hiển thị dữ liệu từ WebSocket.
+    -   `MainDataScreen.kt`: Màn hình hiển thị dữ liệu từ WebSocket. Giao diện này sử dụng bố cục lưới (grid layout) để hiển thị tối ưu trên màn hình ngang.
     -   `DeviceDisabledScreen.kt`: Màn hình thông báo thiết bị đã bị vô hiệu hóa.
 -   **`ui/theme/`**: Các file định nghĩa theme cho Jetpack Compose (màu sắc, font chữ,...).
 

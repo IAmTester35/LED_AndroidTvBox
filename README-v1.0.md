@@ -92,7 +92,7 @@
       }
     ]
     ```
-*   **REQ-2.4:** Ứng dụng phải phân tích (parse) mảng JSON và hiển thị từng đối tượng lên màn hình theo layout đã thống nhất: `Title & Icon: Value (unit)`.
+*   **REQ-2.4:** Ứng dụng phải phân tích (parse) mảng JSON và hiển thị từng đối tượng lên màn hình theo layout đã thống nhất: `Title & Icon: Value (unit)`. Giao diện được thiết kế để hiển thị tối ưu trên màn hình ngang, sử dụng bố cục lưới để tận dụng không gian.
 *   **REQ-2.5:** Ứng dụng phải có khả năng nhận và áp dụng các thay đổi về cấu hình (ví dụ: thay đổi title, thêm/bớt thông số) được đẩy từ server mà không cần khởi động lại.
 
 **Module 3: Xử lý Lỗi và Phục hồi**
