@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reecotech.androidtvbox.R
 import com.reecotech.androidtvbox.domain.model.StationData
+import com.reecotech.androidtvbox.ui.theme.*
 import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
 
 @Composable
@@ -149,7 +150,8 @@ fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
                 stations.forEach { station ->
                     val value = getValue(station)
                     val cellColor = getColorForValue(value)
-                    TableCell(value, Modifier.weight(1f), cellColor)
+                    val textColor = getTextColorForBackground(cellColor)
+                    TableCell(value, Modifier.weight(1f), cellColor, textColor)
                 }
             }
         }
@@ -177,7 +179,12 @@ fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TableCell(text: String, modifier: Modifier = Modifier, backgroundColor: Color) {
+fun TableCell(
+    text: String, 
+    modifier: Modifier = Modifier, 
+    backgroundColor: Color,
+    textColor: Color = Color.White
+) {
     Box(
         modifier = modifier
             .height(50.dp)
@@ -188,7 +195,7 @@ fun TableCell(text: String, modifier: Modifier = Modifier, backgroundColor: Colo
     ) {
         Text(
             text = text,
-            color = Color.Black,
+            color = textColor,
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
@@ -198,16 +205,24 @@ fun TableCell(text: String, modifier: Modifier = Modifier, backgroundColor: Colo
 
 fun getColorForValue(value: String): Color {
     // Parse numeric value if possible
-    val numValue = value.toDoubleOrNull() ?: return Color(0xFFE0E0E0) // Gray for "--" or invalid
+    val numValue = value.toDoubleOrNull() ?: return NoDataColor // Gray for "--" or invalid
     
-    // Color coding based on level (this is simplified, adjust based on actual requirements)
+    // Color coding based on level (adjust thresholds based on actual requirements)
     return when {
-        numValue < 1.0 -> Color(0xFF00FF00)      // Green (Cấp 0)
-        numValue < 5.0 -> Color(0xFF00FFFF)      // Cyan (Cấp 1)
-        numValue < 10.0 -> Color(0xFFFFFF00)     // Yellow (Cấp 2)
-        numValue < 20.0 -> Color(0xFFFFA500)     // Orange (Cấp 3)
-        numValue < 50.0 -> Color(0xFFFF0000)     // Red (Cấp 4)
-        else -> Color(0xFF800080)                 // Purple (Cấp 5)
+        numValue < 1.0 -> Level0Color      // Cấp 0: #29c717
+        numValue < 5.0 -> Level1Color      // Cấp 1: #b1ffff
+        numValue < 10.0 -> Level2Color     // Cấp 2: #faf58c
+        numValue < 20.0 -> Level3Color     // Cấp 3: #ff9b00
+        numValue < 50.0 -> Level4Color     // Cấp 4: #ff0a00
+        else -> Level5Color                // Cấp 5: #a028a0
+    }
+}
+
+fun getTextColorForBackground(backgroundColor: Color): Color {
+    // Màu đen cho cấp 1 và 2, trắng cho các cấp khác
+    return when (backgroundColor) {
+        Level1Color, Level2Color -> Color.Black
+        else -> Color.White
     }
 }
 
@@ -230,21 +245,21 @@ fun FooterSection(modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.Bold
             )
             Row {
-                LegendItem("Cấp 0: Xanh lá cây - Bình thường", Color(0xFF00FF00))
+                LegendItem("Cấp 0: Xanh lá cây - Bình thường", Level0Color)
                 Spacer(modifier = Modifier.width(8.dp))
-                LegendItem("Cấp 4: Đỏ - Nguy cơ cao, cực đoạn", Color(0xFFFF0000))
+                LegendItem("Cấp 4: Đỏ - Nguy cơ cao, cực đoạn", Level4Color)
             }
             Row {
-                LegendItem("Cấp 1: Xám dương - Nguy cơ thấp", Color(0xFF00FFFF))
+                LegendItem("Cấp 1: Xanh dương nhạt - Nguy cơ thấp", Level1Color)
                 Spacer(modifier = Modifier.width(8.dp))
-                LegendItem("Cấp 5: Tím - Nguy cơ đặc biệt cao", Color(0xFF800080))
+                LegendItem("Cấp 5: Tím - Nguy cơ đặc biệt cao", Level5Color)
             }
             Row {
-                LegendItem("Cấp 2: Vàng - Nguy cơ trung bình", Color(0xFFFFFF00))
+                LegendItem("Cấp 2: Vàng - Nguy cơ trung bình", Level2Color)
                 Spacer(modifier = Modifier.width(8.dp))
-                LegendItem("Xám - Không có dữ liệu", Color(0xFFE0E0E0))
+                LegendItem("Xám - Không có dữ liệu", NoDataColor)
             }
-            LegendItem("Cấp 3: Cam - Nguy cơ cao", Color(0xFFFFA500))
+            LegendItem("Cấp 3: Cam - Nguy cơ cao", Level3Color)
             
             // Contact info
             Spacer(modifier = Modifier.height(4.dp))
