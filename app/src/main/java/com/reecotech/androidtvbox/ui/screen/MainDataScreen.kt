@@ -73,52 +73,14 @@ fun MainDataScreen(state: MainUiState.DisplayingData) {
             Footer(modifier = Modifier.weight(0.15f))
         }
 
-        // Overlay for warnings
-        ConnectionStatusWarning(
-            isFirebaseConnected = state.isFirebaseConnected,
-            isWebSocketConnected = state.isWebSocketConnected,
-            hasJsonError = state.hasJsonError,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-        )
-    }
-}
+            // Overlay for warnings
+            ConnectionStatusWarning(
 
-@Composable
-fun DisplayDataItem(data: com.reecotech.androidtvbox.data.model.DisplayData) {
-    val gradientBrush = Brush.linearGradient(
-        colors = listOf(LightGreen.copy(alpha = 0.5f), LightGreen.copy(alpha = 0.2f))
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DarkBlue.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
-            .border(2.dp, LightGreen, RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = data.title,
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextColor,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = data.value,
-                fontSize = 52.sp,
-                fontWeight = FontWeight.Bold,
-                color = LightGreen,
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = data.unit,
-                fontSize = 28.sp,
-                color = TextColor,
-                modifier = Modifier.padding(bottom = 6.dp)
+                isWebSocketConnected = state.isWebSocketConnected,
+                hasJsonError = state.hasJsonError,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
             )
         }
     }
@@ -158,13 +120,13 @@ fun Footer(modifier: Modifier = Modifier) {
 
 @Composable
 fun ConnectionStatusWarning(
-    isFirebaseConnected: Boolean,
+
     isWebSocketConnected: Boolean,
     hasJsonError: Boolean,
     modifier: Modifier = Modifier
 ) {
     val warningMessage = when {
-        !isFirebaseConnected -> "Mất kết nối"
+
         !isWebSocketConnected -> "Dữ liệu của bạn có thể đã lỗi thời do mất kết nối internet"
         hasJsonError -> "Đã xảy ra lỗi trong phân tích data, dữ liệu có thể đã sai hoặc lỗi thời"
         else -> null

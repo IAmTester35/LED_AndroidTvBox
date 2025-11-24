@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reecotech.androidtvbox.domain.ConnectionStatus
 import com.reecotech.androidtvbox.domain.DeviceRepository
-import com.reecotech.androidtvbox.domain.FirebaseRepository
+
 import com.reecotech.androidtvbox.domain.WebSocketRepository
 import com.reecotech.androidtvbox.domain.model.DeviceStatusState
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
@@ -22,7 +22,7 @@ class MainViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val getDeviceStatusUseCase: GetDeviceStatusUseCase,
     private val webSocketRepository: WebSocketRepository,
-    private val firebaseRepository: FirebaseRepository, // Injected
+
     private val parseDisplayDataUseCase: ParseDisplayDataUseCase
 ) : ViewModel() {
 
@@ -71,10 +71,11 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             combine(
-                firebaseRepository.connectionStatus,
                 webSocketRepository.status,
                 webSocketRepository.messages
-            ) { isFirebaseConnected, wsStatus, jsonMessage ->
+            ) { wsStatus, jsonMessage ->
+
+
 
                 val isWebSocketConnected = wsStatus is ConnectionStatus.Connected
                 val parseResult = parseDisplayDataUseCase(jsonMessage)
@@ -91,7 +92,6 @@ class MainViewModel @Inject constructor(
 
                 MainUiState.DisplayingData(
                     data = newData,
-                    isFirebaseConnected = isFirebaseConnected,
                     isWebSocketConnected = isWebSocketConnected,
                     hasJsonError = hasJsonError
                 )

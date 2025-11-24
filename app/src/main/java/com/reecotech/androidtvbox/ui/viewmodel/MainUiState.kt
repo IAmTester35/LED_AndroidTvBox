@@ -7,7 +7,7 @@ sealed class MainUiState {
     data class WaitingForActivation(val deviceId: String, val statusMessage: String) : MainUiState()
     data class DisplayingData(
         val data: List<DisplayData>,
-        val isFirebaseConnected: Boolean = true,
+
         val isWebSocketConnected: Boolean = true,
         val hasJsonError: Boolean = false
     ) : MainUiState()

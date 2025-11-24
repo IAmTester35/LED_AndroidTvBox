@@ -2,9 +2,7 @@ package com.reecotech.androidtvbox.di
 
 import com.reecotech.androidtvbox.data.repository.WebSocketRepositoryImpl
 import com.reecotech.androidtvbox.data.repository.DeviceRepositoryImpl
-import com.reecotech.androidtvbox.data.repository.FirebaseRepositoryImpl
 import com.reecotech.androidtvbox.domain.DeviceRepository
-import com.reecotech.androidtvbox.domain.FirebaseRepository
 import com.reecotech.androidtvbox.domain.WebSocketRepository
 import dagger.Binds
 import dagger.Module
@@ -28,9 +26,5 @@ abstract class RepositoryModule {
         webSocketRepositoryImpl: WebSocketRepositoryImpl
     ): WebSocketRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindFirebaseRepository(
-        firebaseRepositoryImpl: FirebaseRepositoryImpl
-    ): FirebaseRepository
+
 }

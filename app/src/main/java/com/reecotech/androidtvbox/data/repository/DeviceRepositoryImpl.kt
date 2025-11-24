@@ -6,15 +6,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.reecotech.androidtvbox.data.model.DeviceStatus
 import com.reecotech.androidtvbox.domain.DeviceRepository
-import com.reecotech.androidtvbox.domain.FirebaseRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 
 class DeviceRepositoryImpl @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
-    private val firebaseRepository: FirebaseRepository
+    private val dataStore: DataStore<Preferences>
 ) : DeviceRepository {
 
     private object PreferencesKeys {
@@ -34,10 +33,10 @@ class DeviceRepositoryImpl @Inject constructor(
     }
 
     override fun requestActivation(deviceId: String) {
-        firebaseRepository.requestActivation(deviceId)
+        // No-op
     }
 
     override fun listenForDeviceStatus(deviceId: String): Flow<DeviceStatus> {
-        return firebaseRepository.listenForDeviceStatus(deviceId)
+        return flowOf(DeviceStatus(status = "activate"))
     }
 }
