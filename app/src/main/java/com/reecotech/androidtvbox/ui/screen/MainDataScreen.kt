@@ -28,7 +28,7 @@ fun MainDataScreen(state: MainUiState) {
     Box(modifier = Modifier.fillMaxSize().background(Color(0xFF87CEEB))) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
-            HeaderSection()
+            HeaderSection(state = state)
             
             // Table
             StationTable(stations = state.stations, modifier = Modifier.weight(1f))
@@ -48,7 +48,7 @@ fun MainDataScreen(state: MainUiState) {
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(state: MainUiState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,7 +102,7 @@ fun HeaderSection() {
             horizontalArrangement = Arrangement.End
         ) {
             Text(
-                text = "Thời gian cập nhật: Đang tải...",
+                text = "Thời gian cập nhật: ${state.lastUpdateTime.ifEmpty { "Đang tải..." }}",
                 color = Color.White,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(end = 16.dp)
