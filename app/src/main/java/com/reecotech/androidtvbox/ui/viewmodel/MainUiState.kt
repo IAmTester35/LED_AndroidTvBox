@@ -1,15 +1,11 @@
 package com.reecotech.androidtvbox.ui.viewmodel
 
-import com.reecotech.androidtvbox.data.model.DisplayData
+import com.reecotech.androidtvbox.domain.model.StationData
 
-sealed class MainUiState {
-    object Loading : MainUiState()
-    data class WaitingForActivation(val deviceId: String, val statusMessage: String) : MainUiState()
-    data class DisplayingData(
-        val data: List<DisplayData>,
+data class MainUiState(
+    val stations: List<StationData> = emptyList(),
+    val isWebSocketConnected: Boolean = true,
+    val hasJsonError: Boolean = false,
+    val lastUpdateTime: String = ""
+)
 
-        val isWebSocketConnected: Boolean = true,
-        val hasJsonError: Boolean = false
-    ) : MainUiState()
-    data class DeviceDisabled(val reason: String?) : MainUiState()
-}
