@@ -20,9 +20,9 @@ object UiConstants {
     
     // Sizes
     val LOGO_GOVERNMENT_SIZE = 70.dp
-    val LOGO_REECO_WIDTH = 90.dp
-    val LOGO_REECO_HEIGHT = 30.dp
-    val QR_CODE_SIZE = 18.dp
+    val LOGO_REECO_WIDTH = 120.dp
+    val LOGO_REECO_HEIGHT = 40.dp
+    val QR_CODE_SIZE = 22.dp
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 8.dp

@@ -89,14 +89,53 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
         modifier = modifier
             .height(UiConstants.TABLE_CELL_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
-            .background(HeaderBackground)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            drawLine(
-                color = Color.White,
-                start = Offset(0f, 0f),
-                end = Offset(size.width, size.height),
-                strokeWidth = UiConstants.BORDER_WIDTH.toPx()
+            val strokeWidth = UiConstants.BORDER_WIDTH.toPx()
+            val halfStroke = strokeWidth / 2
+            
+            // Calculate diagonal length and offsets
+            val diagLen = kotlin.math.sqrt(size.width * size.width + size.height * size.height)
+            
+            // Vector perpendicular to diagonal (w, h) is (h, -w)
+            // We want to move in direction (h, -w) for the upper triangle
+            // Shift vector s = (sx, sy) = (halfStroke * h/len, -halfStroke * w/len)
+            val sx = halfStroke * size.height / diagLen
+            val sy = -halfStroke * size.width / diagLen
+            
+            // Top-Right Triangle (Upper)
+            // Intersection with Top Edge (y=0): x_top = sx - sy*w/h
+            // Intersection with Right Edge (x=w): y_right = sy + h - sx*h/w
+            
+            val x_top = sx - sy * size.width / size.height
+            val y_right = sy + size.height - sx * size.height / size.width
+            
+            drawPath(
+                path = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(size.width, 0f) // Top Right Corner
+                    lineTo(size.width, y_right) // Intersection with Right Edge
+                    lineTo(x_top, 0f) // Intersection with Top Edge
+                    close()
+                },
+                color = HeaderBackground
+            )
+            
+            // Bottom-Left Triangle (Lower)
+            // Shift in opposite direction (-sx, -sy)
+            // Intersection with Left Edge (x=0): y_left = -sy + sx*h/w
+            // Intersection with Bottom Edge (y=h): x_bottom = -sx + w + sy*w/h
+            
+            val y_left = -sy + sx * size.height / size.width
+            val x_bottom = -sx + size.width + sy * size.width / size.height
+            
+            drawPath(
+                path = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(0f, size.height) // Bottom Left Corner
+                    lineTo(x_bottom, size.height) // Intersection with Bottom Edge
+                    lineTo(0f, y_left) // Intersection with Left Edge
+                    close()
+                },
+                color = HeaderBackground
             )
         }
         
