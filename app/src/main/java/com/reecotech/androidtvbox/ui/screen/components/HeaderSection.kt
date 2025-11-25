@@ -1,5 +1,6 @@
 package com.reecotech.androidtvbox.ui.screen.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,15 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.reecotech.androidtvbox.R
 import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Header section with title, logo, and last update time
@@ -28,7 +34,6 @@ fun HeaderSection(state: MainUiState) {
         modifier = Modifier
             .fillMaxWidth()
             .background(createHeaderGradient())
-            .alpha(UiConstants.HEADER_OPACITY)
             .padding(vertical = UiConstants.PADDING_SMALL),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -84,20 +89,26 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
     ) {
         Row(
             modifier = Modifier
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_UPDATE_BADGE),
+                    spotColor = Color.Black.copy(alpha = 0.25f)
+                )
                 .background(
-                    color = UiConstants.BADGE_BACKGROUND,
+                    color = Color(0xFFD7F9FF),
                     shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_UPDATE_BADGE)
                 )
                 .padding(
                     horizontal = UiConstants.PADDING_SMALL,
-                    vertical = UiConstants.PADDING_SMALL
+                    vertical = UiConstants.SPACING_TINY
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = UiConstants.UPDATE_TIME_ICON,
-                fontSize = UiConstants.FONT_SIZE_SMALL
+            ClockIcon(
+                size = 12.dp,
+                color = UiConstants.BADGE_TEXT
             )
+            Spacer(modifier = Modifier.width(UiConstants.SPACING_SMALL))
             Text(
                 text = "${UiConstants.UPDATE_TIME_PREFIX}${lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT }}",
                 color = UiConstants.BADGE_TEXT,
@@ -105,6 +116,61 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
                 fontWeight = FontWeight.SemiBold
             )
         }
+    }
+}
+
+@Composable
+private fun ClockIcon(
+    size: androidx.compose.ui.unit.Dp,
+    color: Color
+) {
+    Canvas(modifier = Modifier.size(size)) {
+        val canvasSize = this.size.minDimension
+        val center = Offset(canvasSize / 2, canvasSize / 2)
+        val radius = canvasSize / 2
+        
+        // Draw clock circle
+        drawCircle(
+            color = color,
+            radius = radius,
+            center = center,
+            style = Stroke(width = radius * 0.15f)
+        )
+        
+        // Draw hour hand (pointing to 10 o'clock)
+        val hourAngle = Math.toRadians(-60.0) // 10 o'clock position
+        val hourHandLength = radius * 0.5f
+        drawLine(
+            color = color,
+            start = center,
+            end = Offset(
+                center.x + (hourHandLength * cos(hourAngle)).toFloat(),
+                center.y + (hourHandLength * sin(hourAngle)).toFloat()
+            ),
+            strokeWidth = radius * 0.12f,
+            cap = StrokeCap.Round
+        )
+        
+        // Draw minute hand (pointing to 2 o'clock)
+        val minuteAngle = Math.toRadians(60.0) // 2 o'clock position
+        val minuteHandLength = radius * 0.7f
+        drawLine(
+            color = color,
+            start = center,
+            end = Offset(
+                center.x + (minuteHandLength * cos(minuteAngle)).toFloat(),
+                center.y + (minuteHandLength * sin(minuteAngle)).toFloat()
+            ),
+            strokeWidth = radius * 0.12f,
+            cap = StrokeCap.Round
+        )
+        
+        // Draw center dot
+        drawCircle(
+            color = color,
+            radius = radius * 0.1f,
+            center = center
+        )
     }
 }
 

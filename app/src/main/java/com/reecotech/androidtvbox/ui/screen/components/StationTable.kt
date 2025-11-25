@@ -28,15 +28,8 @@ fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL)
     ) {
-        // Use negative margin and clip to hide outer borders
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(
-                    x = -UiConstants.BORDER_WIDTH,
-                    y = -UiConstants.BORDER_WIDTH
-                )
-                .clipToBounds()
+            modifier = Modifier.fillMaxWidth()
         ) {
             TableHeaderRow(stations = stations)
             TableParameterRows(
@@ -50,9 +43,7 @@ fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
 @Composable
 private fun TableHeaderRow(stations: List<StationData>) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(UiConstants.BORDER_WIDTH, UiConstants.GRID_BORDER_COLOR)
+        modifier = Modifier.fillMaxWidth()
     ) {
         CornerHeaderCell(Modifier.weight(1.2f))
         stations.forEach { station ->
@@ -68,15 +59,14 @@ private fun TableParameterRows(
 ) {
     parameters.forEach { parameter ->
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(UiConstants.BORDER_WIDTH, UiConstants.GRID_BORDER_COLOR)
+            modifier = Modifier.fillMaxWidth()
         ) {
             TableCell(
                 text = parameter.name,
                 modifier = Modifier.weight(1.2f),
                 backgroundColor = HeaderBackground,
-                textColor = HeaderText
+                textColor = HeaderText,
+                isParameterCell = true
             )
             stations.forEach { station ->
                 val value = parameter.valueExtractor(station)
@@ -98,8 +88,8 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .height(UiConstants.TABLE_CELL_HEIGHT)
+            .padding(UiConstants.BORDER_WIDTH / 2)
             .background(HeaderBackground)
-            .border(UiConstants.BORDER_WIDTH, UiConstants.GRID_BORDER_COLOR)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawLine(
@@ -145,8 +135,8 @@ fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .height(UiConstants.TABLE_CELL_HEIGHT)
+            .padding(UiConstants.BORDER_WIDTH / 2)
             .background(HeaderBackground)
-            .border(UiConstants.BORDER_WIDTH, UiConstants.GRID_BORDER_COLOR)
             .padding(UiConstants.PADDING_SMALL),
         contentAlignment = Alignment.Center
     ) {
@@ -166,14 +156,18 @@ fun TableCell(
     text: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color,
-    textColor: Color = Color.White
+    textColor: Color = Color.White,
+    isParameterCell: Boolean = false
 ) {
     Box(
         modifier = modifier
             .height(UiConstants.TABLE_CELL_HEIGHT)
+            .padding(UiConstants.BORDER_WIDTH / 2)
             .background(backgroundColor)
-            .border(UiConstants.BORDER_WIDTH, UiConstants.GRID_BORDER_COLOR)
-            .padding(UiConstants.PADDING_SMALL),
+            .padding(
+                horizontal = UiConstants.PADDING_SMALL,
+                vertical = if (isParameterCell) UiConstants.SPACING_TINY else UiConstants.PADDING_SMALL
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -181,7 +175,8 @@ fun TableCell(
             color = textColor,
             fontSize = UiConstants.FONT_SIZE_SMALL,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            lineHeight = if (isParameterCell) UiConstants.FONT_SIZE_SMALL else UiConstants.LINE_HEIGHT_SMALL
         )
     }
 }

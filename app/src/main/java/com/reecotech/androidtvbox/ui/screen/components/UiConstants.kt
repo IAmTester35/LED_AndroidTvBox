@@ -19,22 +19,23 @@ object UiConstants {
     val SPACING_LARGE = 12.dp
     
     // Sizes
-    val LOGO_GOVERNMENT_SIZE = 75.dp
-    val LOGO_REECO_WIDTH = 140.dp
-    val LOGO_REECO_HEIGHT = 50.dp
-    val QR_CODE_SIZE = 24.dp
+    val LOGO_GOVERNMENT_SIZE = 70.dp
+    val LOGO_REECO_WIDTH = 90.dp
+    val LOGO_REECO_HEIGHT = 30.dp
+    val QR_CODE_SIZE = 18.dp
+    val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
-    val LEGEND_INDICATOR_SIZE = 12.dp
-    val TABLE_CELL_HEIGHT = 50.dp
-    val BORDER_WIDTH = 3.dp
+    val LEGEND_INDICATOR_SIZE = 8.dp
+    val TABLE_CELL_HEIGHT = 45.dp
+    val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
-    val CORNER_RADIUS_UPDATE_BADGE = 8.dp
+    val CORNER_RADIUS_UPDATE_BADGE = 10.dp
     val CORNER_RADIUS_MEDIUM = 16.dp
     
     // Font sizes
-    val FONT_SIZE_TINY = 8.sp
-    val FONT_SIZE_SMALL = 10.sp
+    val FONT_SIZE_TINY = 7.sp
+    val FONT_SIZE_SMALL = 8.sp
     val FONT_SIZE_NORMAL = 12.sp
     val FONT_SIZE_MEDIUM = 14.sp
     val FONT_SIZE_LARGE = 18.sp

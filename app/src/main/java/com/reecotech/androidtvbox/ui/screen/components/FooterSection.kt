@@ -23,15 +23,17 @@ fun FooterSection(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .background(UiConstants.FOOTER_BACKGROUND)
             .padding(
-                horizontal = UiConstants.PADDING_LARGE,
+                horizontal = UiConstants.PADDING_MEDIUM,
                 vertical = UiConstants.PADDING_SMALL
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         LegendAndSupportSection(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(UiConstants.SPACING_TINY))
+        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
         BrandingSection()
+        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
+        MonitoringDataQRSection()
     }
 }
 
@@ -50,12 +52,19 @@ private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
         
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
         
-        Text(
-            text = UiConstants.SUPPORT_TEXT,
-            color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_NORMAL,
-            fontWeight = FontWeight.SemiBold
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(UiConstants.PADDING_SMALL)
+        ) {
+            Text(
+                text = UiConstants.SUPPORT_TEXT,
+                color = Color.White,
+                fontSize = UiConstants.FONT_SIZE_SMALL,
+                fontWeight = FontWeight.SemiBold
+            )
+            
+            SocialQRCodeRow()
+        }
     }
 }
 
@@ -76,7 +85,7 @@ private fun LegendGrid() {
                     }
             }
             if (columnIndex < columnCount - 1) {
-                Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM))
+                Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL))
             }
         }
     }
@@ -102,7 +111,7 @@ private fun LegendItemRow(text: String, color: Color) {
 @Composable
 private fun BrandingSection() {
     Column(
-        horizontalAlignment = Alignment.End,
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
@@ -112,15 +121,11 @@ private fun BrandingSection() {
                 .width(UiConstants.LOGO_REECO_WIDTH)
                 .height(UiConstants.LOGO_REECO_HEIGHT)
         )
-        
-        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-        
-        QRCodeRow()
     }
 }
 
 @Composable
-private fun QRCodeRow() {
+private fun SocialQRCodeRow() {
     Row(
         horizontalArrangement = Arrangement.spacedBy(UiConstants.PADDING_SMALL),
         verticalAlignment = Alignment.CenterVertically
@@ -130,7 +135,7 @@ private fun QRCodeRow() {
             R.drawable.qr_linkedin,
             R.drawable.qr_youtube,
             R.drawable.qr_tiktok,
-            R.drawable.qr_facebook2,
+            R.drawable.qr_facebook,
             R.drawable.qr_zalo
         ).forEach { qrDrawable ->
             Image(
@@ -141,3 +146,32 @@ private fun QRCodeRow() {
         }
     }
 }
+
+@Composable
+private fun MonitoringDataQRSection() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .background(
+                color = Color.White,
+                shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_SMALL)
+            )
+            .padding(UiConstants.PADDING_SMALL)
+    ) {
+        Text(
+            text = "Số liệu quan trắc",
+            color = Color.Black,
+            fontSize = UiConstants.FONT_SIZE_SMALL,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = UiConstants.SPACING_TINY)
+        )
+        
+        Image(
+            painter = painterResource(id = R.drawable.qr_code),
+            contentDescription = "Monitoring Data QR Code",
+            modifier = Modifier.size(UiConstants.QR_CODE_LARGE_SIZE)
+        )
+    }
+}
+
