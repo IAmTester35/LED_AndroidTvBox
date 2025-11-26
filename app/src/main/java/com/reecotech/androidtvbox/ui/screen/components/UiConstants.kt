@@ -22,7 +22,7 @@ object UiConstants {
     val LOGO_GOVERNMENT_SIZE = 70.dp
     val LOGO_REECO_WIDTH = 120.dp
     val LOGO_REECO_HEIGHT = 40.dp
-    val QR_CODE_SIZE = 22.dp
+    val QR_CODE_SIZE = 26.dp
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 8.dp
@@ -30,8 +30,12 @@ object UiConstants {
     val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
-    val CORNER_RADIUS_UPDATE_BADGE = 10.dp
+    val CORNER_RADIUS_UPDATE_BADGE = 6.dp
     val CORNER_RADIUS_MEDIUM = 16.dp
+    
+    // Column Widths (Percentage of screen width)
+    const val COLUMN_WIDTH_PERCENT_FIRST = 0.14f
+    const val COLUMN_WIDTH_PERCENT_OTHERS = 0.076f
     
     // Font sizes
     val FONT_SIZE_TINY = 7.sp
@@ -39,8 +43,8 @@ object UiConstants {
     val FONT_SIZE_NORMAL = 12.sp
     val FONT_SIZE_MEDIUM = 14.sp
     val FONT_SIZE_LARGE = 18.sp
-    val FONT_SIZE_HEADER_TITLE = 26.sp
-    val FONT_SIZE_HEADER_SUBTITLE = 22.sp
+    val FONT_SIZE_HEADER_TITLE = 22.sp
+    val FONT_SIZE_HEADER_SUBTITLE = 24.sp
     val FONT_SIZE_HUGE = 32.sp
     val LINE_HEIGHT_SMALL = 12.sp
     
@@ -50,7 +54,7 @@ object UiConstants {
     val ERROR_RED = Color(0xFFCC0000)
     val FOOTER_BACKGROUND = Color.Transparent
     val BADGE_BACKGROUND = Color(0xE6FFFFFF)
-    val BADGE_TEXT = Color(0xFF006064)
+    val BADGE_TEXT = Color(0xFF004A74)
     val INVALID_TEXT_COLOR = Color(0xFF666666)
     
     // Header Gradient
@@ -69,9 +73,9 @@ object UiConstants {
     val BODY_GRADIENT_COLOR_1 = Color(0xFF01D7FD)
     val BODY_GRADIENT_COLOR_2 = Color(0xFF114656)
     val BODY_GRADIENT_COLOR_3 = Color(0xFF002C5C)
-    val BODY_GRADIENT_STOP_1 = 0.0f
-    val BODY_GRADIENT_STOP_2 = 0.6587f
-    val BODY_GRADIENT_STOP_3 = 1.0f
+    val BODY_GRADIENT_STOP_1 = -0.4106f
+    val BODY_GRADIENT_STOP_2 = 0.4859f
+    val BODY_GRADIENT_STOP_3 = 0.931f
     
     // Text
     const val HEADER_TITLE = "SỞ NÔNG NGHIỆP VÀ MÔI TRƯỜNG TỈNH VĨNH LONG"

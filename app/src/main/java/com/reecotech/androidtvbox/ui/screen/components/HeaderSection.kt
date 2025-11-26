@@ -24,6 +24,8 @@ import com.reecotech.androidtvbox.R
 import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
 import kotlin.math.cos
 import kotlin.math.sin
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.graphics.Shadow
 
 /**
  * Header section with title, logo, and last update time
@@ -63,17 +65,31 @@ private fun HeaderContent() {
         ) {
             Text(
                 text = UiConstants.HEADER_TITLE,
-                color = Color.Red,
+                color = Color(0xFFFF0000),
                 fontSize = UiConstants.FONT_SIZE_HEADER_TITLE,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black,
+                        offset = Offset(2f, 2f),
+                        blurRadius = 4f
+                    )
+                )
             )
             Text(
                 text = UiConstants.HEADER_SUBTITLE,
-                color = Color.Yellow,
+                color = Color(0xFFFFE75E),
                 fontSize = UiConstants.FONT_SIZE_HEADER_SUBTITLE,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black,
+                        offset = Offset(2f, 2f),
+                        blurRadius = 4f
+                    )
+                )
             )
         }
     }
@@ -84,7 +100,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.SPACING_TINY),
+            .padding(horizontal = UiConstants.PADDING_MEDIUM),
         horizontalArrangement = Arrangement.End
     ) {
         Row(
@@ -113,7 +129,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
                 text = "${UiConstants.UPDATE_TIME_PREFIX}${lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT }}",
                 color = UiConstants.BADGE_TEXT,
                 fontSize = UiConstants.FONT_SIZE_SMALL,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
         }
     }

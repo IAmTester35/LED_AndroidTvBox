@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -23,31 +24,40 @@ import com.reecotech.androidtvbox.ui.theme.HeaderText
  */
 @Composable
 fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM)),
     ) {
+        val firstColWidth = maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_FIRST
+        val otherColWidth = maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_OTHERS
+
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM))
         ) {
-            TableHeaderRow(stations = stations)
+            TableHeaderRow(stations = stations, firstColWidth = firstColWidth, otherColWidth = otherColWidth)
             TableParameterRows(
                 stations = stations,
-                parameters = createTableParameters()
+                parameters = createTableParameters(),
+                firstColWidth = firstColWidth,
+                otherColWidth = otherColWidth
             )
         }
     }
 }
 
 @Composable
-private fun TableHeaderRow(stations: List<StationData>) {
+private fun TableHeaderRow(stations: List<StationData>, firstColWidth: androidx.compose.ui.unit.Dp, otherColWidth: androidx.compose.ui.unit.Dp) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
-        CornerHeaderCell(Modifier.weight(1.2f))
+        CornerHeaderCell(Modifier.width(firstColWidth))
         stations.forEach { station ->
-            TableHeaderCell(station.stationName, Modifier.weight(1f))
+            TableHeaderCell(station.stationName, Modifier.width(otherColWidth))
         }
     }
 }
@@ -55,15 +65,18 @@ private fun TableHeaderRow(stations: List<StationData>) {
 @Composable
 private fun TableParameterRows(
     stations: List<StationData>,
-    parameters: List<TableParameter>
+    parameters: List<TableParameter>,
+    firstColWidth: androidx.compose.ui.unit.Dp,
+    otherColWidth: androidx.compose.ui.unit.Dp
 ) {
     parameters.forEach { parameter ->
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             TableCell(
                 text = parameter.name,
-                modifier = Modifier.weight(1.2f),
+                modifier = Modifier.width(firstColWidth),
                 backgroundColor = HeaderBackground,
                 textColor = HeaderText,
                 isParameterCell = true
@@ -74,7 +87,7 @@ private fun TableParameterRows(
                 val txtColor = getTextColorForValue(value)
                 TableCell(
                     text = value,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.width(otherColWidth),
                     backgroundColor = bgColor,
                     textColor = txtColor
                 )
@@ -147,7 +160,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
             Text(
                 text = UiConstants.TABLE_HEADER_STATION,
                 color = HeaderText,
-                fontSize = UiConstants.FONT_SIZE_SMALL,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End
             )
@@ -161,7 +174,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
             Text(
                 text = UiConstants.TABLE_HEADER_PARAMETER,
                 color = HeaderText,
-                fontSize = UiConstants.FONT_SIZE_SMALL,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
             )
@@ -182,7 +195,7 @@ fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text,
             color = HeaderText,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
+            fontSize = UiConstants.FONT_SIZE_NORMAL,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             lineHeight = UiConstants.LINE_HEIGHT_SMALL
@@ -212,10 +225,10 @@ fun TableCell(
         Text(
             text = text,
             color = textColor,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
+            fontSize = UiConstants.FONT_SIZE_MEDIUM,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            lineHeight = if (isParameterCell) UiConstants.FONT_SIZE_SMALL else UiConstants.LINE_HEIGHT_SMALL
+            lineHeight = if (isParameterCell) UiConstants.FONT_SIZE_MEDIUM else UiConstants.LINE_HEIGHT_SMALL
         )
     }
 }

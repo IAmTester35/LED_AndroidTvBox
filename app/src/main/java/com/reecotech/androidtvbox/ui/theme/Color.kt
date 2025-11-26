@@ -28,7 +28,7 @@ val Level4Color = Color(0xFFff0a00)   // Cấp 4: Đỏ
 val Level5Color = Color(0xFFa028a0)   // Cấp 5: Tím
 
 // Background Colors - New Design
-val DataCellBackground = Color(0xFFD7F9FF)   // Xanh rất nhạt (Khi có dữ liệu)
+val DataCellBackground = Color(0x0FD7F9FF)   // Xanh rất nhạt (Khi có dữ liệu)
 val NullCellBackground = Color(0xFFC9C9C9)   // Xám (Khi giá trị là --)
 val HeaderBackground = Color(0xFFBCF5FF)     // Xanh ngọc nhạt (Header)
 val HeaderText = Color(0xFF004A75)           // Xanh rêu đậm (Header Text)

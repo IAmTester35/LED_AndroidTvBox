@@ -1,6 +1,6 @@
 package com.reecotech.androidtvbox.ui.screen.components
 
-import androidx.compose.foundation.background
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -22,7 +22,24 @@ fun BodySection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(createBodyGradient())
+            .drawBehind {
+                val startY = size.height * UiConstants.BODY_GRADIENT_STOP_1
+                val endY = size.height * UiConstants.BODY_GRADIENT_STOP_3
+                
+                val range = UiConstants.BODY_GRADIENT_STOP_3 - UiConstants.BODY_GRADIENT_STOP_1
+                val middleStop = (UiConstants.BODY_GRADIENT_STOP_2 - UiConstants.BODY_GRADIENT_STOP_1) / range
+
+                val brush = Brush.linearGradient(
+                    colorStops = arrayOf(
+                        0.0f to UiConstants.BODY_GRADIENT_COLOR_1,
+                        middleStop to UiConstants.BODY_GRADIENT_COLOR_2,
+                        1.0f to UiConstants.BODY_GRADIENT_COLOR_3
+                    ),
+                    start = Offset(0f, startY),
+                    end = Offset(0f, endY)
+                )
+                drawRect(brush = brush)
+            }
     ) {
         UpdateTimeBadge(lastUpdateTime = lastUpdateTime)
         StationTable(
@@ -32,16 +49,3 @@ fun BodySection(
         FooterSection(modifier = Modifier.wrapContentHeight())
     }
 }
-
-private fun createBodyGradient() = Brush.radialGradient(
-    colorStops = arrayOf(
-        UiConstants.BODY_GRADIENT_STOP_1 to UiConstants.BODY_GRADIENT_COLOR_1,
-        UiConstants.BODY_GRADIENT_STOP_2 to UiConstants.BODY_GRADIENT_COLOR_2,
-        UiConstants.BODY_GRADIENT_STOP_3 to UiConstants.BODY_GRADIENT_COLOR_3
-    ),
-    center = Offset(
-        UiConstants.BODY_GRADIENT_CENTER_X,
-        UiConstants.BODY_GRADIENT_CENTER_Y
-    ),
-    radius = Float.POSITIVE_INFINITY
-)
