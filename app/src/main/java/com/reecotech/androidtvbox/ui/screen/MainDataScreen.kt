@@ -3,8 +3,10 @@ package com.reecotech.androidtvbox.ui.screen
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.reecotech.androidtvbox.ui.screen.components.BodySection
 import com.reecotech.androidtvbox.ui.screen.components.DisconnectOverlay
 import com.reecotech.androidtvbox.ui.screen.components.HeaderSection
@@ -21,7 +23,10 @@ import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
  */
 @Composable
 fun MainDataScreen(state: MainUiState) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderSection(state = state)
             BodySection(

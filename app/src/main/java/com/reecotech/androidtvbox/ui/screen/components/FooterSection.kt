@@ -179,7 +179,8 @@ private fun BrandingSection() {
 @Composable
 private fun SocialQRCodeRow() {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(UiConstants.PADDING_SMALL, Alignment.CenterHorizontally),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End),
         verticalAlignment = Alignment.CenterVertically
     ) {
         listOf(
@@ -193,7 +194,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(UiConstants.QR_CODE_SIZE)
+                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.65f)
             )
         }
     }
