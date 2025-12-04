@@ -23,6 +23,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        checkOverlayPermission()
+
         setContent {
             AndroidTVBoxTheme {
                 val uiState by viewModel.uiState.collectAsState()
@@ -34,6 +37,18 @@ class MainActivity : ComponentActivity() {
                         MainDataScreen(state = uiState)
                     }
                 }
+            }
+        }
+    }
+
+    private fun checkOverlayPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                val intent = android.content.Intent(
+                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    android.net.Uri.parse("package:$packageName")
+                )
+                startActivityForResult(intent, 123)
             }
         }
     }
