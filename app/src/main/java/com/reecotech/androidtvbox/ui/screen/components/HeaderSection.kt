@@ -3,10 +3,15 @@ package com.reecotech.androidtvbox.ui.screen.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,6 +50,10 @@ fun HeaderSection(state: MainUiState) {
 
 @Composable
 private fun HeaderContent() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var clickCount by remember { mutableStateOf(0) }
+    var lastClickTime by remember { mutableStateOf(0L) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -55,7 +64,27 @@ private fun HeaderContent() {
         Image(
             painter = painterResource(id = R.drawable.logo_government),
             contentDescription = "Government Logo",
-            modifier = Modifier.size(UiConstants.LOGO_GOVERNMENT_SIZE)
+            modifier = Modifier
+                .size(UiConstants.LOGO_GOVERNMENT_SIZE)
+                .clickable {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastClickTime > 2000) {
+                        clickCount = 0
+                    }
+                    clickCount++
+                    lastClickTime = currentTime
+
+                    if (clickCount >= 5) {
+                        clickCount = 0
+                        try {
+                            val intent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            android.widget.Toast.makeText(context, "Cannot open Settings", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
         )
         Spacer(modifier = Modifier.width(UiConstants.SPACING_LARGE))
         
