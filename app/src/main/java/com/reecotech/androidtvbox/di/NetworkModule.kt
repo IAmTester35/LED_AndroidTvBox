@@ -9,6 +9,9 @@ import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+import okhttp3.MediaType.Companion.toMediaType
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -40,19 +43,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGson(): com.google.gson.Gson {
-        return com.google.gson.GsonBuilder()
-            .setLenient()
-            .create()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, gson: com.google.gson.Gson): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val networkJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+        val contentType = "application/json".toMediaType()
+        
         return Retrofit.Builder()
             .baseUrl(com.reecotech.androidtvbox.util.Constants.API_BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create(gson))
+            .addConverterFactory(networkJson.asConverterFactory(contentType))
             .build()
     }
 

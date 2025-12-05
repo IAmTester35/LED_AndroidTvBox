@@ -1,23 +1,27 @@
 package com.reecotech.androidtvbox.data.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class StationResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("data") val data: List<Station>
+    @SerialName("success") val success: Boolean,
+    @SerialName("data") val data: List<Station>
 )
 
+@Serializable
 data class Station(
-    @SerializedName("stationId") val stationId: String,
-    @SerializedName("stationName") val stationName: String,
-    @SerializedName("connectionStatus") val connectionStatus: String,
-    @SerializedName("parameters") val parameters: List<Parameter>
+    @SerialName("stationId") val stationId: String,
+    @SerialName("stationName") val stationName: String,
+    @SerialName("connectionStatus") val connectionStatus: String,
+    @SerialName("parameters") val parameters: List<Parameter>
 )
 
+@Serializable
 data class Parameter(
-    @SerializedName("parameterId") val parameterId: Int,
-    @SerializedName("parameterName") val parameterName: String,
-    @SerializedName("value") val value: Double?,
-    @SerializedName("alarmLevel") val alarmLevel: Int?,
-    @SerializedName("timestamp") val timestamp: String?
+    @SerialName("parameterId") val parameterId: Int,
+    @SerialName("parameterName") val parameterName: String,
+    @SerialName("value") val value: Double?,
+    @SerialName("alarmLevel") val alarmLevel: Int?,
+    @SerialName("timestamp") val timestamp: String?
 )

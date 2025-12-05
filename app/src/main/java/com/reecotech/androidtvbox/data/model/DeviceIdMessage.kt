@@ -1,7 +1,9 @@
 package com.reecotech.androidtvbox.data.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DeviceIdMessage(
-    @SerializedName("deviceId") val deviceId: String
+    @SerialName("deviceId") val deviceId: String
 )

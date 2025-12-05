@@ -1,10 +1,12 @@
 package com.reecotech.androidtvbox.data.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DisplayData(
-    @SerializedName("id") val id: String,
-    @SerializedName("title") val title: String,
-    @SerializedName("value") val value: String,
-    @SerializedName("unit") val unit: String
+    @SerialName("id") val id: String,
+    @SerialName("title") val title: String,
+    @SerialName("value") val value: String,
+    @SerialName("unit") val unit: String
 )
