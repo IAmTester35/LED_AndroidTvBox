@@ -36,22 +36,39 @@ class StationRepositoryImpl @Inject constructor(
 
         _status.value = ConnectionStatus.Connecting
         pollingJob = pollingScope.launch {
+            var consecutiveFailures = 0
             while (isActive) {
+                var nextDelay = 30 * 1000L // Default 30s for success
                 try {
                     val response = apiService.getLatestStationData()
                     if (response.success) {
                         val stationDataList = mapToStationData(response)
                         _stations.value = stationDataList
                         _status.value = ConnectionStatus.Connected
+                        consecutiveFailures = 0
                     } else {
-                        _status.value = ConnectionStatus.Error("API returned success=false")
+                        throw Exception("API returned success=false")
                     }
                 } catch (e: Exception) {
+                    consecutiveFailures++
                     Timber.e(e, "Error fetching station data")
-                    _status.value = ConnectionStatus.Error("${e.javaClass.simpleName}: ${e.message}")
+                    
+                    val errorMessage = if (e.message == "API returned success=false") {
+                         "API returned success=false"
+                    } else {
+                        "${e.javaClass.simpleName}: ${e.message}"
+                    }
+                    _status.value = ConnectionStatus.Error(errorMessage)
+
+                    nextDelay = when (consecutiveFailures) {
+                        1 -> 2_000L
+                        2 -> 4_000L
+                        3 -> 16_000L
+                        else -> 30_000L
+                    }
                 }
 
-                delay(60 * 1000L) // 1 minute delay
+                delay(nextDelay)
             }
         }
     }
