@@ -27,6 +27,7 @@ object UiConstants {
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 8.dp
     val TABLE_CELL_HEIGHT = 45.dp
+    val TABLE_HEADER_HEIGHT = 65.dp
     val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp

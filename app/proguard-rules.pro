@@ -14,8 +14,40 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Gson
+-keep class com.google.gson.** { *; }
+-keep interface com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+-dontwarn com.google.gson.**
+
+# Retrofit
+-keepattributes Signature
+-keepattributes Exceptions
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-keepclasseswithmembers class * {
+    @retrofit2.http.* <methods>;
+}
+
+# Kotlin
+-keep class kotlin.reflect.** { *; }
+-keep interface kotlin.reflect.** { *; }
+
+# Data Models (Keep them to avoid obfuscation issues with reflection/serialization)
+-keep class com.reecotech.androidtvbox.data.model.** { *; }
+
+# OkHttp
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-dontwarn okhttp3.**

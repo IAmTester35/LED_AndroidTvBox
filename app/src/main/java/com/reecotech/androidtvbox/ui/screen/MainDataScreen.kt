@@ -39,7 +39,8 @@ fun MainDataScreen(state: MainUiState) {
         if (!state.isWebSocketConnected || state.hasJsonError) {
             DisconnectOverlay(
                 isWebSocketConnected = state.isWebSocketConnected,
-                hasJsonError = state.hasJsonError
+                hasJsonError = state.hasJsonError,
+                errorMessage = state.errorMessage
             )
         }
     }

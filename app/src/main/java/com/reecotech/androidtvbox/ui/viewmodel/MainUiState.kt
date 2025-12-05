@@ -6,6 +6,7 @@ data class MainUiState(
     val stations: List<StationData> = emptyList(),
     val isWebSocketConnected: Boolean = true,
     val hasJsonError: Boolean = false,
-    val lastUpdateTime: String = ""
+    val lastUpdateTime: String = "",
+    val errorMessage: String? = null
 )
 

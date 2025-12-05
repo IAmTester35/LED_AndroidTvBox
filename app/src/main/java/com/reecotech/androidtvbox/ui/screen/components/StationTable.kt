@@ -106,7 +106,7 @@ private fun TableParameterRows(
 fun CornerHeaderCell(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(UiConstants.TABLE_CELL_HEIGHT)
+            .height(UiConstants.TABLE_HEADER_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -192,7 +192,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
 fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .height(UiConstants.TABLE_CELL_HEIGHT)
+            .height(UiConstants.TABLE_HEADER_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
             .background(HeaderBackground)
             .padding(UiConstants.PADDING_SMALL),

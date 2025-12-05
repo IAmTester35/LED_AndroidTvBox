@@ -1,14 +1,13 @@
+
 package com.reecotech.androidtvbox.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reecotech.androidtvbox.domain.ConnectionStatus
-import com.reecotech.androidtvbox.domain.WebSocketRepository
+import com.reecotech.androidtvbox.domain.StationRepository
+import com.reecotech.androidtvbox.domain.model.StationData
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
 import com.reecotech.androidtvbox.domain.usecase.GetMockStationDataUseCase
-import com.reecotech.androidtvbox.domain.usecase.ParseDisplayDataUseCase
-import com.reecotech.androidtvbox.domain.usecase.ParseResult
-import com.reecotech.androidtvbox.domain.usecase.TransformDisplayDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -21,9 +20,7 @@ import kotlin.random.Random
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getDeviceIDUseCase: GetDeviceIDUseCase,
-    private val webSocketRepository: WebSocketRepository,
-    private val parseDisplayDataUseCase: ParseDisplayDataUseCase,
-    private val transformDisplayDataUseCase: TransformDisplayDataUseCase,
+    private val stationRepository: StationRepository,
     private val getMockStationDataUseCase: GetMockStationDataUseCase
 ) : ViewModel() {
 
@@ -31,16 +28,13 @@ class MainViewModel @Inject constructor(
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     // Toggle this to switch between mock data and real WebSocket data
-    private val useMockData = true
+    private val useMockData = false
 
     init {
         if (useMockData) {
             startMockDataFlow()
         } else {
-            viewModelScope.launch {
-                val deviceId = getDeviceIDUseCase()
-                startDataFlow(deviceId)
-            }
+            startDataFlow()
         }
     }
 
@@ -79,41 +73,28 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun startDataFlow(deviceId: String) {
-        webSocketRepository.connect(deviceId)
+    private fun startDataFlow() {
+        stationRepository.startPolling()
 
         viewModelScope.launch {
             combine(
-                webSocketRepository.status,
-                webSocketRepository.messages
-            ) { wsStatus, jsonMessage ->
+                stationRepository.status,
+                stationRepository.stations
+            ) { status: ConnectionStatus, stations: List<StationData> ->
 
-                val isWebSocketConnected = wsStatus is ConnectionStatus.Connected
-                val parseResult = parseDisplayDataUseCase(jsonMessage)
-                val hasJsonError = parseResult is ParseResult.JsonError
-
-                // Get current stations if the state already has data
-                val currentStations = _uiState.value.stations
-
-                val newStations = if (parseResult is ParseResult.Success) {
-                    val displayDataList = parseResult.data
-                    if (displayDataList.isNotEmpty()) {
-                        transformDisplayDataUseCase(displayDataList)
-                    } else {
-                        currentStations // Keep old data if new message is empty
-                    }
-                } else {
-                    currentStations // Keep old data on error
-                }
+                val isConnected = status is ConnectionStatus.Connected
+                val hasError = status is ConnectionStatus.Error
+                val errorMessage = if (status is ConnectionStatus.Error) status.message else null
 
                 val currentTime = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
                     .format(Date())
 
                 MainUiState(
-                    stations = newStations,
-                    isWebSocketConnected = isWebSocketConnected,
-                    hasJsonError = hasJsonError,
-                    lastUpdateTime = currentTime
+                    stations = stations,
+                    isWebSocketConnected = isConnected, // Reusing this field for connection status
+                    hasJsonError = hasError,
+                    lastUpdateTime = currentTime,
+                    errorMessage = errorMessage
                 )
 
             }.distinctUntilChanged()
@@ -126,7 +107,7 @@ class MainViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         if (!useMockData) {
-            webSocketRepository.disconnect()
+            stationRepository.stopPolling()
         }
     }
 }

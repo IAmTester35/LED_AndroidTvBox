@@ -134,6 +134,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
     ) {
         Row(
             modifier = Modifier
+                .padding(top = UiConstants.PADDING_SMALL)
                 .shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_UPDATE_BADGE),

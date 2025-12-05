@@ -1,12 +1,10 @@
 package com.reecotech.androidtvbox.data.model
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.google.gson.annotations.SerializedName
 
-@JsonClass(generateAdapter = true)
 data class DisplayData(
-    @Json(name = "id") val id: String,
-    @Json(name = "title") val title: String,
-    @Json(name = "value") val value: String,
-    @Json(name = "unit") val unit: String
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("value") val value: String,
+    @SerializedName("unit") val unit: String
 )

@@ -24,8 +24,8 @@ android {
         applicationId = "com.reecotech.androidtvbox"
         minSdk = 24
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.0.5"
+        versionCode = 14
+        versionName = "1.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -93,10 +93,12 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
     implementation(libs.retrofit)
-    implementation(libs.converter.moshi)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
 
-    // Moshi
-    implementation(libs.moshi)
+    // Moshi (Removed)
+    // implementation(libs.moshi)
+    // ksp(libs.moshi.codegen)
 
     // DataStore
     implementation(libs.datastore.preferences)

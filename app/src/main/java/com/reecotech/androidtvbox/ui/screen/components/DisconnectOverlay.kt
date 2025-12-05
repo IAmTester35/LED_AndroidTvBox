@@ -20,7 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun DisconnectOverlay(
     isWebSocketConnected: Boolean,
-    hasJsonError: Boolean
+    hasJsonError: Boolean,
+    errorMessage: String? = null
 ) {
     Box(
         modifier = Modifier
@@ -48,7 +49,7 @@ fun DisconnectOverlay(
             Spacer(modifier = Modifier.height(UiConstants.SPACING_LARGE))
             
             Text(
-                text = getErrorMessage(isWebSocketConnected, hasJsonError),
+                text = errorMessage ?: getErrorMessage(isWebSocketConnected, hasJsonError),
                 color = Color.White,
                 fontSize = UiConstants.FONT_SIZE_HUGE,
                 fontWeight = FontWeight.Bold,
@@ -56,13 +57,6 @@ fun DisconnectOverlay(
             )
             
             Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
-            
-            Text(
-                text = "Dữ liệu có thể đã lỗi thời",
-                color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_LARGE,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }

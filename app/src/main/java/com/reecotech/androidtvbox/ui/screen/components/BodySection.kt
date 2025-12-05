@@ -26,7 +26,7 @@ fun BodySection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = UiConstants.PADDING_MEDIUM)
+            .padding(top = UiConstants.PADDING_SMALL)
             .drawBehind {
                 // Draw top border (light white)
                 val borderWidth = UiConstants.BORDER_WIDTH.toPx()
