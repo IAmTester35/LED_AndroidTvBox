@@ -64,6 +64,7 @@ class MainViewModel @Inject constructor(
                     stations = mockStations,
                     isWebSocketConnected = true,
                     hasJsonError = false,
+                    isLoading = false,
                     lastUpdateTime = currentTime
                 )
 
@@ -93,6 +94,7 @@ class MainViewModel @Inject constructor(
                     stations = stations,
                     isWebSocketConnected = isConnected, // Reusing this field for connection status
                     hasJsonError = hasError,
+                    isLoading = false,
                     lastUpdateTime = currentTime,
                     errorMessage = errorMessage
                 )

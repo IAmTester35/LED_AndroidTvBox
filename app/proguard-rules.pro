@@ -51,3 +51,13 @@
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
 -dontwarn okhttp3.**
+
+# Coroutines (Crucial for Retrofit suspend functions)
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlin.coroutines.** { *; }
+-keep class kotlin.Result { *; }
+
+# Keep all application classes that might be used via reflection or serialization
+-keep class com.reecotech.androidtvbox.data.remote.** { *; }
+-keep class com.reecotech.androidtvbox.di.** { *; }
+-keep class com.reecotech.androidtvbox.domain.model.** { *; }

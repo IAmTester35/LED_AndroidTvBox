@@ -57,6 +57,7 @@ object UiConstants {
     val BADGE_BACKGROUND = Color(0xE6FFFFFF)
     val BADGE_TEXT = Color(0xFF004A74)
     val INVALID_TEXT_COLOR = Color(0xFF666666)
+    val NO_DATA_COLOR = Color(0xFFC9C9C9)
     
     // Header Gradient
     val HEADER_GRADIENT_START = Color(0xFF85DFFF)

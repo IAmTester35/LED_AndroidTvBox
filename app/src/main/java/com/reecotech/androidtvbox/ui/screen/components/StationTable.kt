@@ -82,15 +82,18 @@ private fun TableParameterRows(
                 isParameterCell = true
             )
             stations.forEach { station ->
-                val value = parameter.valueExtractor(station)
-                val bgColor = getValueBackgroundColor(value)
-                val txtColor = getTextColorForValue(value)
-                val isNoData = value == UiConstants.NO_DATA_PLACEHOLDER
+                val (textValue, alarmValue) = parameter.valueExtractor(station)
+                val bgColor = getValueBackgroundColor(textValue)
+                val isNoData = textValue == UiConstants.NO_DATA_PLACEHOLDER
+
+                // Fix Logic: If NO DATA, prioritize No Data Color (Gray) over Alarm Color.
+                val txtColor = if (isNoData) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
+                
                 val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_MEDIUM
                 val fontWeight = if (isNoData) FontWeight.Black else FontWeight.Bold
                 
                 TableCell(
-                    text = value,
+                    text = textValue,
                     modifier = Modifier.width(otherColWidth),
                     backgroundColor = bgColor,
                     textColor = txtColor,

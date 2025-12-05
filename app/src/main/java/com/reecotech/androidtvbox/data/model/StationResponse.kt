@@ -18,5 +18,6 @@ data class Parameter(
     @SerializedName("parameterId") val parameterId: Int,
     @SerializedName("parameterName") val parameterName: String,
     @SerializedName("value") val value: Double?,
+    @SerializedName("alarmLevel") val alarmLevel: Int?,
     @SerializedName("timestamp") val timestamp: String?
 )

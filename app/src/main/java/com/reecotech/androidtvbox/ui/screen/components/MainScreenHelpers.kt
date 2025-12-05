@@ -17,17 +17,17 @@ data class LegendItem(
  */
 data class TableParameter(
     val name: String,
-    val valueExtractor: (StationData) -> String
+    val valueExtractor: (StationData) -> Pair<String, Int>
 )
 
 /**
  * Creates list of table parameters with their extractors
  */
 fun createTableParameters(): List<TableParameter> = listOf(
-    TableParameter("Lượng mưa 24h\n(mm)") { it.rainfall24h },
-    TableParameter("Mực nước\n(m)") { it.waterLevel },
-    TableParameter("Độ mặn tầng\nmặt (PPT)") { it.surfaceSalinity },
-    TableParameter("Độ mặn tầng\nđáy (PPT)") { it.bottomSalinity }
+    TableParameter("Lượng mưa 24h\n(mm)") { Pair(it.rainfall24h, it.rainfallAlarmLevel) },
+    TableParameter("Mực nước\n(m)") { Pair(it.waterLevel, it.waterLevelAlarmLevel) },
+    TableParameter("Độ mặn tầng\nmặt (PPT)") { Pair(it.surfaceSalinity, it.surfaceSalinityAlarmLevel) },
+    TableParameter("Độ mặn tầng\nđáy (PPT)") { Pair(it.bottomSalinity, it.bottomSalinityAlarmLevel) }
 )
 
 /**
@@ -51,23 +51,20 @@ fun getValueBackgroundColor(value: String): Color {
 }
 
 /**
- * Determines text color based on value and warning thresholds
+ * Determines text color based on alarm value
  * 
- * @param value The value to evaluate
+ * @param alarmValue The alarm level (0-5)
  * @return Color corresponding to the warning level
  */
-fun getTextColorForValue(value: String): Color {
-    val normalizedValue = value.replace(",", ".").trim()
-    val numValue = normalizedValue.toDoubleOrNull() 
-        ?: return UiConstants.INVALID_TEXT_COLOR
-    
-    return when {
-        numValue < UiConstants.THRESHOLD_LEVEL_1 -> Level0Color
-        numValue < UiConstants.THRESHOLD_LEVEL_2 -> Level1Color
-        numValue < UiConstants.THRESHOLD_LEVEL_3 -> Level2Color
-        numValue < UiConstants.THRESHOLD_LEVEL_4 -> Level3Color
-        numValue < UiConstants.THRESHOLD_LEVEL_5 -> Level4Color
-        else -> Level5Color
+fun getTextColorForValue(alarmValue: Int): Color {
+    return when (alarmValue) {
+        0 -> Level0Color
+        1 -> Level1Color
+        2 -> Level2Color
+        3 -> Level3Color
+        4 -> Level4Color
+        5 -> Level5Color
+        else -> Level0Color // Default to normal if unknown
     }
 }
 

@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import com.reecotech.androidtvbox.ui.screen.components.BodySection
 import com.reecotech.androidtvbox.ui.screen.components.DisconnectOverlay
 import com.reecotech.androidtvbox.ui.screen.components.HeaderSection
+import com.reecotech.androidtvbox.ui.screen.components.LoadingOverlay
 import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
 
 // ============================================================================
@@ -36,7 +37,9 @@ fun MainDataScreen(state: MainUiState) {
             )
         }
         
-        if (!state.isWebSocketConnected || state.hasJsonError) {
+        if (state.isLoading) {
+            LoadingOverlay()
+        } else if (!state.isWebSocketConnected || state.hasJsonError) {
             DisconnectOverlay(
                 isWebSocketConnected = state.isWebSocketConnected,
                 hasJsonError = state.hasJsonError,

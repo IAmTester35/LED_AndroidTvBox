@@ -31,7 +31,19 @@ import kotlin.math.cos
 import kotlin.math.sin
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Shadow
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import kotlinx.coroutines.delay
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import kotlinx.coroutines.launch
+import kotlin.random.Random
+import java.security.MessageDigest
 /**
  * Header section with title, logo, and last update time
  */
@@ -53,6 +65,26 @@ private fun HeaderContent() {
     val context = androidx.compose.ui.platform.LocalContext.current
     var clickCount by remember { mutableStateOf(0) }
     var lastClickTime by remember { mutableStateOf(0L) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
+    
+    // Interaction source for removing ripple
+    val interactionSource = remember { MutableInteractionSource() }
+
+    if (showPasswordDialog) {
+        PasswordDialog(
+            onDismiss = { showPasswordDialog = false },
+            onUnlock = {
+                showPasswordDialog = false
+                try {
+                    val intent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
+                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    android.widget.Toast.makeText(context, "Cannot open Settings", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
 
     Row(
         modifier = Modifier
@@ -66,7 +98,10 @@ private fun HeaderContent() {
             contentDescription = "Government Logo",
             modifier = Modifier
                 .size(UiConstants.LOGO_GOVERNMENT_SIZE)
-                .clickable {
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null // Remove visual ripple
+                ) {
                     val currentTime = System.currentTimeMillis()
                     if (currentTime - lastClickTime > 2000) {
                         clickCount = 0
@@ -76,13 +111,7 @@ private fun HeaderContent() {
 
                     if (clickCount >= 5) {
                         clickCount = 0
-                        try {
-                            val intent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
-                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            android.widget.Toast.makeText(context, "Cannot open Settings", android.widget.Toast.LENGTH_SHORT).show()
-                        }
+                        showPasswordDialog = true
                     }
                 }
         )
@@ -226,6 +255,117 @@ private fun createHeaderGradient() = Brush.linearGradient(
         UiConstants.HEADER_GRADIENT_START_OFFSET to UiConstants.HEADER_GRADIENT_START,
         UiConstants.HEADER_GRADIENT_END_OFFSET to UiConstants.HEADER_GRADIENT_END
     ),
-    start = Offset.Zero,
-    end = Offset(UiConstants.HEADER_GRADIENT_END_X, UiConstants.HEADER_GRADIENT_END_Y)
 )
+
+@Composable
+fun PasswordDialog(
+    onDismiss: () -> Unit,
+    onUnlock: () -> Unit
+) {
+    var password by remember { mutableStateOf("") }
+    var timeLeft by remember { mutableStateOf(60) } // 60 seconds timeout
+    var isLoading by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf<String?>(null) }
+    
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+
+    // Timer logic
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0 && !isLoading) { // Pause timer while loading or keep counting? Let's keep counting but maybe slower? Or just simple count.
+             delay(1000L)
+             timeLeft--
+        }
+        if (timeLeft <= 0) {
+            onDismiss()
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        title = { Text(text = "Nhập mật khẩu quản trị") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState()) // Make scrollable for landscape/keyboard
+                    .imePadding() // Push up when keyboard opens
+            ) {
+                TextField(
+                    value = password,
+                    onValueChange = { 
+                        password = it
+                        errorText = null // Clear error on type
+                    },
+                    label = { Text("Mật khẩu") },
+                    singleLine = true,
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    isError = errorText != null,
+                    enabled = !isLoading
+                )
+                
+                if (errorText != null) {
+                    Text(
+                        text = errorText!!,
+                        color = Color.Red,
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                if (timeLeft < 60) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Tự động đóng sau ${timeLeft}s",
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    scope.launch {
+                        isLoading = true
+                        errorText = null
+                        
+                        // Fake loading 1-3 seconds
+                        val delayTime = Random.nextLong(1000, 3000)
+                        delay(delayTime)
+                        
+                        isLoading = false
+                        if (sha256(password) == "99edc2b391da70f08d8aed876b0c2bb1e976bcaff860abc0f29dcd45fd09d1dc") {
+                            onUnlock()
+                        } else {
+                            errorText = "Mật khẩu không đúng"
+                        }
+                    }
+                },
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Xác nhận")
+                }
+            }
+        },
+        dismissButton = {
+            if (!isLoading) {
+                Button(onClick = onDismiss) {
+                    Text("Hủy")
+                }
+            }
+        }
+    )
+}
+
+private fun sha256(input: String): String {
+    val bytes = input.toByteArray()
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(bytes)
+    return digest.fold("") { str, it -> str + "%02x".format(it) }
+}

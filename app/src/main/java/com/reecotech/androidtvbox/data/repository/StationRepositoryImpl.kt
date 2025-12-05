@@ -64,14 +64,47 @@ class StationRepositoryImpl @Inject constructor(
 
     private fun mapToStationData(response: StationResponse): List<StationData> {
         return response.data.map { station ->
-            val params = station.parameters.associateBy { it.parameterName }
-            
+            // Optimize: Iterate directly instead of creating intermediate Maps (which causes memory churn)
+            var rain = "--"
+            var rainAlarm = 0
+            var waterLevel = "--"
+            var waterLevelAlarm = 0
+            var surfaceSalt = "--"
+            var surfaceSaltAlarm = 0
+            var bottomSalt = "--"
+            var bottomSaltAlarm = 0
+
+            for (param in station.parameters) {
+                when (param.parameterName) {
+                    "RAIN" -> {
+                        rain = param.value?.toString() ?: "--"
+                        rainAlarm = param.alarmLevel ?: 0
+                    }
+                    "WATER_LEVEL" -> {
+                        waterLevel = param.value?.toString() ?: "--"
+                        waterLevelAlarm = param.alarmLevel ?: 0
+                    }
+                    "SALT_SURFACE" -> {
+                        surfaceSalt = param.value?.toString() ?: "--"
+                        surfaceSaltAlarm = param.alarmLevel ?: 0
+                    }
+                    "SALT_BOTTOM" -> {
+                        bottomSalt = param.value?.toString() ?: "--"
+                        bottomSaltAlarm = param.alarmLevel ?: 0
+                    }
+                }
+            }
+
             StationData(
                 stationName = station.stationName,
-                rainfall24h = params["RAIN"]?.value?.toString() ?: "--",
-                waterLevel = params["WATER_LEVEL"]?.value?.toString() ?: "--",
-                surfaceSalinity = params["SALT_SURFACE"]?.value?.toString() ?: "--",
-                bottomSalinity = params["SALT_BOTTOM"]?.value?.toString() ?: "--"
+                rainfall24h = rain,
+                rainfallAlarmLevel = rainAlarm,
+                waterLevel = waterLevel,
+                waterLevelAlarmLevel = waterLevelAlarm,
+                surfaceSalinity = surfaceSalt,
+                surfaceSalinityAlarmLevel = surfaceSaltAlarm,
+                bottomSalinity = bottomSalt,
+                bottomSalinityAlarmLevel = bottomSaltAlarm
             )
         }
     }
