@@ -129,7 +129,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = UiConstants.PADDING_MEDIUM),
+            .padding(horizontal = UiConstants.PADDING_LARGE),
         horizontalArrangement = Arrangement.End
     ) {
         Row(
@@ -150,7 +150,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             ClockIcon(
-                size = 12.dp,
+                size = 11.dp,
                 color = UiConstants.BADGE_TEXT
             )
             Spacer(modifier = Modifier.width(UiConstants.SPACING_SMALL))
@@ -158,7 +158,8 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
                 text = "${UiConstants.UPDATE_TIME_PREFIX}${lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT }}",
                 color = UiConstants.BADGE_TEXT,
                 fontSize = UiConstants.FONT_SIZE_SMALL,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                lineHeight = UiConstants.LINE_HEIGHT_SMALL
             )
         }
     }

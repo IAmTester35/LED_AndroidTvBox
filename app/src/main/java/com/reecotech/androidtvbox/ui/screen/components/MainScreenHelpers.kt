@@ -47,11 +47,7 @@ fun getLegendItems(): List<LegendItem> = listOf(
  * Determines background color based on cell value
  */
 fun getValueBackgroundColor(value: String): Color {
-    return if (value == UiConstants.NO_DATA_PLACEHOLDER) {
-        NullCellBackground
-    } else {
-        DataCellBackground
-    }
+    return DataCellBackground
 }
 
 /**
@@ -61,7 +57,8 @@ fun getValueBackgroundColor(value: String): Color {
  * @return Color corresponding to the warning level
  */
 fun getTextColorForValue(value: String): Color {
-    val numValue = value.toDoubleOrNull() 
+    val normalizedValue = value.replace(",", ".").trim()
+    val numValue = normalizedValue.toDoubleOrNull() 
         ?: return UiConstants.INVALID_TEXT_COLOR
     
     return when {

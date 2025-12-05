@@ -31,11 +31,11 @@ object UiConstants {
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
     val CORNER_RADIUS_UPDATE_BADGE = 6.dp
-    val CORNER_RADIUS_MEDIUM = 16.dp
+    val CORNER_RADIUS_MEDIUM = 10.dp
     
     // Column Widths (Percentage of screen width)
     const val COLUMN_WIDTH_PERCENT_FIRST = 0.14f
-    const val COLUMN_WIDTH_PERCENT_OTHERS = 0.076f
+    const val COLUMN_WIDTH_PERCENT_OTHERS = 0.0781f
     
     // Font sizes
     val FONT_SIZE_TINY = 7.sp
@@ -46,7 +46,7 @@ object UiConstants {
     val FONT_SIZE_HEADER_TITLE = 22.sp
     val FONT_SIZE_HEADER_SUBTITLE = 24.sp
     val FONT_SIZE_HUGE = 32.sp
-    val LINE_HEIGHT_SMALL = 12.sp
+    val LINE_HEIGHT_SMALL = 14.sp
     
     // Colors
     val BACKGROUND_SKY_BLUE = Color(0xFF87CEEB)

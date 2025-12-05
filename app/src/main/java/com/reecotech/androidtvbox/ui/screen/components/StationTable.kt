@@ -85,11 +85,17 @@ private fun TableParameterRows(
                 val value = parameter.valueExtractor(station)
                 val bgColor = getValueBackgroundColor(value)
                 val txtColor = getTextColorForValue(value)
+                val isNoData = value == UiConstants.NO_DATA_PLACEHOLDER
+                val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_MEDIUM
+                val fontWeight = if (isNoData) FontWeight.Black else FontWeight.Bold
+                
                 TableCell(
                     text = value,
                     modifier = Modifier.width(otherColWidth),
                     backgroundColor = bgColor,
-                    textColor = txtColor
+                    textColor = txtColor,
+                    fontSize = fontSize,
+                    fontWeight = fontWeight
                 )
             }
         }
@@ -209,7 +215,9 @@ fun TableCell(
     modifier: Modifier = Modifier,
     backgroundColor: Color,
     textColor: Color = Color.White,
-    isParameterCell: Boolean = false
+    isParameterCell: Boolean = false,
+    fontSize: androidx.compose.ui.unit.TextUnit = UiConstants.FONT_SIZE_MEDIUM,
+    fontWeight: FontWeight = FontWeight.Bold
 ) {
     Box(
         modifier = modifier
@@ -225,8 +233,8 @@ fun TableCell(
         Text(
             text = text,
             color = textColor,
-            fontSize = UiConstants.FONT_SIZE_MEDIUM,
-            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
             textAlign = TextAlign.Center,
             lineHeight = if (isParameterCell) UiConstants.FONT_SIZE_MEDIUM else UiConstants.LINE_HEIGHT_SMALL
         )
