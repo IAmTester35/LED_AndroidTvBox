@@ -16,15 +16,25 @@ import com.reecotech.androidtvbox.ui.theme.AndroidTVBoxTheme
 import com.reecotech.androidtvbox.ui.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    @javax.inject.Inject
+    lateinit var remoteConfigRepository: com.reecotech.androidtvbox.data.repository.RemoteConfigRepository
+
+    @javax.inject.Inject
+    lateinit var updateManager: com.reecotech.androidtvbox.util.UpdateManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         checkOverlayPermission()
+        checkAppUpdate()
 
         setContent {
             AndroidTVBoxTheme {
@@ -36,6 +46,20 @@ class MainActivity : ComponentActivity() {
                     AspectRatioBox {
                         MainDataScreen(state = uiState)
                     }
+                }
+            }
+        }
+    }
+
+    private fun checkAppUpdate() {
+        lifecycleScope.launch {
+            val fetched = remoteConfigRepository.fetchAndActivate()
+            if (fetched) {
+                val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
+                val apkUrl = remoteConfigRepository.getApkDownloadUrl()
+                
+                if (updateManager.isUpdateAvailable(latestVersionCode)) {
+                    updateManager.downloadAndInstallApk(apkUrl)
                 }
             }
         }
