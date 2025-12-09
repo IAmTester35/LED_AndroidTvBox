@@ -16,7 +16,7 @@ class RemoteConfigRepository @Inject constructor() {
 
     init {
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 3 * 60 * 60 // 3 hours cache
+            minimumFetchIntervalInSeconds = 3 * 60 // 3 minute cache
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         

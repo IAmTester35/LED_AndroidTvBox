@@ -73,24 +73,89 @@ class UpdateManager @Inject constructor(
             return
         }
 
-        Timber.d("Attempting SILENT INSTALL via Shell...")
-        val success = installSilent(file.absolutePath)
-        
-        if (success) {
-            Timber.i("Silent install command sent successfully. App should restart.")
-            // App might be killed here by the OS during install
-        } else {
-            Timber.e("Silent install failed. Trying root method...")
-            val rootSuccess = installRoot(file.absolutePath)
-            if (!rootSuccess) {
-                 Timber.e("All silent install methods failed.")
-                 // Fallback to normal install if needed, or just log error for Kiosk
+        // 1. Try Device Owner (Silent & Official)
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        if (dpm.isDeviceOwnerApp(context.packageName)) {
+            Timber.i("App is Device Owner. Attempting silent install via PackageInstaller...")
+            installAsDeviceOwner(context, file)
+            return
+        }
+
+        // 2. Try silent install via Shell (System App / Root)
+        Timber.d("Not Device Owner. Attempting SILENT INSTALL via Shell...")
+        if (installSilent(file.absolutePath)) {
+            Timber.i("Silent install command sent successfully.")
+            return
+        }
+
+        Timber.d("Silent install failed. Trying root method...")
+        if (installRoot(file.absolutePath)) {
+            Timber.i("Root install command sent successfully.")
+            return
+        }
+
+        // 3. Fallback: Standard Android Install Intent (Non-Root)
+        Timber.i("Root/Silent failed. Fallback to Standard Intent Install (User Interaction Required).")
+        installViaIntent(context, file)
+    }
+
+    private fun installAsDeviceOwner(context: Context, apkFile: File) {
+        val packageInstaller = context.packageManager.packageInstaller
+        val params = android.content.pm.PackageInstaller.SessionParams(
+            android.content.pm.PackageInstaller.SessionParams.MODE_FULL_INSTALL
+        )
+        params.setAppPackageName(context.packageName)
+
+        try {
+            val sessionId = packageInstaller.createSession(params)
+            val session = packageInstaller.openSession(sessionId)
+
+            java.io.FileInputStream(apkFile).use { input ->
+                session.openWrite("package_update", 0, -1).use { output ->
+                    input.copyTo(output)
+                }
             }
+
+            val intent = Intent(context, com.reecotech.androidtvbox.receiver.AppUpdateReceiver::class.java)
+            val pendingIntent = android.app.PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_MUTABLE
+            )
+
+            session.commit(pendingIntent.intentSender)
+            session.close()
+            Timber.d("Device Owner install session committed")
+
+        } catch (e: Exception) {
+            Timber.e(e, "Device Owner install failed")
+            // Fallback to intent if this fails?
+             installViaIntent(context, apkFile)
+        }
+    }
+
+    private fun installViaIntent(context: Context, file: File) {
+        try {
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Timber.e(e, "Intent install failed")
         }
     }
 
     private fun installSilent(path: String): Boolean {
         return try {
+            // Note: This only works if the app is a System App or has special signature permissions
             val command = "pm install -r $path"
             val process = Runtime.getRuntime().exec(command)
             val result = process.waitFor()
