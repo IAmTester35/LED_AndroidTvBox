@@ -73,11 +73,14 @@ class UpdateManager @Inject constructor(
             return
         }
 
-        // 1. Try Device Owner (Silent & Official)
+        // 1. Try Device Owner OR System App with 'INSTALL_PACKAGES' permission
         val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
-        if (dpm.isDeviceOwnerApp(context.packageName)) {
-            Timber.i("App is Device Owner. Attempting silent install via PackageInstaller...")
-            installAsDeviceOwner(context, file)
+        val isDeviceOwner = dpm.isDeviceOwnerApp(context.packageName)
+        val hasInstallPermission = context.checkSelfPermission("android.permission.INSTALL_PACKAGES") == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (isDeviceOwner || hasInstallPermission) {
+            Timber.i("App is Device Owner ($isDeviceOwner) or has Install Permission ($hasInstallPermission). Attempting silent install via PackageInstaller...")
+            installViaPackageInstaller(context, file)
             return
         }
 
@@ -99,7 +102,7 @@ class UpdateManager @Inject constructor(
         installViaIntent(context, file)
     }
 
-    private fun installAsDeviceOwner(context: Context, apkFile: File) {
+    private fun installViaPackageInstaller(context: Context, apkFile: File) {
         val packageInstaller = context.packageManager.packageInstaller
         val params = android.content.pm.PackageInstaller.SessionParams(
             android.content.pm.PackageInstaller.SessionParams.MODE_FULL_INSTALL
@@ -126,10 +129,10 @@ class UpdateManager @Inject constructor(
 
             session.commit(pendingIntent.intentSender)
             session.close()
-            Timber.d("Device Owner install session committed")
+            Timber.d("PackageInstaller session committed (Device Owner or System App)")
 
         } catch (e: Exception) {
-            Timber.e(e, "Device Owner install failed")
+            Timber.e(e, "PackageInstaller install failed")
             // Fallback to intent if this fails?
              installViaIntent(context, apkFile)
         }

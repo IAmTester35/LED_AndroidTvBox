@@ -24,6 +24,12 @@
   ```
   *(Lưu ý: Thiết bị phải chưa có tài khoản Google hoặc cần factory reset trước khi chạy lệnh này)*
 
+> [!IMPORTANT]
+> **Phân biệt Device Admin vs Device Owner:**
+> *   **Device Admin:** Chỉ có thể khóa máy, wipe data. **KHÔNG THỂ** silent install/update ứng dụng.
+> *   **Device Owner:** Có toàn quyền hệ thống, bao gồm cài đặt ứng dụng không cần người dùng xác nhận.
+> *   Để làm App Kiosk tự update, bắt buộc phải set **Device Owner**.
+
 ## 3. Cơ chế Cập nhật (Silent Update)
 Ứng dụng tự động kiểm tra cập nhật từ **Firebase Remote Config**:
 - **Cache time:** 3 phút.
@@ -93,3 +99,54 @@ Nếu vẫn báo lỗi, hãy kiểm tra lần lượt:
     ```bash
     adb shell pm remove-user <USER_ID>
     ```
+
+### Giải pháp thay thế: System App (Root/Deploy Script)
+Nếu **KHÔNG THỂ** set Device Owner do ROM chặn, bạn có thể chuyển sang phương án **System App**:
+
+1.  Đẩy file APK vào `/system/priv-app/com.reecotech.androidtvbox/`.
+2.  Đẩy file `privapp-permissions-com.reecotech.androidtvbox.xml` vào `/system/etc/permissions/` để whitelist quyền `INSTALL_PACKAGES`.
+3.  App đã được update code để tự nhận diện quyền `INSTALL_PACKAGES` và kích hoạt Silent Update.
+4.  Khi là System App có quyền này, tính năng Silent Update sẽ hoạt động tự động mà không cần Device Owner.
+
+> [!IMPORTANT]
+> **Đối với Android 14+ (Lỗi Read-only file system):**
+> Android 14 sử dụng **EROFS** và bật sẵn **dm-verity**, ngăn cản việc ghi vào `/system` dù đã `adb root`.
+> Bạn CẦN thực hiện các bước sau **MỘT LẦN DUY NHẤT** trước khi chạy script deploy:
+> 1. `adb root`
+> 2. `adb disable-verity` (Nếu báo lỗi -> Cần Unlock Bootloader trước, xem file `UNLOCK_BOOTLOADER.md`)
+> 3. `adb reboot`
+> 4. Đợi máy khởi động lại, sau đó chạy `adb root` và `adb remount`.
+> 5. Lúc này mới chạy script `./deploy_system_app.sh`.
+
+### Giải pháp cuối cùng: Magisk Module (Cho thiết bị khóa cứng /system)
+Nếu firmware của thiết bị sử dụng file system chỉ đọc (EROFS/SquashFS) mà **KHÔNG THỂ** remount R/W dù đã root, hãy dùng Magisk Module.
+
+1.  **Yêu cầu:** Thiết bị đã cài đặt **Magisk**.
+2.  **Tạo & Cài Đặt Module:**
+    Chạy script sau trên máy tính. Script sẽ tự động build, push và cài đặt vào box (yêu cầu ADB):
+    ```bash
+    ./build_magisk_module.sh
+    ```
+    Script sẽ tự động reboot thiết bị sau khi cài xong.
+
+3.  **Kiểm tra:**
+    Sau khi reboot, ứng dụng sẽ tự động nằm trong `/system/priv-app` và có đủ quyền Silent Update.
+
+**Cách deploy:**
+Chạy script tự động (đã được update để xử lý cả permissions):
+```bash
+./deploy_system_app.sh
+```
+
+**Cách kiểm tra thành công:**
+Sau khi reboot, chạy lệnh:
+```bash
+adb shell dumpsys package com.reecotech.androidtvbox | grep "android.permission.INSTALL_PACKAGES"
+```
+Nếu thấy `granted=true`, ứng dụng đã sẵn sàng Silent Update.
+
+> [!WARNING]
+> **Lưu ý quan trọng:**
+> 1. **Kiosk Mode:** Lệnh `set-home-activity` có thể báo lỗi nếu chạy ngay lập tức. Hãy đợi máy reboot xong rồi chạy lại lệnh đó nếu cần.
+> 2. **Native Libs (.so):** Script đã tự động push file `.so` nếu có. Nếu app bị crash, hãy kiểm tra lại xem file .so đã nằm trong `/system/priv-app/com.reecotech.androidtvbox/lib/` chưa.
+> 3. **Manifest:** Quyền trong `AndroidManifest.xml` phải khớp với file whitelist XML. Script đã tự động tạo file XML khớp, bạn chỉ cần đảm bảo không xóa quyền trong Manifest.
