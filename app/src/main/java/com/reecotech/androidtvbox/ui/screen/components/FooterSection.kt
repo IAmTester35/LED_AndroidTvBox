@@ -19,6 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.reecotech.androidtvbox.R
 import androidx.compose.ui.unit.dp
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 /**
  * Footer section with legend, support info, and branding
  */
@@ -46,21 +52,23 @@ fun FooterSection(modifier: Modifier = Modifier) {
 @Composable
 private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(
-            text = UiConstants.LEGEND_TITLE,
-            color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = UiConstants.PADDING_SMALL)
-        )
-        
-        LegendGrid()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = UiConstants.LEGEND_TITLE,
+                color = Color.White,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = UiConstants.PADDING_SMALL)
+            )
+            
+            LegendMarquee(modifier = Modifier.weight(1f))
+        }
         
         Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
         
         Row(verticalAlignment = Alignment.CenterVertically) {
             PhoneIcon(
-                size = 12.dp,
+                size = 14.dp,
                 color = Color.White
             )
             
@@ -74,7 +82,7 @@ private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
                     }
                 },
                 color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_SMALL,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
                 fontWeight = FontWeight.SemiBold
             )
             
@@ -121,24 +129,46 @@ private fun PhoneIcon(
 }
 
 @Composable
-private fun LegendGrid() {
+private fun LegendMarquee(modifier: Modifier = Modifier) {
     val legendItems = getLegendItems()
-    val columnCount = 2
-    
-    Row(modifier = Modifier.fillMaxWidth()) {
-        for (columnIndex in 0 until columnCount) {
-            Column(modifier = Modifier.weight(1f)) {
-                legendItems
-                    .chunked(legendItems.size / columnCount + legendItems.size % columnCount)
-                    .getOrNull(columnIndex)
-                    ?.forEach { item ->
-                        LegendItemRow(item.text, item.color)
-                        Spacer(modifier = Modifier.height(UiConstants.SPACING_TINY))
-                    }
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        delay(1000) // Initial delay to ensure layout is ready
+        while (true) {
+            val max = scrollState.maxValue
+            if (max > 0) {
+                scrollState.scrollTo(0)
+                // Speed: 60 pixels per second approx
+                val duration = max * 16
+                scrollState.animateScrollTo(
+                    value = max,
+                    animationSpec = tween(
+                        durationMillis = duration,
+                        easing = LinearEasing
+                    )
+                )
+            } else {
+                delay(100)
             }
-            if (columnIndex < columnCount - 1) {
-                Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL))
+        }
+    }
+
+    BoxWithConstraints(modifier = modifier) {
+        val screenWidth = maxWidth
+        Row(
+            modifier = Modifier
+                .horizontalScroll(scrollState, enabled = false),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(screenWidth))
+            
+            legendItems.forEach { item ->
+                LegendItemRow(item.text, item.color)
+                Spacer(modifier = Modifier.width(UiConstants.PADDING_LARGE))
             }
+            
+            Spacer(modifier = Modifier.width(screenWidth))
         }
     }
 }
@@ -155,7 +185,7 @@ private fun LegendItemRow(text: String, color: Color) {
         Text(
             text = text,
             color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_TINY
+            fontSize = UiConstants.FONT_SIZE_NORMAL
         )
     }
 }
@@ -194,7 +224,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.65f)
+                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.8f)
             )
         }
     }

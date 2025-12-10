@@ -43,9 +43,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color.Black
                 ) {
-                    AspectRatioBox {
-                        MainDataScreen(state = uiState)
-                    }
+                    MainDataScreen(state = uiState)
                 }
             }
         }

@@ -20,6 +20,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
+        android:resizeableActivity="true"
+        android:maxAspectRatio="2.5"
         android:theme="@style/Theme.AndroidTVBox" >
         <activity
             android:name=".MainActivity"
