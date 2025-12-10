@@ -56,6 +56,7 @@ class UpdateManager @Inject constructor(
                 val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                 if (id == downloadId) {
                     Timber.d("Download complete. Starting install...")
+                    android.widget.Toast.makeText(ctxt, "Download complete. Installing...", android.widget.Toast.LENGTH_LONG).show()
                     installApk(ctxt, file)
                     try {
                         context.unregisterReceiver(this)

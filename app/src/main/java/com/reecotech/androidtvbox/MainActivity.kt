@@ -53,14 +53,25 @@ class MainActivity : ComponentActivity() {
 
     private fun checkAppUpdate() {
         lifecycleScope.launch {
-            val fetched = remoteConfigRepository.fetchAndActivate()
-            if (fetched) {
-                val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
-                val apkUrl = remoteConfigRepository.getApkDownloadUrl()
-                
-                if (updateManager.isUpdateAvailable(latestVersionCode)) {
-                    updateManager.downloadAndInstallApk(apkUrl)
+            while (true) {
+                try {
+                    val fetched = remoteConfigRepository.fetchAndActivate()
+                    if (fetched) {
+                        val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
+                        val apkUrl = remoteConfigRepository.getApkDownloadUrl()
+                        
+                        if (updateManager.isUpdateAvailable(latestVersionCode)) {
+                            android.widget.Toast.makeText(this@MainActivity, "Found new update: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()
+                            android.widget.Toast.makeText(this@MainActivity, "Downloading update...", android.widget.Toast.LENGTH_SHORT).show()
+                            updateManager.downloadAndInstallApk(apkUrl)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+                
+                // Check every 3 minutes
+                kotlinx.coroutines.delay(3 * 60 * 1000L)
             }
         }
     }
