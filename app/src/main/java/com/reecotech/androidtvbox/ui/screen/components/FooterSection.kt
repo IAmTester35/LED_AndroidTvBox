@@ -29,7 +29,7 @@ fun FooterSection(modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .background(UiConstants.FOOTER_BACKGROUND)
             .padding(
-                horizontal = UiConstants.PADDING_MEDIUM,
+                horizontal = UiConstants.PADDING_LARGE,
                 vertical = UiConstants.PADDING_SMALL
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
