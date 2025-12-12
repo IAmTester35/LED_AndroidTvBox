@@ -71,10 +71,26 @@ fun getTextColorForValue(alarmValue: Int): Color {
 /**
  * Gets appropriate error message based on error type
  */
-fun getErrorMessage(isWebSocketConnected: Boolean, hasJsonError: Boolean): String {
+/**
+ * Gets detailed error information
+ * @return Triple(Title, Description, ErrorCode)
+ */
+fun getErrorDetails(isWebSocketConnected: Boolean, hasJsonError: Boolean, errorMessage: String?): Triple<String, String, String> {
     return when {
-        !isWebSocketConnected -> "MẤT KẾT NỐI INTERNET"
-        hasJsonError -> "LỖI DỮ LIỆU"
-        else -> "LỖI HỆ THỐNG"
+        !isWebSocketConnected -> Triple(
+            "MẤT KẾT NỐI INTERNET",
+            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền mạng.",
+            "Lỗi: Disconnected"
+        )
+        hasJsonError -> Triple(
+            "LỖI DỮ LIỆU",
+            "Dữ liệu nhận được không đúng định dạng hoặc bị lỗi.",
+            "Mã lỗi: JSON_PARSE_ERROR"
+        )
+        else -> Triple(
+            "LỖI HỆ THỐNG", 
+            "Đã xảy ra lỗi không xác định.",
+            "Chi tiết: ${errorMessage ?: "Unknown Error"}"
+        )
     }
 }

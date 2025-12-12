@@ -8,6 +8,7 @@ data class MainUiState(
     val hasJsonError: Boolean = false,
     val isLoading: Boolean = true,
     val lastUpdateTime: String = "",
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val passwordHash: String = ""
 )
 

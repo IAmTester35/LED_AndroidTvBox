@@ -56,7 +56,7 @@ private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
             Text(
                 text = UiConstants.LEGEND_TITLE,
                 color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontSize = UiConstants.FONT_SIZE_LARGE,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(end = UiConstants.PADDING_SMALL)
             )
@@ -82,7 +82,7 @@ private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
                     }
                 },
                 color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontSize = UiConstants.FONT_SIZE_LARGE,
                 fontWeight = FontWeight.SemiBold
             )
             
@@ -185,7 +185,7 @@ private fun LegendItemRow(text: String, color: Color) {
         Text(
             text = text,
             color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_NORMAL
+            fontSize = UiConstants.FONT_SIZE_LARGE
         )
     }
 }

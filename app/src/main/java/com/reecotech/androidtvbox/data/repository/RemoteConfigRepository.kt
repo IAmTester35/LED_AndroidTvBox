@@ -16,14 +16,15 @@ class RemoteConfigRepository @Inject constructor() {
 
     init {
         val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 3 * 60 // 3 minute cache
+            minimumFetchIntervalInSeconds = 5 * 60 // 5 minute cache
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         
         // Default values
         remoteConfig.setDefaultsAsync(mapOf(
             KEY_LATEST_VERSION_CODE to 0,
-            KEY_APK_DOWNLOAD_URL to ""
+            KEY_APK_DOWNLOAD_URL to "",
+            KEY_PASSWORD_HASH to "99edc2b391da70f08d8aed876b0c2bb1e976bcaff860abc0f29dcd45fd09d1dc"
         ))
     }
 
@@ -48,8 +49,13 @@ class RemoteConfigRepository @Inject constructor() {
         return remoteConfig.getString(KEY_APK_DOWNLOAD_URL)
     }
 
+    fun getPasswordHash(): String {
+        return remoteConfig.getString(KEY_PASSWORD_HASH)
+    }
+
     companion object {
         const val KEY_LATEST_VERSION_CODE = "latest_version_code"
         const val KEY_APK_DOWNLOAD_URL = "apk_download_url"
+        const val KEY_PASSWORD_HASH = "password_hash"
     }
 }

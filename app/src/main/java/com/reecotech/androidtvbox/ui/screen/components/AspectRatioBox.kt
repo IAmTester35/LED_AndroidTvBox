@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AspectRatioBox(
-    aspectRatio: Float = 16f / 9f,
+    aspectRatio: Float = 16f / 8f,
     backgroundColor: Color = Color.Black,
     content: @Composable BoxScope.() -> Unit
 ) {

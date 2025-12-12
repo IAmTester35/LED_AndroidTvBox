@@ -98,7 +98,7 @@ class StationRepositoryImpl @Inject constructor(
                         rainAlarm = param.alarmLevel ?: 0
                     }
                     "WATER_LEVEL" -> {
-                        waterLevel = param.value?.toString() ?: "--"
+                        waterLevel = param. value?.toString() ?: "--"
                         waterLevelAlarm = param.alarmLevel ?: 0
                     }
                     "SALT_SURFACE" -> {

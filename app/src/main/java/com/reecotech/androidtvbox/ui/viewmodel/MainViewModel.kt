@@ -30,12 +30,18 @@ class MainViewModel @Inject constructor(
     // Toggle this to switch between mock data and real WebSocket data
     private val useMockData = false
 
+    private val _passwordHash = MutableStateFlow("")
+
     init {
         if (useMockData) {
             startMockDataFlow()
         } else {
             startDataFlow()
         }
+    }
+
+    fun updatePasswordHash(hash: String) {
+        _passwordHash.value = hash
     }
 
     private fun startMockDataFlow() {
@@ -65,7 +71,8 @@ class MainViewModel @Inject constructor(
                     isWebSocketConnected = true,
                     hasJsonError = false,
                     isLoading = false,
-                    lastUpdateTime = currentTime
+                    lastUpdateTime = currentTime,
+                    passwordHash = _passwordHash.value
                 )
 
                 // Update every 5 seconds
@@ -80,8 +87,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 stationRepository.status,
-                stationRepository.stations
-            ) { status: ConnectionStatus, stations: List<StationData> ->
+                stationRepository.stations,
+                _passwordHash
+            ) { status, stations, passwordHash ->
 
                 val isConnected = status is ConnectionStatus.Connected
                 val hasError = status is ConnectionStatus.Error
@@ -96,7 +104,8 @@ class MainViewModel @Inject constructor(
                     hasJsonError = hasError,
                     isLoading = false,
                     lastUpdateTime = currentTime,
-                    errorMessage = errorMessage
+                    errorMessage = errorMessage,
+                    passwordHash = passwordHash
                 )
 
             }.distinctUntilChanged()

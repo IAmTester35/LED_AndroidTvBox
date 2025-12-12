@@ -39,6 +39,8 @@ fun DisconnectOverlay(
                 )
                 .padding(UiConstants.PADDING_EXTRA_LARGE)
         ) {
+            val (title, description, errorCode) = getErrorDetails(isWebSocketConnected, hasJsonError, errorMessage)
+
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "Warning",
@@ -48,11 +50,34 @@ fun DisconnectOverlay(
             
             Spacer(modifier = Modifier.height(UiConstants.SPACING_LARGE))
             
+            // Title (Generic Error Name)
             Text(
-                text = errorMessage ?: getErrorMessage(isWebSocketConnected, hasJsonError),
+                text = title,
                 color = Color.White,
                 fontSize = UiConstants.FONT_SIZE_HUGE,
                 fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
+            
+            // Description (Specific Explanation)
+            Text(
+                text = description,
+                color = Color.White.copy(alpha = 0.9f),
+                fontSize = UiConstants.FONT_SIZE_LARGE,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
+
+            // Error Code (Technical Details)
+            Text(
+                text = errorCode,
+                color = Color.White.copy(alpha = 0.7f),
+                fontSize = UiConstants.FONT_SIZE_MEDIUM,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center
             )
             

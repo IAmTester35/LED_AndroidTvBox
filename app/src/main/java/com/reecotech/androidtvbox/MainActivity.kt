@@ -57,6 +57,9 @@ class MainActivity : ComponentActivity() {
                     if (fetched) {
                         val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
                         val apkUrl = remoteConfigRepository.getApkDownloadUrl()
+                        val passwordHash = remoteConfigRepository.getPasswordHash()
+                        
+                        viewModel.updatePasswordHash(passwordHash)
                         
                         if (updateManager.isUpdateAvailable(latestVersionCode)) {
                             android.widget.Toast.makeText(this@MainActivity, "Found new update: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()
@@ -68,8 +71,8 @@ class MainActivity : ComponentActivity() {
                     e.printStackTrace()
                 }
                 
-                // Check every 3 minutes
-                kotlinx.coroutines.delay(3 * 60 * 1000L)
+                // Check every 5 minutes
+                kotlinx.coroutines.delay(5 * 60 * 1000L)
             }
         }
     }
