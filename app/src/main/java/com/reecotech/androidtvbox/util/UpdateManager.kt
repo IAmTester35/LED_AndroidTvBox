@@ -26,21 +26,28 @@ class UpdateManager @Inject constructor(
         return remoteVersionCode > BuildConfig.VERSION_CODE
     }
 
-    fun downloadAndInstallApk(url: String) {
+    fun downloadAndInstallApk(url: String, versionCode: Int) {
         if (url.isEmpty()) return
+
+        val fileName = "update_$versionCode.apk"
+        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+
+        // Check if file already exists
+        if (file.exists() && file.length() > 0) {
+            Timber.d("APK file already exists. Skipping download and starting install...")
+            android.widget.Toast.makeText(context, "Update file ready. Installing...", android.widget.Toast.LENGTH_SHORT).show()
+            installApk(context, file)
+            return
+        }
 
         Timber.d("Starting download from: $url")
 
-        // clean old apk if exists
-        val fileName = "update.apk"
-        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
-        if (file.exists()) {
-            file.delete()
-        }
+        // Clean up old APKs
+        cleanUpOldApks()
 
         val request = DownloadManager.Request(Uri.parse(url))
             .setTitle("Downloading Update")
-            .setDescription("Downloading new version of the app...")
+            .setDescription("Downloading version $versionCode...")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
             .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
             .setAllowedOverMetered(true)
@@ -66,6 +73,19 @@ class UpdateManager @Inject constructor(
                 }
             }
         }, filter, Context.RECEIVER_EXPORTED)
+    }
+
+    private fun cleanUpOldApks() {
+        try {
+            val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            dir?.listFiles()?.forEach { file ->
+                if (file.name.startsWith("update_") && file.name.endsWith(".apk")) {
+                    file.delete()
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to clean up old APKs")
+        }
     }
 
     private fun installApk(context: Context, file: File) {

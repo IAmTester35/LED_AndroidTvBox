@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                         if (updateManager.isUpdateAvailable(latestVersionCode)) {
                             android.widget.Toast.makeText(this@MainActivity, "Found new update: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()
                             android.widget.Toast.makeText(this@MainActivity, "Downloading update...", android.widget.Toast.LENGTH_SHORT).show()
-                            updateManager.downloadAndInstallApk(apkUrl)
+                            updateManager.downloadAndInstallApk(apkUrl, latestVersionCode)
                         }
                     }
                 } catch (e: Exception) {
