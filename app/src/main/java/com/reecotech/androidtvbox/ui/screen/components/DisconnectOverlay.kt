@@ -19,9 +19,10 @@ import androidx.compose.ui.text.style.TextAlign
  */
 @Composable
 fun DisconnectOverlay(
-    isWebSocketConnected: Boolean,
+    isConnected: Boolean,
     hasJsonError: Boolean,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    retryCount: Int = 0
 ) {
     Box(
         modifier = Modifier
@@ -39,7 +40,7 @@ fun DisconnectOverlay(
                 )
                 .padding(UiConstants.PADDING_EXTRA_LARGE)
         ) {
-            val (title, description, errorCode) = getErrorDetails(isWebSocketConnected, hasJsonError, errorMessage)
+            val (title, description, errorCode) = getErrorDetails(isConnected, hasJsonError, errorMessage)
 
             Icon(
                 imageVector = Icons.Default.Warning,
@@ -75,11 +76,22 @@ fun DisconnectOverlay(
             // Error Code (Technical Details)
             Text(
                 text = errorCode,
-                color = Color.White.copy(alpha = 0.7f),
+                color = Color.White.copy(alpha = 1.0f), // Full opacity for better readability in photos
                 fontSize = UiConstants.FONT_SIZE_MEDIUM,
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
                 textAlign = TextAlign.Center
             )
+
+            if (retryCount > 0) {
+                Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
+                Text(
+                    text = "Số lần thử lại: $retryCount",
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = UiConstants.FONT_SIZE_MEDIUM,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
             
             Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
         }

@@ -68,7 +68,7 @@ class MainViewModel @Inject constructor(
 
                 _uiState.value = MainUiState(
                     stations = mockStations,
-                    isWebSocketConnected = true,
+                    isConnected = true,
                     hasJsonError = false,
                     isLoading = false,
                     lastUpdateTime = currentTime,
@@ -88,23 +88,29 @@ class MainViewModel @Inject constructor(
             combine(
                 stationRepository.status,
                 stationRepository.stations,
+                stationRepository.lastAttemptTime,
                 _passwordHash
-            ) { status, stations, passwordHash ->
+            ) { status, stations, lastAttemptTime, passwordHash ->
 
                 val isConnected = status is ConnectionStatus.Connected
                 val hasError = status is ConnectionStatus.Error
                 val errorMessage = if (status is ConnectionStatus.Error) status.message else null
 
+                val retryCount = if (status is ConnectionStatus.Error) status.retryCount else 0
+
+                // Use lastAttemptTime if available, otherwise current time (fallback)
+                val timeToDisplay = if (lastAttemptTime > 0) Date(lastAttemptTime) else Date()
                 val currentTime = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
-                    .format(Date())
+                    .format(timeToDisplay)
 
                 MainUiState(
                     stations = stations,
-                    isWebSocketConnected = isConnected, // Reusing this field for connection status
+                    isConnected = isConnected, // Reusing this field for connection status
                     hasJsonError = hasError,
                     isLoading = false,
                     lastUpdateTime = currentTime,
                     errorMessage = errorMessage,
+                    retryCount = retryCount,
                     passwordHash = passwordHash
                 )
 

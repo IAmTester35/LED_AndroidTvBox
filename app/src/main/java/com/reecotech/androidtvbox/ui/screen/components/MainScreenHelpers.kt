@@ -75,22 +75,62 @@ fun getTextColorForValue(alarmValue: Int): Color {
  * Gets detailed error information
  * @return Triple(Title, Description, ErrorCode)
  */
-fun getErrorDetails(isWebSocketConnected: Boolean, hasJsonError: Boolean, errorMessage: String?): Triple<String, String, String> {
-    return when {
-        !isWebSocketConnected -> Triple(
-            "MẤT KẾT NỐI INTERNET",
-            "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại đường truyền mạng.",
-            "Lỗi: Disconnected"
-        )
-        hasJsonError -> Triple(
-            "LỖI DỮ LIỆU",
-            "Dữ liệu nhận được không đúng định dạng hoặc bị lỗi.",
-            "Mã lỗi: JSON_PARSE_ERROR"
-        )
-        else -> Triple(
-            "LỖI HỆ THỐNG", 
-            "Đã xảy ra lỗi không xác định.",
-            "Chi tiết: ${errorMessage ?: "Unknown Error"}"
+fun getErrorDetails(isConnected: Boolean, hasJsonError: Boolean, errorMessage: String?): Triple<String, String, String> {
+    // Ưu tiên hiển thị lỗi cụ thể nếu có (status is Error)
+    if (errorMessage != null) {
+        return when {
+            errorMessage.contains("UnknownHostException") -> Triple(
+                "LỖI KẾT NỐI MẠNG",
+                "Không thể tìm thấy máy chủ. Vui lòng kiểm tra đường truyền Internet hoặc DNS.",
+                "E_DNS_LOOKUP: $errorMessage"
+            )
+            errorMessage.contains("ConnectException") -> Triple(
+                "KHÔNG THỂ KẾT NỐI",
+                "Máy chủ từ chối kết nối hoặc không phản hồi.",
+                "E_CONNECTION_REFUSED: $errorMessage"
+            )
+            errorMessage.contains("timeout", ignoreCase = true) || errorMessage.contains("SocketTimeout", ignoreCase = true) -> Triple(
+                "QUÁ THỜI GIAN CHỜ",
+                "Phản hồi từ máy chủ quá lâu. Vui lòng kiểm tra lại đường truyền mạng.",
+                "E_TIMEOUT: $errorMessage"
+            )
+            errorMessage.contains("HTTP 504") || errorMessage.contains("Gateway Time-out", ignoreCase = true) -> Triple(
+                "LỖI GATEWAY TIMEOUT (504)",
+                "Máy chủ không phản hồi kịp thời. Hệ thống có thể đang quá tải.",
+                "E_HTTP_504: Gateway Time-out"
+            )
+            errorMessage.contains("HttpException") -> Triple(
+                "LỖI MÁY CHỦ (HTTP)",
+                "Máy chủ trả về mã lỗi HTTP.",
+                "E_HTTP: $errorMessage"
+            )
+             errorMessage.contains("SerializationException") || errorMessage.contains("JsonDecodingException") -> Triple(
+                "LỖI DỮ LIỆU",
+                "Dữ liệu nhận được không đúng định dạng JSON.",
+                "E_PARSING: $errorMessage"
+            )
+            errorMessage.contains("success=false") -> Triple(
+                "LỖI API",
+                "Máy chủ xử lý thất bại yêu cầu.",
+                "E_API_LOGIC: $errorMessage"
+            )
+            else -> Triple(
+                "LỖI KHÔNG XÁC ĐỊNH",
+                "Đã xảy ra lỗi trong quá trình vận hành.",
+                "E_UNKNOWN: $errorMessage"
+            )
+        }
+    }
+
+    // Trường hợp không có error message nhưng trạng thái là disconnect
+    // (Thường là trạng thái khởi tạo hoặc khi stop polling)
+    if (!isConnected) {
+        return Triple(
+            "MẤT KẾT NỐI",
+            "Đang nỗ lực kết nối đến hệ thống...",
+            "STATUS: DISCONNECTED / INITIALIZING"
         )
     }
+
+    return Triple("", "", "")
 }

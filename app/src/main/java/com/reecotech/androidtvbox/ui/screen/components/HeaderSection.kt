@@ -276,6 +276,24 @@ fun PasswordDialog(
     
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+
+    val verifyPassword = {
+        scope.launch {
+            isLoading = true
+            errorText = null
+            
+            val delayTime = Random.nextLong(800, 2000)
+            delay(delayTime)
+            
+            isLoading = false
+            if (sha256(password) == passwordHash) {
+                onUnlock()
+            } else {
+                errorText = "Mật khẩu không đúng"
+            }
+        }
+    }
 
     // Timer logic
     LaunchedEffect(Unit) {
@@ -361,7 +379,8 @@ fun PasswordDialog(
                         ),
                         keyboardActions = androidx.compose.foundation.text.KeyboardActions(
                             onDone = { 
-                                // Trigger confirm action
+                                keyboardController?.hide()
+                                verifyPassword()
                             }
                         ),
                         modifier = Modifier.fillMaxWidth()
@@ -410,22 +429,7 @@ fun PasswordDialog(
                         val isFocused by interactionSource.collectIsFocusedAsState()
                         
                         Button(
-                            onClick = {
-                                scope.launch {
-                                    isLoading = true
-                                    errorText = null
-                                    
-                                    val delayTime = Random.nextLong(800, 2000)
-                                    delay(delayTime)
-                                    
-                                    isLoading = false
-                                    if (sha256(password) == passwordHash) {
-                                        onUnlock()
-                                    } else {
-                                        errorText = "Mật khẩu không đúng"
-                                    }
-                                }
-                            },
+                            onClick = { verifyPassword() },
                             enabled = !isLoading,
                             interactionSource = interactionSource,
                             shape = RoundedCornerShape(8.dp),

@@ -71,8 +71,8 @@ class MainActivity : ComponentActivity() {
                     e.printStackTrace()
                 }
                 
-                // Check every 5 minutes
-                kotlinx.coroutines.delay(5 * 60 * 1000L)
+                // Check every 15 minutes
+                kotlinx.coroutines.delay(15 * 60 * 1000L)
             }
         }
     }

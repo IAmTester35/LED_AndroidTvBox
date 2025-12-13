@@ -39,11 +39,12 @@ fun MainDataScreen(state: MainUiState) {
         
         if (state.isLoading) {
             LoadingOverlay()
-        } else if (!state.isWebSocketConnected || state.hasJsonError) {
+        } else if (!state.isConnected || state.hasJsonError) {
             DisconnectOverlay(
-                isWebSocketConnected = state.isWebSocketConnected,
+                isConnected = state.isConnected,
                 hasJsonError = state.hasJsonError,
-                errorMessage = state.errorMessage
+                errorMessage = state.errorMessage,
+                retryCount = state.retryCount
             )
         }
     }

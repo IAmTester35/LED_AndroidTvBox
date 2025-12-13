@@ -87,7 +87,7 @@ object UiConstants {
     const val TABLE_HEADER_STATION = "TRẠM"
     const val TABLE_HEADER_PARAMETER = "THÔNG SỐ"
     const val LOADING_TEXT = "Đang tải..."
-    const val UPDATE_TIME_PREFIX = "Thời gian cập nhật: "
+    const val UPDATE_TIME_PREFIX = "Thời gian nhận tin: "
     const val UPDATE_TIME_ICON = "⏰ "
     const val NO_DATA_PLACEHOLDER = "--"
     

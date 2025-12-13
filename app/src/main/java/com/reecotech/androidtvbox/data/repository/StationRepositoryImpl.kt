@@ -28,6 +28,9 @@ class StationRepositoryImpl @Inject constructor(
     private val _status = MutableStateFlow<ConnectionStatus>(ConnectionStatus.Disconnected)
     override val status = _status.asStateFlow()
 
+    private val _lastAttemptTime = MutableStateFlow<Long>(0L)
+    override val lastAttemptTime = _lastAttemptTime.asStateFlow()
+
     private var pollingJob: Job? = null
     private val pollingScope = CoroutineScope(Dispatchers.IO)
 
@@ -40,6 +43,7 @@ class StationRepositoryImpl @Inject constructor(
             while (isActive) {
                 var nextDelay = 30 * 1000L // Default 30s for success
                 try {
+                    _lastAttemptTime.value = System.currentTimeMillis()
                     val response = apiService.getLatestStationData()
                     if (response.success) {
                         val stationDataList = mapToStationData(response)
@@ -58,7 +62,7 @@ class StationRepositoryImpl @Inject constructor(
                     } else {
                         "${e.javaClass.simpleName}: ${e.message}"
                     }
-                    _status.value = ConnectionStatus.Error(errorMessage)
+                    _status.value = ConnectionStatus.Error(errorMessage, consecutiveFailures)
 
                     nextDelay = when (consecutiveFailures) {
                         1 -> 2_000L
