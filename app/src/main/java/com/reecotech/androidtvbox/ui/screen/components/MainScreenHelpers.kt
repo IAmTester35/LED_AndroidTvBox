@@ -99,14 +99,24 @@ fun getErrorDetails(isConnected: Boolean, hasJsonError: Boolean, errorMessage: S
                 "Máy chủ không phản hồi kịp thời. Hệ thống có thể đang quá tải.",
                 "E_HTTP_504: Gateway Time-out"
             )
+            errorMessage.contains("HTTP 502") || errorMessage.contains("Bad Gateway", ignoreCase = true) -> Triple(
+                "LỖI GATEWAY (502)",
+                "Máy chủ gặp sự cố tạm thời (Bad Gateway). Đang thử lại...",
+                "E_HTTP_502: Bad Gateway"
+            )
+            errorMessage.contains("HTTP 503") || errorMessage.contains("Service Unavailable", ignoreCase = true) -> Triple(
+                "LỖI DỊCH VỤ (503)",
+                "Máy chủ đang bảo trì hoặc quá tải. Đang thử lại...",
+                "E_HTTP_503: Service Unavailable"
+            )
             errorMessage.contains("HttpException") -> Triple(
                 "LỖI MÁY CHỦ (HTTP)",
                 "Máy chủ trả về mã lỗi HTTP.",
                 "E_HTTP: $errorMessage"
             )
-             errorMessage.contains("SerializationException") || errorMessage.contains("JsonDecodingException") -> Triple(
+             errorMessage.contains("SerializationException") || errorMessage.contains("JsonDecodingException") || errorMessage.contains("Lỗi dữ liệu") -> Triple(
                 "LỖI DỮ LIỆU",
-                "Dữ liệu nhận được không đúng định dạng JSON.",
+                "Dữ liệu nhận được không đúng định dạng JSON (hoặc trang lỗi HTML).",
                 "E_PARSING: $errorMessage"
             )
             errorMessage.contains("success=false") -> Triple(

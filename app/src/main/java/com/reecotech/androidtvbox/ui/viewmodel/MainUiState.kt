@@ -9,7 +9,7 @@ data class MainUiState(
     val isLoading: Boolean = true,
     val lastUpdateTime: String = "",
     val errorMessage: String? = null,
-    val retryCount: Int = 0,
+    val retryCount: Int = 1,
     val passwordHash: String = ""
 )
 

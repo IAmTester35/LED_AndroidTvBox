@@ -44,7 +44,11 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        val networkJson = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+        val networkJson = kotlinx.serialization.json.Json { 
+            ignoreUnknownKeys = true 
+            isLenient = true
+            coerceInputValues = true
+        }
         val contentType = "application/json".toMediaType()
         
         return Retrofit.Builder()

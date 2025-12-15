@@ -32,7 +32,7 @@
 
 ## 3. Cơ chế Cập nhật (Silent Update)
 Ứng dụng tự động kiểm tra cập nhật từ **Firebase Remote Config**:
-- **Cache time:** 3 phút.
+- **Cache time:** 15 phút.
 - **Cơ chế:** So sánh `latest_version_code` server với version hiện tại.
 - **Hành vi:** Nếu có bản mới -> Tự động tải về -> Tự động cài đặt (yêu cầu quyền Device Owner) -> Tự khởi động lại.
 

@@ -96,7 +96,7 @@ class MainViewModel @Inject constructor(
                 val hasError = status is ConnectionStatus.Error
                 val errorMessage = if (status is ConnectionStatus.Error) status.message else null
 
-                val retryCount = if (status is ConnectionStatus.Error) status.retryCount else 0
+                val retryCount = if (status is ConnectionStatus.Error) status.retryCount else 1
 
                 // Use lastAttemptTime if available, otherwise current time (fallback)
                 val timeToDisplay = if (lastAttemptTime > 0) Date(lastAttemptTime) else Date()

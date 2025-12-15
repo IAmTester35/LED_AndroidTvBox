@@ -82,16 +82,14 @@ fun DisconnectOverlay(
                 textAlign = TextAlign.Center
             )
 
-            if (retryCount > 0) {
-                Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-                Text(
-                    text = "Số lần thử lại: $retryCount",
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontSize = UiConstants.FONT_SIZE_MEDIUM,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
+            Text(
+                text = "Số lần thử lại: $retryCount",
+                color = Color.White.copy(alpha = 0.9f),
+                fontSize = UiConstants.FONT_SIZE_MEDIUM,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
             
             Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
         }

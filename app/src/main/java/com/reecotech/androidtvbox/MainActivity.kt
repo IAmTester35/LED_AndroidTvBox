@@ -33,7 +33,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        checkOverlayPermission()
         checkAppUpdate()
 
         setContent {
@@ -73,18 +72,6 @@ class MainActivity : ComponentActivity() {
                 
                 // Check every 15 minutes
                 kotlinx.coroutines.delay(15 * 60 * 1000L)
-            }
-        }
-    }
-
-    private fun checkOverlayPermission() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            if (!android.provider.Settings.canDrawOverlays(this)) {
-                val intent = android.content.Intent(
-                    android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    android.net.Uri.parse("package:$packageName")
-                )
-                startActivityForResult(intent, 123)
             }
         }
     }

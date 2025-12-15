@@ -143,7 +143,7 @@ Dưới đây là Interface gợi ý nếu sử dụng TypeScript:
 ```typescript
 export interface IParameter {
   parameterId: number;
-  parameterName: string; // 'WATER_LEVEL' | 'RAIN' | 'SALT_SURFACE' | 'SALT_BOTTOM'
+  parameterName: 'WATER_LEVEL' | 'RAIN' | 'SALT_SURFACE' | 'SALT_BOTTOM';
   value: number | null;
   timestamp: string | null;
   alarmLevel: number;

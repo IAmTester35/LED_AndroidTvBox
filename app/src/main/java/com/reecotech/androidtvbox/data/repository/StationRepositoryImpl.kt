@@ -47,21 +47,34 @@ class StationRepositoryImpl @Inject constructor(
                     // Add timeout to force failure if connection hangs (so retry count increments)
                     kotlinx.coroutines.withTimeout(10_000L) {
                         val response = apiService.getLatestStationData()
-                        if (response.success) {
-                            val stationDataList = mapToStationData(response)
-                            _stations.value = stationDataList
-                            _status.value = ConnectionStatus.Connected
-                            consecutiveFailures = 0
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            if (body != null && body.success) {
+                                val stationDataList = mapToStationData(body)
+                                _stations.value = stationDataList
+                                _status.value = ConnectionStatus.Connected
+                                consecutiveFailures = 0
+                            } else {
+                                throw Exception("API returned success=false")
+                            }
                         } else {
-                            throw Exception("API returned success=false")
+                            // Handle HTTP errors explicitly (502, 503, 404, etc.)
+                            throw Exception("HTTP ${response.code()} ${response.message()}")
                         }
                     }
                 } catch (e: Exception) {
+                    // Rethrow CancellationException (unless it's a Timeout, which we want to retry)
+                    if (e is kotlinx.coroutines.CancellationException && e !is kotlinx.coroutines.TimeoutCancellationException) {
+                        throw e
+                    }
+
                     consecutiveFailures++
-                    Timber.e(e, "Error fetching station data")
+                    Timber.e(e, "Error fetching station data (Attempt $consecutiveFailures)")
                     
                     val errorMessage = if (e.message == "API returned success=false") {
                          "API returned success=false"
+                    } else if (e is kotlinx.serialization.SerializationException) {
+                        "Lỗi dữ liệu: API trả về không đúng định dạng (có thể là HTML lỗi 502/503)"
                     } else {
                         "${e.javaClass.simpleName}: ${e.message}"
                     }
@@ -71,7 +84,7 @@ class StationRepositoryImpl @Inject constructor(
                         1 -> 2_000L
                         2 -> 4_000L
                         3 -> 8_000L
-                        else -> 16_000L
+                        else -> 10_000L
                     }
                 }
 
