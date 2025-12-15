@@ -28,8 +28,8 @@ android {
         applicationId = "com.reecotech.androidtvbox"
         minSdk = 24
         targetSdk = 36
-        versionCode = 24
-        versionName = "1.0.19"
+        versionCode = 27
+        versionName = "1.0.22"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

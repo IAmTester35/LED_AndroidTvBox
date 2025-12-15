@@ -51,17 +51,17 @@ Mỗi object trong mảng này đại diện cho một loại cảm biến đo �
 | `parameterId` | Number | No | ID loại chỉ số (Xem bảng Mapping bên dưới). |
 | `parameterName` | String | No | Mã tên chỉ số (WATER_LEVEL, RAIN, ...). |
 | `value` | Number | Yes | Giá trị đo được. Nếu `null` nghĩa là không có dữ liệu hoặc lỗi cảm biến. |
-| `alarmLevel` | Number | Yes | Mức độ cảnh báo (0-5). 0 là bình thường, 5 là thảm họa. |
 | `timestamp` | String | Yes | Thời gian đo (ISO 8601: `YYYY-MM-DDTHH:mm:ss.sssZ`). |
+| `alarmLevel` | Number | Yes | Mức độ cảnh báo (0-5). 0 là bình thường, 5 là thảm họa. |
 
 **Bảng Mapping Parameter ID:**
 
 | ID | Name | Mô tả Tiếng Việt | Đơn vị |
 | :--- | :--- | :--- | :--- |
-| `1` | `WATER_LEVEL` | Mực nước | m (mét) |
-| `2` | `RAIN` | Lượng mưa(24giờ) | mm |
-| `3` | `SALT_SURFACE` | Độ mặn tầng mặt | ‰ (ppt) |
-| `4` | `SALT_BOTTOM` | Độ mặn tầng đáy | ‰ (ppt) |
+| `2` | `WATER_LEVEL` | Mực nước | m (mét) |
+| `3` | `RAIN` | Lượng mưa(24giờ) | mm |
+| `9` | `SALT_SURFACE` | Độ mặn tầng mặt | ‰ (ppt) |
+| `10` | `SALT_BOTTOM` | Độ mặn tầng đáy | ‰ (ppt) |
 
 ## 4. Example Response
 
@@ -75,28 +75,32 @@ Mỗi object trong mảng này đại diện cho một loại cảm biến đo �
             "connectionStatus": "offline",
             "parameters": [
                 {
-                    "parameterId": 1,
+                    "parameterId": 2,
                     "parameterName": "WATER_LEVEL",
                     "value": 3.5,
-                    "timestamp": "2025-12-05T00:49:13.000Z"
-                },
-                {
-                    "parameterId": 2,
-                    "parameterName": "RAIN",
-                    "value": 20.5,
-                    "timestamp": "2025-12-05T00:49:13.000Z"
+                    "timestamp": "2025-12-05T00:49:13.000Z",
+                    "alarmLevel": 2
                 },
                 {
                     "parameterId": 3,
-                    "parameterName": "SALT_SURFACE",
-                    "value": null,
-                    "timestamp": null
+                    "parameterName": "RAIN",
+                    "value": 20.5,
+                    "timestamp": "2025-12-05T00:49:13.000Z",
+                    "alarmLevel": 2
                 },
                 {
-                    "parameterId": 4,
+                    "parameterId": 9,
+                    "parameterName": "SALT_SURFACE",
+                    "value": null,
+                    "timestamp": null,
+                    "alarmLevel": 0
+                },
+                {
+                    "parameterId": 10,
                     "parameterName": "SALT_BOTTOM",
                     "value": 9.1,
-                    "timestamp": "2025-12-05T00:49:13.000Z"
+                    "timestamp": "2025-12-05T00:49:13.000Z",
+                    "alarmLevel": 5
                 }
             ]
         }
@@ -142,6 +146,7 @@ export interface IParameter {
   parameterName: string; // 'WATER_LEVEL' | 'RAIN' | 'SALT_SURFACE' | 'SALT_BOTTOM'
   value: number | null;
   timestamp: string | null;
+  alarmLevel: number;
 }
 
 export interface IStation {

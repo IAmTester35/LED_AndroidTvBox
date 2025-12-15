@@ -44,14 +44,17 @@ class StationRepositoryImpl @Inject constructor(
                 var nextDelay = 30 * 1000L // Default 30s for success
                 try {
                     _lastAttemptTime.value = System.currentTimeMillis()
-                    val response = apiService.getLatestStationData()
-                    if (response.success) {
-                        val stationDataList = mapToStationData(response)
-                        _stations.value = stationDataList
-                        _status.value = ConnectionStatus.Connected
-                        consecutiveFailures = 0
-                    } else {
-                        throw Exception("API returned success=false")
+                    // Add timeout to force failure if connection hangs (so retry count increments)
+                    kotlinx.coroutines.withTimeout(10_000L) {
+                        val response = apiService.getLatestStationData()
+                        if (response.success) {
+                            val stationDataList = mapToStationData(response)
+                            _stations.value = stationDataList
+                            _status.value = ConnectionStatus.Connected
+                            consecutiveFailures = 0
+                        } else {
+                            throw Exception("API returned success=false")
+                        }
                     }
                 } catch (e: Exception) {
                     consecutiveFailures++
@@ -67,8 +70,8 @@ class StationRepositoryImpl @Inject constructor(
                     nextDelay = when (consecutiveFailures) {
                         1 -> 2_000L
                         2 -> 4_000L
-                        3 -> 16_000L
-                        else -> 30_000L
+                        3 -> 8_000L
+                        else -> 16_000L
                     }
                 }
 
