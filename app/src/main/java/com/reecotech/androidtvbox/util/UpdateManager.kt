@@ -29,27 +29,36 @@ class UpdateManager @Inject constructor(
     fun downloadAndInstallApk(url: String, versionCode: Int) {
         if (url.isEmpty()) return
 
-        val fileName = "update_$versionCode.apk"
-        val file = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName)
+        val apkFileName = "update_$versionCode.apk"
+        val tmpFileName = "update_$versionCode.tmp"
+        
+        val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        val apkFile = File(dir, apkFileName)
+        val tmpFile = File(dir, tmpFileName)
 
-        // Check if file already exists
-        if (file.exists() && file.length() > 0) {
+        // Check if final APK file already exists
+        if (apkFile.exists() && apkFile.length() > 0) {
             Timber.d("APK file already exists. Skipping download and starting install...")
             android.widget.Toast.makeText(context, "Update file ready. Installing...", android.widget.Toast.LENGTH_SHORT).show()
-            installApk(context, file)
+            installApk(context, apkFile)
             return
         }
 
         Timber.d("Starting download from: $url")
 
-        // Clean up old APKs
+        // Clean up old APKs and TMPs
         cleanUpOldApks()
+
+        // Delete any existing temp file
+        if (tmpFile.exists()) {
+            tmpFile.delete()
+        }
 
         val request = DownloadManager.Request(Uri.parse(url))
             .setTitle("Downloading Update")
             .setDescription("Downloading version $versionCode...")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
-            .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
+            .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, tmpFileName)
             .setAllowedOverMetered(true)
             .setAllowedOverRoaming(true)
 
@@ -62,9 +71,21 @@ class UpdateManager @Inject constructor(
             override fun onReceive(ctxt: Context, intent: Intent) {
                 val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                 if (id == downloadId) {
-                    Timber.d("Download complete. Starting install...")
-                    android.widget.Toast.makeText(ctxt, "Download complete. Installing...", android.widget.Toast.LENGTH_LONG).show()
-                    installApk(ctxt, file)
+                    Timber.d("Download complete. Renaming and starting install...")
+                    
+                    // Rename .tmp to .apk
+                    if (tmpFile.exists()) {
+                        if (tmpFile.renameTo(apkFile)) {
+                            android.widget.Toast.makeText(ctxt, "Download complete. Installing...", android.widget.Toast.LENGTH_LONG).show()
+                            installApk(ctxt, apkFile)
+                        } else {
+                            Timber.e("Failed to rename temp file to APK")
+                            android.widget.Toast.makeText(ctxt, "Update failed: Rename error", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                         Timber.e("Temp file not found after download")
+                    }
+
                     try {
                         context.unregisterReceiver(this)
                     } catch (e: Exception) {
@@ -79,7 +100,7 @@ class UpdateManager @Inject constructor(
         try {
             val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             dir?.listFiles()?.forEach { file ->
-                if (file.name.startsWith("update_") && file.name.endsWith(".apk")) {
+                if (file.name.startsWith("update_") && (file.name.endsWith(".apk") || file.name.endsWith(".tmp"))) {
                     file.delete()
                 }
             }
