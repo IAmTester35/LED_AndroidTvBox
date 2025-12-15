@@ -150,3 +150,9 @@ Nếu thấy `granted=true`, ứng dụng đã sẵn sàng Silent Update.
 > 1. **Kiosk Mode:** Lệnh `set-home-activity` có thể báo lỗi nếu chạy ngay lập tức. Hãy đợi máy reboot xong rồi chạy lại lệnh đó nếu cần.
 > 2. **Native Libs (.so):** Script đã tự động push file `.so` nếu có. Nếu app bị crash, hãy kiểm tra lại xem file .so đã nằm trong `/system/priv-app/com.reecotech.androidtvbox/lib/` chưa.
 > 3. **Manifest:** Quyền trong `AndroidManifest.xml` phải khớp với file whitelist XML. Script đã tự động tạo file XML khớp, bạn chỉ cần đảm bảo không xóa quyền trong Manifest.
+
+## 6. Documentation
+Để tạo lại file tài liệu PDF tổng hợp từ các file markdown, chạy lệnh sau:
+```bash
+npx md-to-pdf combined_documentation.md
+```
