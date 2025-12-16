@@ -10,6 +10,10 @@ data class MainUiState(
     val lastUpdateTime: String = "",
     val errorMessage: String? = null,
     val retryCount: Int = 1,
-    val passwordHash: String = ""
+    val passwordHash: String = "",
+    val sleepTimeConfig: com.reecotech.androidtvbox.data.repository.RemoteConfigRepository.SleepTimeConfig? = null,
+    val isSleepMode: Boolean = false,
+    val showSleepWarning: Boolean = false,
+    val sleepWarningSecondsLeft: Int = 60
 )
 

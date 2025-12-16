@@ -16,7 +16,7 @@ Sử dụng tài khoản developer.reecotech@gmail.com trên Firebase với proj
 Thời gian cache là 15 phút nên khi thay đổi giá trị trong Remote Config, cần đợi tối đa 15 phút để giá trị mới được áp dụng trong app.
 | Key | Kiểu dữ liệu | Mô tả | Giá trị ví dụ |
 | :--- | :--- | :--- | :--- |
-| `password_hash` | String | Mã hóa SHA256 của mật khẩu quản trị. | `99edc2b391da70f08d8aed876b0c2bb1e976bcaff860abc0f29dcd45fd09d1dc` |
+| `password_hash` | String | Mã hóa SHA256 của mật khẩu quản trị. | `99e...fd09d1dc` |
 | `latest_version_code` | Number | Mã phiên bản mới nhất của ứng dụng. Dùng để kích hoạt cập nhật. | `28` |
 | `apk_download_url` | String | Đường dẫn tải trực tiếp file APK (Direct Link). | `https://example.com/app-release.apk` |
 
@@ -172,24 +172,60 @@ Màu sắc của chữ số hiển thị mức độ cảnh báo (Alarm Level):
 
 | Cấp độ | Màu sắc hiển thị | Ý nghĩa | Hành động khuyến nghị |
 | :--- | :--- | :--- | :--- |
-| **Cấp 0** | <span style="color:#29c717">■</span> Xanh lá cây | Bình thường | An toàn. |
-| **Cấp 1** | <span style="color:#b1ffff">■</span> Xanh dương nhạt | Nguy cơ thấp | Theo dõi bản tin thời tiết. |
+| **Cấp 0** | <span style="color:#29c717">■</span> Xanh lá cây | Bình thường |  |
+| **Cấp 1** | <span style="color:#b1ffff">■</span> Xanh dương nhạt | Nguy cơ thấp | Theo dõi thời tiết. |
 | **Cấp 2** | <span style="color:#faf58c">■</span> Vàng nhạt | Nguy cơ trung bình | Theo dõi thường xuyên. |
-| **Cấp 3** | <span style="color:#ff9b00">■</span> Cam | Nguy cơ cao | Phòng ngừa, chuẩn bị ứng phó. |
-| **Cấp 4** | <span style="color:#ff0a00">■</span> Đỏ | Nguy cơ rất cao | Cảnh giác cao độ, tuân thủ hướng dẫn. |
-| **Cấp 5** | <span style="color:#a028a0">■</span> Tím | Thảm họa | Tình trạng khẩn cấp, sẵn sàng di dời. |
-| **N/A** | <span style="color:#C9C9C9">■</span> Xám | Không có dữ liệu | Cảm biến lỗi hoặc mất kết nối. |
+| **Cấp 3** | <span style="color:#ff9b00">■</span> Cam | Nguy cơ cao, cực đoan | Phòng ngừa, chuẩn bị. |
+| **Cấp 4** | <span style="color:#ff0a00">■</span> Đỏ | Nguy cơ rất cao, cực đoan | Cảnh giác, làm theo hướng dẫn |
+| **Cấp 5** | <span style="color:#a028a0">■</span> Tím | Thảm họa | Tuân thủ chỉ đạo, sẵn sàng ứng phó |
+| **N/A** | <span style="color:#C9C9C9">■</span> Xám | Không có dữ liệu |  |
 
-### 4.3. Các thông báo lỗi thường gặp
-*   **LỖI GATEWAY (502/504):** Server quá tải hoặc đang khởi động lại. Ứng dụng sẽ tự thử lại.
-*   **LỖI KẾT NỐI MẠNG:** Box bị mất Wifi/LAN. Kiểm tra dây mạng.
-*   **LỖI DỮ LIỆU:** Server trả về dữ liệu rác (HTML thay vì JSON).
+### 4.3. Cơ chế Xử lý & Hiển thị Lỗi (Error Handling Mechanism)
 
-## 5. Deployment
-- Chạy script để deploy app vào system partition (nếu cần):
-  ```bash
-  ./deploy_system_app.sh
-  ```
+Khi gặp sự cố, màn hình sẽ hiển thị Overlay cảnh báo màu đỏ với các thông tin chi tiết để hỗ trợ Debug.
+
+**Cấu trúc thông báo lỗi trên màn hình:**
+1.  **Tiêu đề:** Tên lỗi ngắn gọn, dễ hiểu (VD: LỖI KẾT NỐI MẠNG).
+2.  **Mô tả:** Giải thích nguyên nhân và hướng khắc phục cho người vận hành.
+3.  **Mã lỗi kỹ thuật (Error Code):** Mã chi tiết bắt đầu bằng `E_...` để báo cho bộ phận kỹ thuật.
+4.  **Retry Count:** Số lần ứng dụng đang tự động thử lại kết nối.
+
+**Bảng mã lỗi chi tiết:**
+
+| Mã lỗi (Technical Code) | Tiêu đề hiển thị | Mô tả & Hướng xử lý |
+| :--- | :--- | :--- |
+| `E_DNS_LOOKUP` | **LỖI KẾT NỐI MẠNG** | Không tìm thấy máy chủ. Vui lòng kiểm tra đường truyền Internet hoặc DNS. |
+| `E_CONNECTION_REFUSED` | **KHÔNG THỂ KẾT NỐI** | Máy chủ từ chối kết nối hoặc không phản hồi (Port đóng/Firewall chặn). |
+| `E_TIMEOUT` | **QUÁ THỜI GIAN CHỜ** | Phản hồi từ máy chủ quá lâu (>30s). Kiểm tra lại đường truyền mạng. |
+| `E_HTTP_504` | **LỖI GATEWAY TIMEOUT** | Máy chủ không phản hồi kịp thời. Hệ thống có thể đang quá tải. |
+| `E_HTTP_502` | **LỖI GATEWAY (502)** | Máy chủ gặp sự cố tạm thời (Bad Gateway). Ứng dụng sẽ tự động thử lại liên tục. |
+| `E_HTTP_503` | **LỖI DỊCH VỤ (503)** | Máy chủ đang bảo trì hoặc quá tải. Ứng dụng sẽ tự động thử lại. |
+| `E_PARSING` | **LỖI DỮ LIỆU** | Dữ liệu nhận được không đúng định dạng JSON (thường do nhận về trang lỗi HTML). |
+| `E_API_LOGIC` | **LỖI API** | Máy chủ xử lý yêu cầu thất bại (`success: false`). |
+| `STATUS: DISCONNECTED` | **MẤT KẾT NỐI** | Trạng thái khởi tạo hoặc đang nỗ lực kết nối lại. |
+
+### 4.4. Quy tắc Tự động Xử lý Lỗi (Error Handling Rules)
+
+Hệ thống được lập trình để **tự phục hồi** (self-healing) mà không cần can thiệp thủ công:
+
+1.  **Chế độ Thử lại (Retry Policy):**
+    *   Ngay khi gặp lỗi, hệ thống sẽ thực hiện thử lại theo chiến lược "Exponential Backoff" (Tăng dần thời gian chờ) để tránh spam server:
+        *   Lần 1: Chờ 2 giây
+        *   Lần 2: Chờ 4 giây
+        *   Lần 3: Chờ 8 giây
+        *   Lần 4+: Chờ 10 giây (Cố định).
+    *   Quy trình này lặp lại vô tận cho đến khi kết nối thành công.
+
+2.  **Thời gian chờ (Timeout):**
+    *   Mỗi request có thời gian chờ tối đa là **10 giây**. Nếu quá 10 giây không có phản hồi, Request bị hủy và tính là 1 lần lỗi (chuyển sang chế độ retry).
+
+3.  **Tần suất cập nhật chuẩn:**
+    *   Khi hệ thống hoạt động bình thường, dữ liệu được làm mới mỗi **30 giây**.
+
+4.  **Bảo toàn dữ liệu cũ:**
+    *   Khi gặp sự cố kết nối, dữ liệu cũ (nếu có) sẽ **được giữ nguyên** trên màn hình nền.
+    *   Overlay cảnh báo lỗi sẽ hiện **đè lên trên** để người dùng nhận biết dữ liệu có thể không còn mới nhất.
+
 
 ## 5. Quy trình Cài đặt Chuẩn & Khắc phục lỗi Device Owner
 Nếu gặp lỗi `java.lang.RuntimeException: Can't set package ... as device owner` dù đã reset máy, hãy làm theo đúng từng bước sau:

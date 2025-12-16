@@ -42,7 +42,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color.Black
                 ) {
-                    MainDataScreen(state = uiState)
+                    MainDataScreen(
+                        state = uiState,
+                        onConfirmSleep = viewModel::onConfirmSleep,
+                        onCancelSleep = viewModel::onCancelSleep
+                    )
                 }
             }
         }

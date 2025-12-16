@@ -8,6 +8,7 @@ import com.reecotech.androidtvbox.domain.StationRepository
 import com.reecotech.androidtvbox.domain.model.StationData
 import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
 import com.reecotech.androidtvbox.domain.usecase.GetMockStationDataUseCase
+import com.reecotech.androidtvbox.data.repository.RemoteConfigRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -21,7 +22,8 @@ import kotlin.random.Random
 class MainViewModel @Inject constructor(
     private val getDeviceIDUseCase: GetDeviceIDUseCase,
     private val stationRepository: StationRepository,
-    private val getMockStationDataUseCase: GetMockStationDataUseCase
+    private val getMockStationDataUseCase: GetMockStationDataUseCase,
+    private val remoteConfigRepository: RemoteConfigRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -32,11 +34,107 @@ class MainViewModel @Inject constructor(
 
     private val _passwordHash = MutableStateFlow("")
 
+    private var sleepWarningCancelled = false
+
     init {
+        startSleepTimer()
         if (useMockData) {
             startMockDataFlow()
         } else {
             startDataFlow()
+        }
+    }
+
+    fun onConfirmSleep() {
+        _uiState.update { it.copy(isSleepMode = true, showSleepWarning = false) }
+    }
+
+    fun onCancelSleep() {
+        sleepWarningCancelled = true
+        _uiState.update { it.copy(showSleepWarning = false) }
+    }
+
+    private fun startSleepTimer() {
+        viewModelScope.launch {
+            while (true) {
+                var delayTime = 60000L // Default to 60s check
+                val currentState = _uiState.value
+
+                // Priority: Handle Active Countdown
+                if (currentState.showSleepWarning && !currentState.isSleepMode) {
+                    if (currentState.sleepWarningSecondsLeft > 0) {
+                        _uiState.update { it.copy(sleepWarningSecondsLeft = it.sleepWarningSecondsLeft - 1) }
+                        delayTime = 1000L // Continue ticking every second
+                    } else {
+                        onConfirmSleep() // Timeout, enter sleep
+                        delayTime = 1000L // Checks immediately to verify state
+                    }
+                } else {
+                    // Periodic Check (Config & Time)
+                    val sleepConfig = remoteConfigRepository.getSleepTimeConfig()
+                    
+                    // Update config in UI state
+                     _uiState.update { it.copy(sleepTimeConfig = sleepConfig) }
+
+                    if (sleepConfig != null) {
+                        val cal = Calendar.getInstance()
+                        val currentHour = cal.get(Calendar.HOUR_OF_DAY)
+                        val currentMinute = cal.get(Calendar.MINUTE)
+                        val currentTotalMinutes = currentHour * 60 + currentMinute
+                        
+                        fun parseTimeToMinutes(timeStr: String): Int? {
+                            return try {
+                                val parts = timeStr.split(":")
+                                if (parts.size == 2) {
+                                    val h = parts[0].toInt()
+                                    val m = parts[1].toInt()
+                                    h * 60 + m
+                                } else null
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+
+                        val frMinutes = parseTimeToMinutes(sleepConfig.fr)
+                        val toMinutes = parseTimeToMinutes(sleepConfig.to)
+                        
+                        val isSleepTime = if (frMinutes != null && toMinutes != null) {
+                            if (frMinutes < toMinutes) {
+                                currentTotalMinutes in frMinutes until toMinutes
+                            } else {
+                                // Crossing midnight
+                                currentTotalMinutes >= frMinutes || currentTotalMinutes < toMinutes
+                            }
+                        } else false
+                        
+                        if (isSleepTime) {
+                             if (!currentState.isSleepMode && !sleepWarningCancelled) {
+                                 // Trigger Warning
+                                 _uiState.update { 
+                                     it.copy(
+                                         showSleepWarning = true, 
+                                         sleepWarningSecondsLeft = 60
+                                     ) 
+                                 }
+                                 delayTime = 1000L // Switch to 1s tick for countdown
+                             }
+                        } else {
+                            // Not sleep time, reset
+                            if (sleepWarningCancelled || currentState.isSleepMode) {
+                                sleepWarningCancelled = false
+                                _uiState.update { 
+                                    it.copy(
+                                        isSleepMode = false, 
+                                        showSleepWarning = false
+                                    ) 
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                delay(delayTime)
+            }
         }
     }
 
@@ -66,7 +164,7 @@ class MainViewModel @Inject constructor(
                     )
                 }
 
-                _uiState.value = MainUiState(
+                val newState = MainUiState(
                     stations = mockStations,
                     isConnected = true,
                     hasJsonError = false,
@@ -74,6 +172,15 @@ class MainViewModel @Inject constructor(
                     lastUpdateTime = currentTime,
                     passwordHash = _passwordHash.value
                 )
+
+                _uiState.update { current ->
+                    newState.copy(
+                        sleepTimeConfig = current.sleepTimeConfig,
+                        isSleepMode = current.isSleepMode,
+                        showSleepWarning = current.showSleepWarning,
+                        sleepWarningSecondsLeft = current.sleepWarningSecondsLeft
+                    )
+                }
 
                 // Update every 5 seconds
                 delay(5000)
@@ -116,7 +223,14 @@ class MainViewModel @Inject constructor(
 
             }.distinctUntilChanged()
                 .collect { newState ->
-                    _uiState.value = newState
+                    _uiState.update { current ->
+                        newState.copy(
+                            sleepTimeConfig = current.sleepTimeConfig,
+                            isSleepMode = current.isSleepMode,
+                            showSleepWarning = current.showSleepWarning,
+                            sleepWarningSecondsLeft = current.sleepWarningSecondsLeft
+                        )
+                    }
                 }
         }
     }
