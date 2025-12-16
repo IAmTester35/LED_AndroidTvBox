@@ -37,6 +37,9 @@ class MainViewModel @Inject constructor(
     private var sleepWarningCancelled = false
 
     init {
+        // Initialize polling interval to 60s
+        stationRepository.setPollingInterval(60_000L)
+        
         startSleepTimer()
         if (useMockData) {
             startMockDataFlow()
@@ -56,9 +59,17 @@ class MainViewModel @Inject constructor(
 
     private fun startSleepTimer() {
         viewModelScope.launch {
+            var lastSetPollingInterval = 60_000L // Track last interval to avoid redundant calls
+
             while (true) {
                 var delayTime = 60000L // Default to 60s check
                 val currentState = _uiState.value
+                val targetPollingInterval = if (currentState.isSleepMode) 3_600_000L else 60_000L
+                
+                if (targetPollingInterval != lastSetPollingInterval) {
+                    stationRepository.setPollingInterval(targetPollingInterval)
+                    lastSetPollingInterval = targetPollingInterval
+                }
 
                 // Priority: Handle Active Countdown
                 if (currentState.showSleepWarning && !currentState.isSleepMode) {
@@ -140,6 +151,10 @@ class MainViewModel @Inject constructor(
 
     fun updatePasswordHash(hash: String) {
         _passwordHash.value = hash
+    }
+
+    fun updateSleepTimeConfig(config: RemoteConfigRepository.SleepTimeConfig?) {
+        _uiState.update { it.copy(sleepTimeConfig = config) }
     }
 
     private fun startMockDataFlow() {

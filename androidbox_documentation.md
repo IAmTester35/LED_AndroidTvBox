@@ -220,7 +220,7 @@ Hệ thống được lập trình để **tự phục hồi** (self-healing) m�
     *   Mỗi request có thời gian chờ tối đa là **10 giây**. Nếu quá 10 giây không có phản hồi, Request bị hủy và tính là 1 lần lỗi (chuyển sang chế độ retry).
 
 3.  **Tần suất cập nhật chuẩn:**
-    *   Khi hệ thống hoạt động bình thường, dữ liệu được làm mới mỗi **30 giây**.
+    *   Khi hệ thống hoạt động bình thường, dữ liệu được làm mới mỗi **60 giây**.
 
 4.  **Bảo toàn dữ liệu cũ:**
     *   Khi gặp sự cố kết nối, dữ liệu cũ (nếu có) sẽ **được giữ nguyên** trên màn hình nền.
@@ -350,7 +350,7 @@ Tài liệu này mô tả chi tiết về endpoint lấy dữ liệu quan trắc
     *   **Thư viện:** Retrofit 2 + OkHttp 3.
     *   **SSL/TLS:** API có chứng chỉ SSL/TLS hợp lệ.
     *   **Authentication:** API này là Public Endpoint, **không yêu cầu** API Key hoặc Token xác thực trong Header.
-    *   **Retry Policy:** Timeout kết nối và đọc dữ liệu là 30 giây.
+    *   **Retry Policy:** Timeout kết nối và đọc dữ liệu là 60 giây.
 
 ## 2. Request
 
@@ -499,3 +499,24 @@ export interface IStationResponse {
   data: IStation[];
 }
 ```
+
+## 6. Tính năng Chế độ Ngủ (Sleep Mode) & Tiết kiệm năng lượng
+
+Để bảo vệ màn hình LED và tiết kiệm năng lượng vào ban đêm, ứng dụng được tích hợp chế độ ngủ thông minh (Sleep Mode).
+
+### 6.1. Cấu hình Remote Config
+Key mới được hỗ trợ: `sleep_time`
+*   **Format:** JSON String `{"fr": "HH:mm", "to": "HH:mm"}`
+*   **Ví dụ:** `{"fr": "23:00", "to": "05:00"}` (Ngủ từ 23h đêm đến 5h sáng hôm sau).
+*   **Mặc định:** `17:00` - `07:00` (Nếu không cấu hình).
+
+### 6.2. Cơ chế Hoạt động
+1.  **Cảnh báo:** 60 giây trước giờ ngủ (ví dụ 22:59), một hộp thoại cảnh báo sẽ xuất hiện. Người dùng có thể chọn "Hủy" để bỏ qua chế độ ngủ cho phiên làm việc này.
+2.  **Kích hoạt ngủ:** Khi hết giờ đếm ngược mà không có thao tác hủy:
+    *   **Hiển thị:** Màn hình chuyển sang màu đen hoàn toàn (Black Overlay) -> Giúp tắt các bóng LED trên màn hình hiển thị.
+    *   **Phần cứng:** Ứng dụng tự động hạ độ sáng hệ thống (Window Brightness) xuống mức thấp nhất (`0.0f`) để giảm tối đa tín hiệu HDMI và tiết kiệm điện cho Box.
+    *   **Tần suất gọi API:** Giảm còn 1 tiếng gọi API 1 lần để cập nhật trạng thái thông số trạm.
+3.  **Thức dậy:** Khi qua thời gian ngủ (ví dụ 05:01):
+    *   Màn hình đen biến mất.
+    *   Độ sáng hệ thống được trả về mặc định (`-1.0f`).
+

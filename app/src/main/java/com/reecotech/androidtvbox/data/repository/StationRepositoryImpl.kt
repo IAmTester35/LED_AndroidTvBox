@@ -33,6 +33,22 @@ class StationRepositoryImpl @Inject constructor(
 
     private var pollingJob: Job? = null
     private val pollingScope = CoroutineScope(Dispatchers.IO)
+    
+    // Default 60 seconds (optimized from 30s)
+    private var currentPollingInterval = 60_000L
+
+    override fun setPollingInterval(intervalMs: Long) {
+        if (currentPollingInterval == intervalMs) return
+        
+        Timber.d("Updating polling interval: $intervalMs ms")
+        currentPollingInterval = intervalMs
+        
+        // If currently polling, restart to apply new interval immediately
+        if (pollingJob?.isActive == true) {
+            stopPolling()
+            startPolling()
+        }
+    }
 
     override fun startPolling() {
         if (pollingJob?.isActive == true) return
@@ -41,7 +57,7 @@ class StationRepositoryImpl @Inject constructor(
         pollingJob = pollingScope.launch {
             var consecutiveFailures = 0
             while (isActive) {
-                var nextDelay = 30 * 1000L // Default 30s for success
+                var nextDelay = currentPollingInterval // Use dynamic interval
                 try {
                     _lastAttemptTime.value = System.currentTimeMillis()
                     // Add timeout to force failure if connection hangs (so retry count increments)

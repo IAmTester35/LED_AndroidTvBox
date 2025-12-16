@@ -1,15 +1,16 @@
 package com.reecotech.androidtvbox.util
 
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
 import com.reecotech.androidtvbox.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -26,8 +27,8 @@ class UpdateManager @Inject constructor(
         return remoteVersionCode > BuildConfig.VERSION_CODE
     }
 
-    fun downloadAndInstallApk(url: String, versionCode: Int) {
-        if (url.isEmpty()) return
+    suspend fun downloadAndInstallApk(url: String, versionCode: Int) = withContext(Dispatchers.IO) {
+        if (url.isEmpty()) return@withContext
 
         val apkFileName = "update_$versionCode.apk"
         val tmpFileName = "update_$versionCode.tmp"
@@ -39,9 +40,11 @@ class UpdateManager @Inject constructor(
         // Check if final APK file already exists
         if (apkFile.exists() && apkFile.length() > 0) {
             Timber.d("APK file already exists. Skipping download and starting install...")
-            android.widget.Toast.makeText(context, "Update file ready. Installing...", android.widget.Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                android.widget.Toast.makeText(context, "Update file ready. Installing...", android.widget.Toast.LENGTH_SHORT).show()
+            }
             installApk(context, apkFile)
-            return
+            return@withContext
         }
 
         Timber.d("Starting download from: $url")
@@ -65,35 +68,68 @@ class UpdateManager @Inject constructor(
         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         downloadId = downloadManager.enqueue(request)
 
-        // Register receiver to listen for download complete
-        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        context.registerReceiver(object : BroadcastReceiver() {
-            override fun onReceive(ctxt: Context, intent: Intent) {
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id == downloadId) {
-                    Timber.d("Download complete. Renaming and starting install...")
-                    
-                    // Rename .tmp to .apk
-                    if (tmpFile.exists()) {
-                        if (tmpFile.renameTo(apkFile)) {
-                            android.widget.Toast.makeText(ctxt, "Download complete. Installing...", android.widget.Toast.LENGTH_LONG).show()
-                            installApk(ctxt, apkFile)
-                        } else {
-                            Timber.e("Failed to rename temp file to APK")
-                            android.widget.Toast.makeText(ctxt, "Update failed: Rename error", android.widget.Toast.LENGTH_LONG).show()
-                        }
-                    } else {
-                         Timber.e("Temp file not found after download")
-                    }
+        // Poll for download status
+        var downloading = true
+        val startTime = System.currentTimeMillis()
+        val TIMEOUT_MS = 20 * 60 * 1000L // 20 minutes timeout
 
-                    try {
-                        context.unregisterReceiver(this)
-                    } catch (e: Exception) {
-                        // ignore
+        while (downloading) {
+            // Check for timeout
+            if (System.currentTimeMillis() - startTime > TIMEOUT_MS) {
+                Timber.e("Download timed out after 20 minutes. Cancelling...")
+                downloadManager.remove(downloadId)
+                withContext(Dispatchers.Main) {
+                    android.widget.Toast.makeText(context, "Update failed: Download timed out", android.widget.Toast.LENGTH_LONG).show()
+                }
+                return@withContext
+            }
+
+            val query = DownloadManager.Query()
+            query.setFilterById(downloadId)
+            val cursor = downloadManager.query(query)
+            
+            if (cursor.moveToFirst()) {
+                val statusColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                if (statusColumnIndex != -1) {
+                    val status = cursor.getInt(statusColumnIndex)
+                    when (status) {
+                        DownloadManager.STATUS_SUCCESSFUL -> {
+                            downloading = false
+                            Timber.d("Download complete. Renaming and starting install...")
+                            
+                            // Rename .tmp to .apk
+                            if (tmpFile.exists()) {
+                                if (tmpFile.renameTo(apkFile)) {
+                                    withContext(Dispatchers.Main) {
+                                        android.widget.Toast.makeText(context, "Download complete. Installing...", android.widget.Toast.LENGTH_LONG).show()
+                                    }
+                                    installApk(context, apkFile)
+                                } else {
+                                    Timber.e("Failed to rename temp file to APK")
+                                    withContext(Dispatchers.Main) {
+                                        android.widget.Toast.makeText(context, "Update failed: Rename error", android.widget.Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            } else {
+                                 Timber.e("Temp file not found after download")
+                            }
+                        }
+                        DownloadManager.STATUS_FAILED -> {
+                            downloading = false
+                            Timber.e("Download failed")
+                             withContext(Dispatchers.Main) {
+                                android.widget.Toast.makeText(context, "Download failed", android.widget.Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }
                 }
             }
-        }, filter, Context.RECEIVER_EXPORTED)
+            cursor.close()
+            
+            if (downloading) {
+                delay(1000) // Poll every second
+            }
+        }
     }
 
     private fun cleanUpOldApks() {
@@ -109,7 +145,7 @@ class UpdateManager @Inject constructor(
         }
     }
 
-    private fun installApk(context: Context, file: File) {
+    private suspend fun installApk(context: Context, file: File) {
         if (!file.exists()) {
             Timber.e("APK file not found at ${file.absolutePath}")
             return
@@ -141,10 +177,12 @@ class UpdateManager @Inject constructor(
 
         // 3. Fallback: Standard Android Install Intent (Non-Root)
         Timber.i("Root/Silent failed. Fallback to Standard Intent Install (User Interaction Required).")
-        installViaIntent(context, file)
+        withContext(Dispatchers.Main) {
+            installViaIntent(context, file)
+        }
     }
 
-    private fun installViaPackageInstaller(context: Context, apkFile: File) {
+    private suspend fun installViaPackageInstaller(context: Context, apkFile: File) = withContext(Dispatchers.IO) {
         val packageInstaller = context.packageManager.packageInstaller
         val params = android.content.pm.PackageInstaller.SessionParams(
             android.content.pm.PackageInstaller.SessionParams.MODE_FULL_INSTALL
@@ -175,8 +213,9 @@ class UpdateManager @Inject constructor(
 
         } catch (e: Exception) {
             Timber.e(e, "PackageInstaller install failed")
-            // Fallback to intent if this fails?
-             installViaIntent(context, apkFile)
+             withContext(Dispatchers.Main) {
+                 installViaIntent(context, apkFile)
+             }
         }
     }
 
@@ -198,8 +237,8 @@ class UpdateManager @Inject constructor(
         }
     }
 
-    private fun installSilent(path: String): Boolean {
-        return try {
+    private suspend fun installSilent(path: String): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
             // Note: This only works if the app is a System App or has special signature permissions
             val command = "pm install -r $path"
             val process = Runtime.getRuntime().exec(command)
@@ -212,8 +251,8 @@ class UpdateManager @Inject constructor(
         }
     }
 
-    private fun installRoot(path: String): Boolean {
-        return try {
+    private suspend fun installRoot(path: String): Boolean = withContext(Dispatchers.IO) {
+        return@withContext try {
             val command = "su -c pm install -r $path"
             val process = Runtime.getRuntime().exec(command)
             val result = process.waitFor()

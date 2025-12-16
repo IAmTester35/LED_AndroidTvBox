@@ -30,6 +30,16 @@ class MainActivity : ComponentActivity() {
     @javax.inject.Inject
     lateinit var updateManager: com.reecotech.androidtvbox.util.UpdateManager
 
+    private fun setWindowBrightness(isSleep: Boolean) {
+        val layoutParams = window.attributes
+        layoutParams.screenBrightness = if (isSleep) {
+            0.0f // Min brightness
+        } else {
+            android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE // Restore default
+        }
+        window.attributes = layoutParams
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -38,6 +48,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidTVBoxTheme {
                 val uiState by viewModel.uiState.collectAsState()
+                
+                // Side-effect to control brightness
+                androidx.compose.runtime.LaunchedEffect(uiState.isSleepMode) {
+                    setWindowBrightness(uiState.isSleepMode)
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = Color.Black
@@ -61,8 +77,10 @@ class MainActivity : ComponentActivity() {
                         val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
                         val apkUrl = remoteConfigRepository.getApkDownloadUrl()
                         val passwordHash = remoteConfigRepository.getPasswordHash()
+                        val sleepConfig = remoteConfigRepository.getSleepTimeConfig()
                         
                         viewModel.updatePasswordHash(passwordHash)
+                        viewModel.updateSleepTimeConfig(sleepConfig)
                         
                         if (updateManager.isUpdateAvailable(latestVersionCode)) {
                             android.widget.Toast.makeText(this@MainActivity, "Found new update: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()

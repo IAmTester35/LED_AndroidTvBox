@@ -18,4 +18,5 @@ interface StationRepository {
 
     fun startPolling()
     fun stopPolling()
+    fun setPollingInterval(intervalMs: Long)
 }
