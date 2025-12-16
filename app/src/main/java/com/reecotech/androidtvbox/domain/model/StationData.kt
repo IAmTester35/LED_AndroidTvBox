@@ -9,5 +9,6 @@ data class StationData(
     val surfaceSalinity: String = "--", // Độ mặn tầng mặt (PPT)
     val surfaceSalinityAlarmLevel: Int = 0,
     val bottomSalinity: String = "--",   // Độ mặn tầng đáy (PPT)
-    val bottomSalinityAlarmLevel: Int = 0
+    val bottomSalinityAlarmLevel: Int = 0,
+    val isOnline: Boolean = true
 )

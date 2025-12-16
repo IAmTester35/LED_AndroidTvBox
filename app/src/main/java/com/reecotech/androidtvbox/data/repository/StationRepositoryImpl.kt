@@ -157,7 +157,8 @@ class StationRepositoryImpl @Inject constructor(
                 surfaceSalinity = surfaceSalt,
                 surfaceSalinityAlarmLevel = surfaceSaltAlarm,
                 bottomSalinity = bottomSalt,
-                bottomSalinityAlarmLevel = bottomSaltAlarm
+                bottomSalinityAlarmLevel = bottomSaltAlarm,
+                isOnline = station.connectionStatus == "online"
             )
         }
     }

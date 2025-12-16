@@ -110,7 +110,9 @@ class MainViewModel @Inject constructor(
                         val toMinutes = parseTimeToMinutes(sleepConfig.to)
                         
                         val isSleepTime = if (frMinutes != null && toMinutes != null) {
-                            if (frMinutes < toMinutes) {
+                            if (frMinutes == toMinutes) {
+                                false
+                            } else if (frMinutes < toMinutes) {
                                 currentTotalMinutes in frMinutes until toMinutes
                             } else {
                                 // Crossing midnight

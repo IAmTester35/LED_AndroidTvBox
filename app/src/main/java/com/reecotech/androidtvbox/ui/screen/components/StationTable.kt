@@ -57,7 +57,7 @@ private fun TableHeaderRow(stations: List<StationData>, firstColWidth: androidx.
     ) {
         CornerHeaderCell(Modifier.width(firstColWidth))
         stations.forEach { station ->
-            TableHeaderCell(station.stationName, Modifier.width(otherColWidth))
+            TableHeaderCell(station.stationName, Modifier.width(otherColWidth), station.isOnline)
         }
     }
 }
@@ -87,7 +87,8 @@ private fun TableParameterRows(
                 val isNoData = textValue == UiConstants.NO_DATA_PLACEHOLDER
 
                 // Fix Logic: If NO DATA, prioritize No Data Color (Gray) over Alarm Color.
-                val txtColor = if (isNoData) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
+                // If offline, also force No Data Color
+                val txtColor = if (isNoData || !station.isOnline) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
                 
                 val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_MEDIUM
                 val fontWeight = if (isNoData) FontWeight.Black else FontWeight.Bold
@@ -192,7 +193,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
+fun TableHeaderCell(text: String, modifier: Modifier = Modifier, isOnline: Boolean = true) {
     Box(
         modifier = modifier
             .height(UiConstants.TABLE_HEADER_HEIGHT)
@@ -203,7 +204,7 @@ fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = text,
-            color = HeaderText,
+            color = if (isOnline) HeaderText else UiConstants.NO_DATA_COLOR,
             fontSize = UiConstants.FONT_SIZE_NORMAL,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
