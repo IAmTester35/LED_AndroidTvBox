@@ -519,4 +519,5 @@ Key mới được hỗ trợ: `sleep_time`
 3.  **Thức dậy:** Khi qua thời gian ngủ (ví dụ 05:01):
     *   Màn hình đen biến mất.
     *   Độ sáng hệ thống được trả về mặc định (`-1.0f`).
+    *   Tần suất gọi API được khôi phục.
 
