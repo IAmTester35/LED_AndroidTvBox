@@ -6,9 +6,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.reecotech.androidtvbox.data.model.DeviceStatus
 import com.reecotech.androidtvbox.domain.DeviceRepository
+import androidx.datastore.preferences.core.emptyPreferences
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.io.IOException
+import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 
@@ -21,14 +25,27 @@ class DeviceRepositoryImpl @Inject constructor(
     }
 
     override fun getDeviceId(): Flow<String?> {
-        return dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.DEVICE_ID]
-        }
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    Timber.e(exception, "Error reading DataStore")
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
+            }
+            .map { preferences ->
+                preferences[PreferencesKeys.DEVICE_ID]
+            }
     }
 
     override suspend fun saveDeviceId(deviceId: String) {
-        dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DEVICE_ID] = deviceId
+        try {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DEVICE_ID] = deviceId
+            }
+        } catch (e: IOException) {
+            Timber.e(e, "Error saving to DataStore")
         }
     }
 
