@@ -19,7 +19,7 @@ object UiConstants {
     val SPACING_LARGE = 12.dp
     
     // Sizes
-    val LOGO_GOVERNMENT_SIZE = 70.dp
+    val LOGO_GOVERNMENT_SIZE = 95.dp
     val LOGO_REECO_WIDTH = 120.dp
     val LOGO_REECO_HEIGHT = 40.dp
     val QR_CODE_SIZE = 26.dp
@@ -44,8 +44,8 @@ object UiConstants {
     val FONT_SIZE_NORMAL = 12.sp
     val FONT_SIZE_MEDIUM = 14.sp
     val FONT_SIZE_LARGE = 18.sp
-    val FONT_SIZE_HEADER_TITLE = 22.sp
-    val FONT_SIZE_HEADER_SUBTITLE = 24.sp
+    val FONT_SIZE_HEADER_TITLE = 23.sp
+    val FONT_SIZE_HEADER_SUBTITLE = 25.sp
     val FONT_SIZE_HUGE = 32.sp
     val LINE_HEIGHT_SMALL = 14.sp
     
