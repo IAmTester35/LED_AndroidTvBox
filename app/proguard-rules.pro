@@ -55,3 +55,16 @@
 # Coroutines
 -keep class kotlinx.coroutines.** { *; }
 -keep class kotlin.coroutines.** { *; }
+
+# DataStore - Prevent R8 from stripping corruption handler
+-keep class androidx.datastore.** { *; }
+-keep class androidx.datastore.core.** { *; }
+-keep class androidx.datastore.preferences.** { *; }
+-keep class androidx.datastore.preferences.core.** { *; }
+-keepclassmembers class * extends com.google.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
+# Protobuf Lite (used by DataStore internally)
+-keep class com.google.protobuf.** { *; }
+-dontwarn com.google.protobuf.**
