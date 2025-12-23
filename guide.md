@@ -51,7 +51,7 @@ Hệ thống sử dụng màu sắc để giúp bạn nhận biết nhanh mức 
 *   Bạn không cần thao tác gì thêm, ứng dụng chạy hoàn toàn tự động 24/7.
 
 ### Chế độ Ngủ (Tiết kiệm điện)
-*   Để bảo vệ tuổi thọ màn hình LED, hệ thống có thể tự động tắt màn hình vào ban đêm (Mặc định thường từ **19:00 đến 07:00** hoặc tùy chỉnh).
+*   Để bảo vệ tuổi thọ màn hình LED, hệ thống có thể tự động tắt màn hình vào ban đêm (Mặc định thường từ **19:00 đến 05:00** hoặc tùy chỉnh).
 *   Trong thời gian này, màn hình sẽ tối đen. Đây là tính năng, **không phải lỗi**.
 
 > **Hướng dẫn bật màn hình khẩn cấp trong giờ ngủ:**

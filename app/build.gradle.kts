@@ -28,8 +28,8 @@ android {
         applicationId = "com.reecotech.androidtvbox"
         minSdk = 24
         targetSdk = 36
-        versionCode = 33
-        versionName = "1.1.3"
+        versionCode = 37
+        versionName = "1.1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,7 +45,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -101,8 +101,7 @@ dependencies {
     // implementation(libs.moshi)
     // ksp(libs.moshi.codegen)
 
-    // DataStore
-    implementation(libs.datastore.preferences)
+
 
     // Logging
     implementation(libs.timber)

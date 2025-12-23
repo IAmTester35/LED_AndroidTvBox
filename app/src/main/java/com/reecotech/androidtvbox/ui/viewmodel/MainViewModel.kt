@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.reecotech.androidtvbox.domain.ConnectionStatus
 import com.reecotech.androidtvbox.domain.StationRepository
 import com.reecotech.androidtvbox.domain.model.StationData
-import com.reecotech.androidtvbox.domain.usecase.GetDeviceIDUseCase
 import com.reecotech.androidtvbox.domain.usecase.GetMockStationDataUseCase
 import com.reecotech.androidtvbox.data.repository.RemoteConfigRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +19,6 @@ import kotlin.random.Random
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getDeviceIDUseCase: GetDeviceIDUseCase,
     private val stationRepository: StationRepository,
     private val getMockStationDataUseCase: GetMockStationDataUseCase,
     private val remoteConfigRepository: RemoteConfigRepository

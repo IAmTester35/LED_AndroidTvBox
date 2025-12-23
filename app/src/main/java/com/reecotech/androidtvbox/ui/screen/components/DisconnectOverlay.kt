@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-
+import androidx.compose.ui.unit.dp
 /**
  * Overlay displayed when connection is lost or data error occurs
  */
@@ -24,74 +24,63 @@ fun DisconnectOverlay(
     errorMessage: String? = null,
     retryCount: Int = 0
 ) {
+    if (retryCount <= 3) return
+    
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(UiConstants.OVERLAY_DARK),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopStart
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .background(
-                    UiConstants.ERROR_RED,
-                    RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM)
-                )
-                .padding(UiConstants.PADDING_EXTRA_LARGE)
-        ) {
-            val (title, description, errorCode) = getErrorDetails(isConnected, hasJsonError, errorMessage)
+        val (title, description, errorCode) = getErrorDetails(isConnected, hasJsonError, errorMessage)
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(UiConstants.ERROR_RED)
+                .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = "Warning",
                 tint = Color.White,
-                modifier = Modifier.size(UiConstants.WARNING_ICON_SIZE)
+                modifier = Modifier.size(50.dp)
             )
             
-            Spacer(modifier = Modifier.height(UiConstants.SPACING_LARGE))
+            Spacer(modifier = Modifier.width(UiConstants.SPACING_LARGE))
             
-            // Title (Generic Error Name)
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = UiConstants.FONT_SIZE_LARGE,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Text(
+                    text = description,
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = UiConstants.FONT_SIZE_NORMAL,
+                    fontWeight = FontWeight.Normal
+                )
+
+                Text(
+                    text = errorCode,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = UiConstants.FONT_SIZE_SMALL,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                )
+            }
+
+            Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
+
             Text(
-                text = title,
-                color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_HUGE,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
-            
-            // Description (Specific Explanation)
-            Text(
-                text = description,
+                text = "Thử lại: $retryCount",
                 color = Color.White.copy(alpha = 0.9f),
-                fontSize = UiConstants.FONT_SIZE_LARGE,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontWeight = FontWeight.Bold
             )
-
-            Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-
-            // Error Code (Technical Details)
-            Text(
-                text = errorCode,
-                color = Color.White.copy(alpha = 1.0f), // Full opacity for better readability in photos
-                fontSize = UiConstants.FONT_SIZE_MEDIUM,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-            Text(
-                text = "Số lần thử lại: $retryCount",
-                color = Color.White.copy(alpha = 0.9f),
-                fontSize = UiConstants.FONT_SIZE_MEDIUM,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
         }
     }
 }

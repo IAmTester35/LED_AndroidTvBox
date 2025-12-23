@@ -198,13 +198,13 @@ fun TableHeaderCell(text: String, modifier: Modifier = Modifier, isOnline: Boole
         modifier = modifier
             .height(UiConstants.TABLE_HEADER_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
-            .background(HeaderBackground)
+            .background(if (isOnline) HeaderBackground else UiConstants.NO_DATA_COLOR)
             .padding(UiConstants.PADDING_SMALL),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (isOnline) HeaderText else UiConstants.NO_DATA_COLOR,
+            color = HeaderText,
             fontSize = UiConstants.FONT_SIZE_NORMAL,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,

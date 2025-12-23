@@ -1,8 +1,7 @@
 package com.reecotech.androidtvbox.di
 
 
-import com.reecotech.androidtvbox.data.repository.DeviceRepositoryImpl
-import com.reecotech.androidtvbox.domain.DeviceRepository
+
 
 import dagger.Binds
 import dagger.Module
@@ -14,11 +13,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
-    @Binds
-    @Singleton
-    abstract fun bindDeviceRepository(
-        deviceRepositoryImpl: DeviceRepositoryImpl
-    ): DeviceRepository
+// DeviceRepository binding removed
 
     @Binds
     @Singleton

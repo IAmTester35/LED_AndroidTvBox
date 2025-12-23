@@ -36,7 +36,7 @@ fun createTableParameters(): List<TableParameter> = listOf(
 fun getLegendItems(): List<LegendItem> = listOf(
     LegendItem("Cấp 0: Xanh lá cây - Bình thường", Level0Color),
     LegendItem("Cấp 1: Xanh dương - Nguy cơ thấp (theo dõi thời tiết)", Level1Color),
-    LegendItem("Cấp 2: Vàng - Nguy cơ trung bình (theo dõi thường xuyền)", Level2Color),
+    LegendItem("Cấp 2: Vàng - Nguy cơ trung bình (theo dõi thường xuyên)", Level2Color),
     LegendItem("Cấp 3: Cam - Nguy cơ cao, cực đoan (phòng ngừa, chuẩn bị)", Level3Color),
     LegendItem("Cấp 4: Đỏ - Nguy cơ rất cao, cực đoan (cảnh giác, làm theo hướng dẫn)", Level4Color),
     LegendItem("Cấp 5: Tím - Thảm họa (tuân thủ chỉ đạo, sẵn sàng ứng phó)", Level5Color),
