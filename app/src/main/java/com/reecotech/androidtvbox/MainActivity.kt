@@ -14,8 +14,10 @@ import com.reecotech.androidtvbox.ui.screen.MainDataScreen
 import com.reecotech.androidtvbox.ui.screen.components.AspectRatioBox
 import com.reecotech.androidtvbox.ui.theme.AndroidTVBoxTheme
 import com.reecotech.androidtvbox.ui.viewmodel.MainViewModel
+import android.provider.Settings
+import android.content.Intent
+import android.net.Uri
 import dagger.hilt.android.AndroidEntryPoint
-
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        checkAccessibilityService()
         checkAppUpdate()
 
         setContent {
@@ -65,6 +68,24 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        val service = "$packageName/${com.reecotech.androidtvbox.service.AutoStartService::class.java.canonicalName}"
+        val enabled = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        return enabled?.contains(service) == true
+    }
+
+    private fun checkAccessibilityService() {
+        if (!isAccessibilityServiceEnabled()) {
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            startActivity(intent)
+            android.widget.Toast.makeText(
+                this,
+                "Vui lòng bật 'AndroidTVBox' trong menu Hỗ trợ tiếp cận (Accessibility) để ứng dụng tự mở sau khi reboot",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
         }
     }
 

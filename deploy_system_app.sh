@@ -50,6 +50,7 @@ cat <<EOF > privapp-permissions-com.reecotech.androidtvbox.xml
     <privapp-permissions package="com.reecotech.androidtvbox">
         <permission name="android.permission.INSTALL_PACKAGES"/>
         <permission name="android.permission.DELETE_PACKAGES"/>
+        <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND"/>
     </privapp-permissions>
 </permissions>
 EOF

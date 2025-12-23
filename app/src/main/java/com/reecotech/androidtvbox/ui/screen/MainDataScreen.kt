@@ -34,18 +34,27 @@ fun MainDataScreen(
 ) {
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)
+        .background(Color.Black)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HeaderSection(state = state)
-            BodySection(
-                stations = state.stations,
-                lastUpdateTime = state.lastUpdateTime,
-                modifier = Modifier.weight(1f)
-            )
+        com.reecotech.androidtvbox.ui.screen.components.AspectRatioBox(
+            aspectRatio = 2f,
+            backgroundColor = Color.Black
+        ) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+            ) {
+                HeaderSection(state = state)
+                BodySection(
+                    stations = state.stations,
+                    lastUpdateTime = state.lastUpdateTime,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
         
         if (state.isLoading) {
+
             LoadingOverlay()
         } else if (!state.isConnected || state.hasJsonError) {
             DisconnectOverlay(
