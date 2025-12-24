@@ -19,15 +19,15 @@ object UiConstants {
     val SPACING_LARGE = 12.dp
     
     // Sizes
-    val LOGO_GOVERNMENT_SIZE = 95.dp
+    val LOGO_GOVERNMENT_SIZE = 70.dp
     val LOGO_REECO_WIDTH = 120.dp
     val LOGO_REECO_HEIGHT = 40.dp
     val QR_CODE_SIZE = 26.dp
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 8.dp
-    val TABLE_CELL_HEIGHT = 45.dp
-    val TABLE_HEADER_HEIGHT = 65.dp
+    val TABLE_CELL_HEIGHT = 35.dp
+    val TABLE_HEADER_HEIGHT = 40.dp
     val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
@@ -35,7 +35,7 @@ object UiConstants {
     val CORNER_RADIUS_MEDIUM = 10.dp
     
     // Column Widths (Percentage of screen width)
-    const val COLUMN_WIDTH_PERCENT_FIRST = 0.14f
+    const val COLUMN_WIDTH_PERCENT_FIRST = 0.25f
     const val COLUMN_WIDTH_PERCENT_OTHERS = 0.0781f
     
     // Font sizes
@@ -44,6 +44,7 @@ object UiConstants {
     val FONT_SIZE_NORMAL = 12.sp
     val FONT_SIZE_MEDIUM = 14.sp
     val FONT_SIZE_LARGE = 18.sp
+    val FONT_SIZE_TABLE_VALUE = 16.sp
     val FONT_SIZE_HEADER_TITLE = 23.sp
     val FONT_SIZE_HEADER_SUBTITLE = 25.sp
     val FONT_SIZE_HUGE = 32.sp
@@ -58,6 +59,9 @@ object UiConstants {
     val BADGE_TEXT = Color(0xFF004A74)
     val INVALID_TEXT_COLOR = Color(0xFF666666)
     val NO_DATA_COLOR = Color(0xFFC9C9C9)
+    val STATION_NAME_BACKGROUND = Color(0xFF002C4D)
+    val STATION_NAME_DISCONNECTED_BACKGROUND = Color(0xFF636363)
+    val STATION_NAME_TEXT = Color(0xFFFFFFFF)
     
     // Header Gradient
     val HEADER_GRADIENT_START = Color(0xFF85DFFF)

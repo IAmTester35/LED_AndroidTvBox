@@ -160,7 +160,7 @@ class MainViewModel @Inject constructor(
     private fun startMockDataFlow() {
         viewModelScope.launch {
             while (true) {
-                val currentTime = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
+                val currentTime = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                     .format(Date())
 
                 val mockStations = getMockStationDataUseCase().map { station ->
@@ -222,7 +222,7 @@ class MainViewModel @Inject constructor(
 
                 // Use lastAttemptTime if available, otherwise current time (fallback)
                 val timeToDisplay = if (lastAttemptTime > 0) Date(lastAttemptTime) else Date()
-                val currentTime = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.getDefault())
+                val currentTime = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                     .format(timeToDisplay)
 
                 MainUiState(

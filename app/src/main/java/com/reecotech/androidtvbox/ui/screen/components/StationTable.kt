@@ -76,8 +76,8 @@ private fun TableStationRows(
             TableCell(
                 text = station.stationName,
                 modifier = Modifier.width(firstColWidth),
-                backgroundColor = if (station.isOnline) HeaderBackground else UiConstants.NO_DATA_COLOR,
-                textColor = HeaderText,
+                backgroundColor = if (station.isOnline) UiConstants.STATION_NAME_BACKGROUND else UiConstants.STATION_NAME_DISCONNECTED_BACKGROUND,
+                textColor = UiConstants.STATION_NAME_TEXT,
                 isParameterCell = true
             )
             parameters.forEach { parameter ->
@@ -87,8 +87,8 @@ private fun TableStationRows(
 
                 val txtColor = if (isNoData || !station.isOnline) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
                 
-                val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_MEDIUM
-                val fontWeight = if (isNoData) FontWeight.Black else FontWeight.Bold
+                val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_TABLE_VALUE
+                val fontWeight = if (isNoData) FontWeight.Black else FontWeight.ExtraBold
                 
                 TableCell(
                     text = textValue,
@@ -155,7 +155,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
                     lineTo(0f, y_left) // Intersection with Left Edge
                     close()
                 },
-                color = HeaderBackground
+                color = UiConstants.STATION_NAME_BACKGROUND
             )
         }
         
@@ -180,7 +180,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = UiConstants.TABLE_HEADER_STATION,
-                color = HeaderText,
+                color = UiConstants.STATION_NAME_TEXT,
                 fontSize = UiConstants.FONT_SIZE_NORMAL,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start

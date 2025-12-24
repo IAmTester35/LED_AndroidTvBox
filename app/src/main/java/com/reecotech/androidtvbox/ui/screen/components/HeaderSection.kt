@@ -54,12 +54,11 @@ import java.security.MessageDigest
  */
 @Composable
 fun HeaderSection(state: MainUiState) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(createHeaderGradient())
-            .padding(vertical = UiConstants.PADDING_SMALL),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(vertical = UiConstants.PADDING_SMALL)
     ) {
         HeaderContent(passwordHash = state.passwordHash)
         UpdateTimeBadge(lastUpdateTime = state.lastUpdateTime)
@@ -161,16 +160,15 @@ private fun HeaderContent(passwordHash: String) {
 }
 
 @Composable
-fun UpdateTimeBadge(lastUpdateTime: String) {
+fun BoxScope.UpdateTimeBadge(lastUpdateTime: String) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .align(Alignment.BottomEnd)
             .padding(horizontal = UiConstants.PADDING_LARGE),
         horizontalArrangement = Arrangement.End
     ) {
         Row(
             modifier = Modifier
-                .padding(top = UiConstants.PADDING_SMALL)
                 .shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_UPDATE_BADGE),

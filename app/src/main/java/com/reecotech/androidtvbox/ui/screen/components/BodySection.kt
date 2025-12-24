@@ -63,11 +63,11 @@ fun BodySection(
         ) {
             StationTable(
                 stations = stations,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.57f)
             )
             FooterSection(
                 modifier = Modifier
-                    .weight(0.25f)
+                    .weight(0.38f)
                     .wrapContentHeight()
             )
         }
