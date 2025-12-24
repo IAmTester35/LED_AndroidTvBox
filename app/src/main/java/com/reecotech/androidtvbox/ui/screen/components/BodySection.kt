@@ -1,8 +1,12 @@
 package com.reecotech.androidtvbox.ui.screen.components
 
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -23,7 +27,7 @@ fun BodySection(
     stations: List<StationData>,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = UiConstants.PADDING_SMALL)
@@ -55,22 +59,36 @@ fun BodySection(
                 drawRect(brush = brush)
             }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalAlignment = Alignment.Top
+        // Main content layer with Table and Legend
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            StationTable(
-                stations = stations,
-                modifier = Modifier.weight(0.57f)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+            ) {
+                StationTable(
+                    stations = stations,
+                    modifier = Modifier.weight(0.6f)
+                )
+                // Spacer for FooterSection area
+                Spacer(modifier = Modifier.weight(0.4f))
+            }
+            LegendSection(modifier = Modifier.wrapContentHeight())
+        }
+
+        // Overlay layer for FooterSection
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.weight(0.6f))
             FooterSection(
                 modifier = Modifier
-                    .weight(0.38f)
-                    .wrapContentHeight()
+                    .weight(0.4f)
+                    .fillMaxHeight()
             )
         }
-        LegendSection(modifier = Modifier.wrapContentHeight())
     }
 }

@@ -43,7 +43,7 @@ object UiConstants {
     val FONT_SIZE_SMALL = 8.sp
     val FONT_SIZE_NORMAL = 12.sp
     val FONT_SIZE_MEDIUM = 14.sp
-    val FONT_SIZE_LARGE = 18.sp
+    val FONT_SIZE_LARGE = 16.sp
     val FONT_SIZE_TABLE_VALUE = 16.sp
     val FONT_SIZE_HEADER_TITLE = 23.sp
     val FONT_SIZE_HEADER_SUBTITLE = 25.sp

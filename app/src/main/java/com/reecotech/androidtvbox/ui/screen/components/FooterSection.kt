@@ -41,7 +41,7 @@ fun FooterSection(modifier: Modifier = Modifier) {
             .fillMaxHeight()
             .background(UiConstants.FOOTER_BACKGROUND)
             .padding(
-                horizontal = UiConstants.PADDING_SMALL,
+                horizontal = UiConstants.PADDING_LARGE,
                 vertical = UiConstants.PADDING_SMALL
             ),
     ) {
@@ -50,7 +50,7 @@ fun FooterSection(modifier: Modifier = Modifier) {
         
         // Map image
         MapSection(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxHeight(0.68f)
         )
         
         // Bottom section with support info, social QR codes, and branding
@@ -66,7 +66,7 @@ private fun MapTitleBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(4.dp))
+            .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
             .background(UiConstants.STATION_NAME_BACKGROUND)
             .padding(vertical = 6.dp, horizontal = 8.dp),
         contentAlignment = Alignment.Center
@@ -86,9 +86,9 @@ private fun MapTitleBar() {
 @Composable
 private fun MapSection(modifier: Modifier = Modifier) {
     Image(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(4.dp)),
+            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)),
         painter = painterResource(id = R.drawable.map),
         contentDescription = "Bản đồ vị trí 11 trạm KTTV",
         contentScale = ContentScale.Crop
@@ -116,25 +116,9 @@ private fun BottomInfoSection() {
             // Social media QR codes column
             Column(
                 modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.End
             ) {
                 SocialQRCodeRow()
-            }
-            
-            // Large QR code and REECO logo
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.qr_code),
-                    contentDescription = "QR Code",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color.White)
-                        .padding(2.dp)
-                )
-                
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Image(
@@ -143,7 +127,22 @@ private fun BottomInfoSection() {
                     modifier = Modifier
                         .width(70.dp)
                         .height(24.dp)
+                        .padding(end = UiConstants.PADDING_LARGE),
                 )
+            }
+            
+            // Large QR code and REECO logo
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.qr_code),
+                    contentDescription = "QR Code",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .background(Color.White)
+                )
+                
             }
         }
     }
@@ -306,8 +305,10 @@ private fun LegendItemRow(text: String, color: Color) {
 @Composable
 private fun SocialQRCodeRow() {
     Row(
-        modifier = Modifier.wrapContentWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = UiConstants.PADDING_LARGE),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         listOf(
