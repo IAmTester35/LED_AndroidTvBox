@@ -71,22 +71,26 @@ fun BodySection(
             ) {
                 StationTable(
                     stations = stations,
-                    modifier = Modifier.weight(0.6f)
+                    modifier = Modifier.weight(0.58f)
                 )
                 // Spacer for FooterSection area
-                Spacer(modifier = Modifier.weight(0.4f))
+                Spacer(modifier = Modifier.weight(0.42f))
             }
-            LegendSection(modifier = Modifier.wrapContentHeight())
+            LegendSection(
+                modifier = Modifier
+                    .fillMaxWidth(0.75f)
+                    .wrapContentHeight()
+            )
         }
 
         // Overlay layer for FooterSection
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.weight(0.6f))
+            Spacer(modifier = Modifier.weight(0.58f))
             FooterSection(
                 modifier = Modifier
-                    .weight(0.4f)
+                    .weight(0.42f)
                     .fillMaxHeight()
             )
         }

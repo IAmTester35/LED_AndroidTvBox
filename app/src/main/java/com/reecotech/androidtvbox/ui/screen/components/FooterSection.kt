@@ -100,50 +100,46 @@ private fun MapSection(modifier: Modifier = Modifier) {
  */
 @Composable
 private fun BottomInfoSection() {
-    Column(
+    Row(
         modifier = Modifier
-            .background(UiConstants.FOOTER_BACKGROUND)
+            .fillMaxWidth()
+            .background(UiConstants.FOOTER_BACKGROUND),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Support phone section
-        SupportPhoneSection()
-        
-        // Row with social QR codes on left and large QR + logo on right
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // Column 1: Occupies 70% width
+        Column(
+            modifier = Modifier.weight(0.7f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Social media QR codes column
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.End
-            ) {
-                SocialQRCodeRow()
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Image(
-                    painter = painterResource(id = R.drawable.logo_reeco),
-                    contentDescription = "REECO Logo",
-                    modifier = Modifier
-                        .width(70.dp)
-                        .height(24.dp)
-                        .padding(end = UiConstants.PADDING_LARGE),
-                )
-            }
+            SupportPhoneSection()
             
-            // Large QR code and REECO logo
-            Column(
-                horizontalAlignment = Alignment.End,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.qr_code),
-                    contentDescription = "QR Code",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color.White)
-                )
-                
-            }
+            SocialQRCodeRow()
+            
+            Image(
+                painter = painterResource(id = R.drawable.logo_reeco),
+                contentDescription = "REECO Logo",
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = UiConstants.PADDING_LARGE),
+                contentScale = ContentScale.Fit
+            )
+        }
+        
+        // Column 2: Occupies the remaining width (approx 30%)
+        Column(
+            modifier = Modifier
+                .weight(0.3f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.qr_code),
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .size(100.dp) // Increased size
+                    .background(Color.White)
+                    .padding(5.dp)
+            )
         }
     }
 }
@@ -157,7 +153,7 @@ private fun SupportPhoneSection() {
         modifier = Modifier
             .fillMaxWidth()
             .background(UiConstants.FOOTER_BACKGROUND)
-            .padding(vertical = 6.dp, horizontal = 12.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         PhoneIcon(
@@ -322,7 +318,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(35.dp)
             )
         }
     }
