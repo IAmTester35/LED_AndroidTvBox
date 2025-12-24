@@ -119,6 +119,8 @@ private fun BottomInfoSection() {
                 painter = painterResource(id = R.drawable.logo_reeco),
                 contentDescription = "REECO Logo",
                 modifier = Modifier
+                    .width(UiConstants.LOGO_REECO_WIDTH)
+                    .height(UiConstants.LOGO_REECO_HEIGHT)
                     .align(Alignment.End)
                     .padding(end = UiConstants.PADDING_LARGE),
                 contentScale = ContentScale.Fit
@@ -129,7 +131,7 @@ private fun BottomInfoSection() {
         Column(
             modifier = Modifier
                 .weight(0.3f),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Center
         ) {
             Image(

@@ -162,7 +162,7 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = UiConstants.PADDING_SMALL, end = 0.dp)
+                .padding(top = 0.dp, end = 0.dp)
         ) {
             Text(
                 text = UiConstants.TABLE_HEADER_PARAMETER,
