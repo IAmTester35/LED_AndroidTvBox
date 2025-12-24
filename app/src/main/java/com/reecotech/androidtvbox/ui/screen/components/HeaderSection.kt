@@ -62,6 +62,7 @@ fun HeaderSection(state: MainUiState) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HeaderContent(passwordHash = state.passwordHash)
+        UpdateTimeBadge(lastUpdateTime = state.lastUpdateTime)
     }
 }
 
@@ -191,7 +192,7 @@ fun UpdateTimeBadge(lastUpdateTime: String) {
             )
             Spacer(modifier = Modifier.width(UiConstants.SPACING_SMALL))
             Text(
-                text = "${UiConstants.UPDATE_TIME_PREFIX}${lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT }}",
+                text = lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT },
                 color = UiConstants.BADGE_TEXT,
                 fontSize = UiConstants.FONT_SIZE_SMALL,
                 fontWeight = FontWeight.Bold,

@@ -2,16 +2,17 @@ package com.reecotech.androidtvbox.ui.screen.components
 
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.reecotech.androidtvbox.domain.model.StationData
 
 /**
@@ -20,7 +21,6 @@ import com.reecotech.androidtvbox.domain.model.StationData
 @Composable
 fun BodySection(
     stations: List<StationData>,
-    lastUpdateTime: String,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -55,11 +55,22 @@ fun BodySection(
                 drawRect(brush = brush)
             }
     ) {
-        UpdateTimeBadge(lastUpdateTime = lastUpdateTime)
-        StationTable(
-            stations = stations,
-            modifier = Modifier.weight(1f)
-        )
-        FooterSection(modifier = Modifier.wrapContentHeight())
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalAlignment = Alignment.Top
+        ) {
+            StationTable(
+                stations = stations,
+                modifier = Modifier.weight(0.7f)
+            )
+            FooterSection(
+                modifier = Modifier
+                    .weight(0.25f)
+                    .wrapContentHeight()
+            )
+        }
+        LegendSection(modifier = Modifier.wrapContentHeight())
     }
 }

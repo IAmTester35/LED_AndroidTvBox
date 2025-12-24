@@ -47,7 +47,6 @@ fun MainDataScreen(
                 HeaderSection(state = state)
                 BodySection(
                     stations = state.stations,
-                    lastUpdateTime = state.lastUpdateTime,
                     modifier = Modifier.weight(1f)
                 )
             }

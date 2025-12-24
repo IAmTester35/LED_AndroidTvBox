@@ -26,46 +26,56 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
 /**
- * Footer section with legend, support info, and branding
+ * Footer section with support info and branding, designed for side panel
  */
 @Composable
 fun FooterSection(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .background(UiConstants.FOOTER_BACKGROUND)
+            .padding(
+                horizontal = UiConstants.PADDING_SMALL,
+                vertical = UiConstants.PADDING_SMALL
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(UiConstants.SPACING_MEDIUM)
+    ) {
+        BrandingSection()
+        MonitoringDataQRSection()
+        SupportSection()
+    }
+}
+
+/**
+ * Legend section with scrolling warning levels
+ */
+@Composable
+fun LegendSection(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(UiConstants.FOOTER_BACKGROUND)
-            .padding(
-                horizontal = UiConstants.PADDING_LARGE,
-                vertical = UiConstants.PADDING_SMALL
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LegendAndSupportSection(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
-        BrandingSection()
-        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
-        MonitoringDataQRSection()
+        Text(
+            text = UiConstants.LEGEND_TITLE,
+            color = Color.White,
+            fontSize = UiConstants.FONT_SIZE_LARGE,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(end = UiConstants.PADDING_SMALL)
+        )
+        
+        LegendMarquee(modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = UiConstants.LEGEND_TITLE,
-                color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_LARGE,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(end = UiConstants.PADDING_SMALL)
-            )
-            
-            LegendMarquee(modifier = Modifier.weight(1f))
-        }
-        
-        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-        
+private fun SupportSection(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.padding(UiConstants.PADDING_SMALL),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             PhoneIcon(
                 size = 14.dp,
@@ -82,14 +92,14 @@ private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
                     }
                 },
                 color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_LARGE,
+                fontSize = UiConstants.FONT_SIZE_SMALL, // Reduced for side panel
                 fontWeight = FontWeight.SemiBold
             )
-            
-            Spacer(modifier = Modifier.width(UiConstants.SPACING_LARGE))
-            
-            SocialQRCodeRow()
         }
+        
+        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
+        
+        SocialQRCodeRow()
     }
 }
 
@@ -209,8 +219,8 @@ private fun BrandingSection() {
 @Composable
 private fun SocialQRCodeRow() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End),
+        modifier = Modifier.wrapContentWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
         listOf(
@@ -224,7 +234,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.8f)
+                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.2f) // Slightly smaller for side panel
             )
         }
     }
@@ -245,7 +255,7 @@ private fun MonitoringDataQRSection() {
         Text(
             text = "Số liệu quan trắc",
             color = Color.Black,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
+            fontSize = UiConstants.FONT_SIZE_TINY,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = UiConstants.SPACING_TINY)
         )
@@ -253,7 +263,7 @@ private fun MonitoringDataQRSection() {
         Image(
             painter = painterResource(id = R.drawable.qr_code),
             contentDescription = "Monitoring Data QR Code",
-            modifier = Modifier.size(UiConstants.QR_CODE_LARGE_SIZE)
+            modifier = Modifier.size(UiConstants.QR_CODE_LARGE_SIZE * 0.8f) // Slightly smaller
         )
     }
 }
