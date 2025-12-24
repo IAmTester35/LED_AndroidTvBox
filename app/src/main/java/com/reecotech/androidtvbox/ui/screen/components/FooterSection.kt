@@ -175,7 +175,7 @@ private fun SupportPhoneSection() {
                 }
             },
             color = Color.White,
-            fontSize = 12.sp
+            fontSize = 14.sp
         )
     }
 }
@@ -275,7 +275,7 @@ private fun LegendMarquee(modifier: Modifier = Modifier) {
             
             legendItems.forEach { item ->
                 LegendItemRow(item.text, item.color)
-                Spacer(modifier = Modifier.width(UiConstants.PADDING_LARGE))
+                Spacer(modifier = Modifier.width(UiConstants.PADDING_EXTRA_LARGE))
             }
             
             Spacer(modifier = Modifier.width(screenWidth))
@@ -291,7 +291,7 @@ private fun LegendItemRow(text: String, color: Color) {
                 .size(UiConstants.LEGEND_INDICATOR_SIZE)
                 .background(color, RoundedCornerShape(UiConstants.CORNER_RADIUS_SMALL))
         )
-        Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL))
+        Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM))
         Text(
             text = text,
             color = Color.White,

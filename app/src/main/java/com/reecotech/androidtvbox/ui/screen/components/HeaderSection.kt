@@ -180,7 +180,7 @@ fun BoxScope.UpdateTimeBadge(lastUpdateTime: String) {
                 )
                 .padding(
                     horizontal = UiConstants.PADDING_SMALL,
-                    vertical = UiConstants.SPACING_TINY
+                    vertical = UiConstants.PADDING_SMALL
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -192,7 +192,7 @@ fun BoxScope.UpdateTimeBadge(lastUpdateTime: String) {
             Text(
                 text = lastUpdateTime.ifEmpty { UiConstants.LOADING_TEXT },
                 color = UiConstants.BADGE_TEXT,
-                fontSize = UiConstants.FONT_SIZE_SMALL,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
                 fontWeight = FontWeight.Bold,
                 lineHeight = UiConstants.LINE_HEIGHT_SMALL
             )

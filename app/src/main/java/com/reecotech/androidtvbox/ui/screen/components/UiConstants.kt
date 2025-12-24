@@ -25,7 +25,7 @@ object UiConstants {
     val QR_CODE_SIZE = 26.dp
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
-    val LEGEND_INDICATOR_SIZE = 8.dp
+    val LEGEND_INDICATOR_SIZE = 10.dp
     val TABLE_CELL_HEIGHT = 35.dp
     val TABLE_HEADER_HEIGHT = 40.dp
     val BORDER_WIDTH = 2.dp
