@@ -106,9 +106,9 @@ private fun BottomInfoSection() {
             .background(UiConstants.FOOTER_BACKGROUND),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Column 1: Occupies 70% width
+        // Column 1: Occupies 75% width
         Column(
-            modifier = Modifier.weight(0.7f),
+            modifier = Modifier.weight(0.75f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             SupportPhoneSection()
@@ -127,10 +127,10 @@ private fun BottomInfoSection() {
             )
         }
         
-        // Column 2: Occupies the remaining width (approx 30%)
+        // Column 2: Occupies the remaining width (approx 25%)
         Column(
             modifier = Modifier
-                .weight(0.3f),
+                .weight(0.25f),
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Center
         ) {
@@ -265,7 +265,7 @@ private fun LegendMarquee(modifier: Modifier = Modifier) {
     }
 
     BoxWithConstraints(modifier = modifier) {
-        val screenWidth = maxWidth
+        val screenWidth = this@BoxWithConstraints.maxWidth
         Row(
             modifier = Modifier
                 .horizontalScroll(scrollState, enabled = false),
@@ -320,7 +320,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(35.dp)
+                modifier = Modifier.size(40.dp)
             )
         }
     }

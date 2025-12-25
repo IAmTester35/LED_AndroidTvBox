@@ -34,8 +34,8 @@ class StationRepositoryImpl @Inject constructor(
     private var pollingJob: Job? = null
     private val pollingScope = CoroutineScope(Dispatchers.IO)
     
-    // Default 60 seconds (optimized from 30s)
-    private var currentPollingInterval = 60_000L
+    // Default 180 seconds (optimized to reduce server load)
+    private var currentPollingInterval = 180_000L
 
     override fun setPollingInterval(intervalMs: Long) {
         if (currentPollingInterval == intervalMs) return
@@ -97,10 +97,9 @@ class StationRepositoryImpl @Inject constructor(
                     _status.value = ConnectionStatus.Error(errorMessage, consecutiveFailures)
 
                     nextDelay = when (consecutiveFailures) {
-                        1 -> 2_000L
-                        2 -> 4_000L
-                        3 -> 8_000L
-                        else -> 10_000L
+                        1 -> 10_000L
+                        2 -> 15_000L
+                        else -> 30_000L
                     }
                 }
 

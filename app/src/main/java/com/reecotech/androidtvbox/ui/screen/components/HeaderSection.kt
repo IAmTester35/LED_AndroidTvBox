@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -31,7 +30,6 @@ import kotlin.math.cos
 import kotlin.math.sin
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +38,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.foundation.border
 import kotlinx.coroutines.delay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.rememberScrollState
@@ -373,7 +370,7 @@ fun PasswordDialog(
                         enabled = !isLoading,
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = androidx.compose.ui.text.input.KeyboardType.Password,
-                            autoCorrect = false,
+                            autoCorrectEnabled = false,
                             imeAction = androidx.compose.ui.text.input.ImeAction.Done
                         ),
                         keyboardActions = androidx.compose.foundation.text.KeyboardActions(
