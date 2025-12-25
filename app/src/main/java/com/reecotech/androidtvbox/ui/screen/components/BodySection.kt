@@ -71,10 +71,9 @@ fun BodySection(
             ) {
                 StationTable(
                     stations = stations,
-                    modifier = Modifier.weight(0.58f)
+                    modifier = Modifier.weight(0.64f)
                 )
-                // Spacer for FooterSection area
-                Spacer(modifier = Modifier.weight(0.42f))
+                Spacer(modifier = Modifier.weight(0.36f))
             }
             LegendSection(
                 modifier = Modifier
@@ -87,10 +86,10 @@ fun BodySection(
         Row(
             modifier = Modifier.fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.weight(0.58f))
+            Spacer(modifier = Modifier.weight(0.59f))
             FooterSection(
                 modifier = Modifier
-                    .weight(0.42f)
+                    .weight(0.36f)
                     .fillMaxHeight()
             )
         }

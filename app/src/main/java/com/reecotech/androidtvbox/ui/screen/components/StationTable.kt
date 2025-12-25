@@ -25,7 +25,7 @@ fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL)
+            .padding(horizontal = UiConstants.PADDING_L, vertical = UiConstants.PADDING_SMALL)
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM)),
     ) {
         val firstColWidth = this@BoxWithConstraints.maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_FIRST

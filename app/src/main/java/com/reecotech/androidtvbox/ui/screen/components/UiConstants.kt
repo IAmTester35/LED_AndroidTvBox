@@ -11,6 +11,7 @@ object UiConstants {
     // Spacing
     val PADDING_SMALL = 4.dp
     val PADDING_MEDIUM = 8.dp
+    val PADDING_L = 12.dp
     val PADDING_LARGE = 16.dp
     val PADDING_EXTRA_LARGE = 32.dp
     val SPACING_TINY = 2.dp
@@ -26,8 +27,8 @@ object UiConstants {
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 10.dp
-    val TABLE_CELL_HEIGHT = 35.dp
-    val TABLE_HEADER_HEIGHT = 40.dp
+    val TABLE_CELL_HEIGHT = 31.dp
+    val TABLE_HEADER_HEIGHT = 39.dp
     val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
