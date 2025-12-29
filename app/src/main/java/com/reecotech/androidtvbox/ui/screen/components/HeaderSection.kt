@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -92,8 +93,9 @@ private fun HeaderContent(passwordHash: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Max)
             .padding(horizontal = UiConstants.PADDING_LARGE),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Start
     ) {
         Image(
@@ -120,38 +122,44 @@ private fun HeaderContent(passwordHash: String) {
         )
         Spacer(modifier = Modifier.width(UiConstants.SPACING_LARGE))
         
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            contentAlignment = BiasAlignment(0f, -0.5f) // 25% from top, 75% from bottom
         ) {
-            Text(
-                text = UiConstants.HEADER_TITLE,
-                color = Color(0xFFFF0000),
-                fontSize = UiConstants.FONT_SIZE_HEADER_TITLE,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.Black,
-                        offset = Offset(2f, 2f),
-                        blurRadius = 4f
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = UiConstants.HEADER_TITLE,
+                    color = Color(0xFFFF0000),
+                    fontSize = UiConstants.FONT_SIZE_HEADER_TITLE,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
                     )
                 )
-            )
-            Text(
-                text = UiConstants.HEADER_SUBTITLE,
-                color = Color(0xFFFFE75E),
-                fontSize = UiConstants.FONT_SIZE_HEADER_SUBTITLE,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.Black,
-                        offset = Offset(2f, 2f),
-                        blurRadius = 4f
+                Text(
+                    text = UiConstants.HEADER_SUBTITLE,
+                    color = Color(0xFFFFE75E),
+                    fontSize = UiConstants.FONT_SIZE_HEADER_SUBTITLE,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
                     )
                 )
-            )
+            }
         }
     }
 }

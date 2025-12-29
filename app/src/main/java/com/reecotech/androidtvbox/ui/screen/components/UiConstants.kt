@@ -20,15 +20,15 @@ object UiConstants {
     val SPACING_LARGE = 12.dp
     
     // Sizes
-    val LOGO_GOVERNMENT_SIZE = 70.dp
+    val LOGO_GOVERNMENT_SIZE = 76.dp
     val LOGO_REECO_WIDTH = 120.dp
     val LOGO_REECO_HEIGHT = 40.dp
     val QR_CODE_SIZE = 26.dp
     val QR_CODE_LARGE_SIZE = 80.dp
     val WARNING_ICON_SIZE = 64.dp
     val LEGEND_INDICATOR_SIZE = 10.dp
-    val TABLE_CELL_HEIGHT = 31.dp
-    val TABLE_HEADER_HEIGHT = 39.dp
+    val TABLE_CELL_HEIGHT = 34.dp
+    val TABLE_HEADER_HEIGHT = 44.dp
     val BORDER_WIDTH = 2.dp
     val GRID_BORDER_COLOR = Color.Transparent
     val CORNER_RADIUS_SMALL = 2.dp
@@ -42,14 +42,14 @@ object UiConstants {
     // Font sizes
     val FONT_SIZE_TINY = 7.sp
     val FONT_SIZE_SMALL = 8.sp
-    val FONT_SIZE_NORMAL = 12.sp
-    val FONT_SIZE_MEDIUM = 14.sp
+    val FONT_SIZE_NORMAL = 11.sp
+    val FONT_SIZE_MEDIUM = 13.sp
     val FONT_SIZE_LARGE = 16.sp
-    val FONT_SIZE_TABLE_VALUE = 18.sp
-    val FONT_SIZE_HEADER_TITLE = 23.sp
-    val FONT_SIZE_HEADER_SUBTITLE = 25.sp
+    val FONT_SIZE_TABLE_VALUE = 16.sp
+    val FONT_SIZE_HEADER_TITLE = 22.sp
+    val FONT_SIZE_HEADER_SUBTITLE = 24.sp
     val FONT_SIZE_HUGE = 32.sp
-    val LINE_HEIGHT_SMALL = 14.sp
+    val LINE_HEIGHT_SMALL = 13.sp
     
     // Colors
     val BACKGROUND_SKY_BLUE = Color(0xFF87CEEB)

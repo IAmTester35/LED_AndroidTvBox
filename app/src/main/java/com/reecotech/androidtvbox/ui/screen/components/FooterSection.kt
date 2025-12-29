@@ -29,6 +29,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
+import androidx.compose.ui.text.style.TextAlign
 
 /**
  * Footer section with map, support info and branding
@@ -68,14 +69,16 @@ private fun MapTitleBar() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
             .background(UiConstants.STATION_NAME_BACKGROUND)
-            .padding(vertical = 6.dp, horizontal = 8.dp),
+            .padding(vertical = 6.dp, horizontal = 2.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Bản đồ vị trí 11 trạm Khí tượng thủy văn tỉnh Vĩnh Long",
             color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -320,7 +323,7 @@ private fun SocialQRCodeRow() {
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(35.dp)
             )
         }
     }

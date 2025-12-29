@@ -36,20 +36,15 @@ fun MainDataScreen(
         .fillMaxSize()
         .background(Color.Black)
     ) {
-        com.reecotech.androidtvbox.ui.screen.components.AspectRatioBox(
-            aspectRatio = 2f,
-            backgroundColor = Color.Black
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
         ) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-            ) {
-                HeaderSection(state = state)
-                BodySection(
-                    stations = state.stations,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            HeaderSection(state = state)
+            BodySection(
+                stations = state.stations,
+                modifier = Modifier.weight(1f)
+            )
         }
         
         if (state.isLoading) {
@@ -68,7 +63,7 @@ fun MainDataScreen(
             AlertDialog(
                 onDismissRequest = { /* Prevent dismiss by clicking outside */ },
                 title = { Text(text = "Cảnh báo") },
-                text = { Text(text = "Đã đến giờ ngủ, bạn có muốn tắt màn hình không?\nTự động tắt sau ${state.sleepWarningSecondsLeft} giây") },
+                text = { Text(text = "Đã đến giờ tắt màn hình, bạn có muốn tắt không?\nTự động tắt sau ${state.sleepWarningSecondsLeft} giây") },
                 confirmButton = {
                     Button(onClick = onConfirmSleep) {
                         Text("Có")

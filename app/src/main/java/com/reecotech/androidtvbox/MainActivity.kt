@@ -11,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.reecotech.androidtvbox.ui.screen.MainDataScreen
-import com.reecotech.androidtvbox.ui.screen.components.AspectRatioBox
 import com.reecotech.androidtvbox.ui.theme.AndroidTVBoxTheme
 import com.reecotech.androidtvbox.ui.viewmodel.MainViewModel
 import android.provider.Settings
