@@ -71,7 +71,9 @@ fun BodySection(
             ) {
                 StationTable(
                     stations = stations,
-                    modifier = Modifier.weight(0.64f)
+                    modifier = Modifier
+                        .weight(0.64f)
+                        .fillMaxHeight()
                 )
                 Spacer(modifier = Modifier.weight(0.36f))
             }
