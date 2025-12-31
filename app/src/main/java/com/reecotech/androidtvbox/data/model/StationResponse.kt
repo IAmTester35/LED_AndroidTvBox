@@ -23,5 +23,6 @@ data class Parameter(
     @SerialName("parameterName") val parameterName: String,
     @SerialName("value") val value: Double? = null,
     @SerialName("alarmLevel") val alarmLevel: Int? = null,
-    @SerialName("timestamp") val timestamp: String? = null
+    @SerialName("timestamp") val timestamp: String? = null,
+    @SerialName("isEnable") val isEnable: Boolean? = true
 )

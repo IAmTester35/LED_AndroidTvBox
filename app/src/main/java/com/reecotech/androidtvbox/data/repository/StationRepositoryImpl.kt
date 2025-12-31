@@ -119,30 +119,38 @@ class StationRepositoryImpl @Inject constructor(
             // Optimize: Iterate directly instead of creating intermediate Maps (which causes memory churn)
             var rain = "--"
             var rainAlarm = 0
+            var rainEnable = true
             var waterLevel = "--"
             var waterLevelAlarm = 0
+            var waterLevelEnable = true
             var surfaceSalt = "--"
             var surfaceSaltAlarm = 0
+            var surfaceSaltEnable = true
             var bottomSalt = "--"
             var bottomSaltAlarm = 0
+            var bottomSaltEnable = true
 
             for (param in station.parameters) {
                 when (param.parameterName) {
                     "RAIN" -> {
                         rain = param.value?.toString() ?: "--"
                         rainAlarm = param.alarmLevel ?: 0
+                        rainEnable = param.isEnable ?: true
                     }
                     "WATER_LEVEL" -> {
                         waterLevel = param. value?.toString() ?: "--"
                         waterLevelAlarm = param.alarmLevel ?: 0
+                        waterLevelEnable = param.isEnable ?: true
                     }
                     "SALT_SURFACE" -> {
                         surfaceSalt = param.value?.toString() ?: "--"
                         surfaceSaltAlarm = param.alarmLevel ?: 0
+                        surfaceSaltEnable = param.isEnable ?: true
                     }
                     "SALT_BOTTOM" -> {
                         bottomSalt = param.value?.toString() ?: "--"
                         bottomSaltAlarm = param.alarmLevel ?: 0
+                        bottomSaltEnable = param.isEnable ?: true
                     }
                 }
             }
@@ -151,12 +159,16 @@ class StationRepositoryImpl @Inject constructor(
                 stationName = station.stationName,
                 rainfall24h = rain,
                 rainfallAlarmLevel = rainAlarm,
+                rainfallEnable = rainEnable,
                 waterLevel = waterLevel,
                 waterLevelAlarmLevel = waterLevelAlarm,
+                waterLevelEnable = waterLevelEnable,
                 surfaceSalinity = surfaceSalt,
                 surfaceSalinityAlarmLevel = surfaceSaltAlarm,
+                surfaceSalinityEnable = surfaceSaltEnable,
                 bottomSalinity = bottomSalt,
                 bottomSalinityAlarmLevel = bottomSaltAlarm,
+                bottomSalinityEnable = bottomSaltEnable,
                 isOnline = station.connectionStatus == "online"
             )
         }

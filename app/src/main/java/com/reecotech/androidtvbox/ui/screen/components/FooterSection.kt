@@ -51,7 +51,7 @@ fun FooterSection(modifier: Modifier = Modifier) {
         
         // Map image
         MapSection(
-            modifier = Modifier.fillMaxHeight(0.68f)
+            modifier = Modifier.weight(1f)
         )
         
         // Bottom section with support info, social QR codes, and branding
@@ -94,7 +94,7 @@ private fun MapSection(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)),
         painter = painterResource(id = R.drawable.map),
         contentDescription = "Bản đồ vị trí 11 trạm KTTV",
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.FillBounds
     )
 }
 

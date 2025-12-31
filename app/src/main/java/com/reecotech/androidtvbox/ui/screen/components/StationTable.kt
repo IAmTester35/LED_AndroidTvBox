@@ -111,10 +111,11 @@ private fun TableStationRows(
                     fontSize = baseFontSize * 0.85f // Station name slightly smaller
                 )
                 parameters.forEach { parameter ->
-                    val (textValue, alarmValue) = parameter.valueExtractor(station)
-                    val bgColor = getValueBackgroundColor(textValue)
+                    val (rawValue, alarmValue, isEnabled) = parameter.valueExtractor(station)
+                    val textValue = if (isEnabled) rawValue else ""
                     val isNoData = textValue == UiConstants.NO_DATA_PLACEHOLDER
-
+                    
+                    val bgColor = if (isEnabled) getValueBackgroundColor(textValue) else UiConstants.NO_DATA_COLOR_DISABLE
                     val txtColor = if (isNoData || !station.isOnline) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
                     
                     val fontSize = if (isNoData) baseFontSize * 1.2f else baseFontSize

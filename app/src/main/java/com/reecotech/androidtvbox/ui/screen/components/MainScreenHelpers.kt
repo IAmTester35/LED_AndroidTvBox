@@ -17,17 +17,17 @@ data class LegendItem(
  */
 data class TableParameter(
     val name: String,
-    val valueExtractor: (StationData) -> Pair<String, Int>
+    val valueExtractor: (StationData) -> Triple<String, Int, Boolean>
 )
 
 /**
  * Creates list of table parameters with their extractors
  */
 fun createTableParameters(): List<TableParameter> = listOf(
-    TableParameter("Lượng mưa 24h\n(mm)") { Pair(it.rainfall24h, it.rainfallAlarmLevel) },
-    TableParameter("Mực nước\n(m)") { Pair(it.waterLevel, it.waterLevelAlarmLevel) },
-    TableParameter("Độ mặn tầng\nmặt (PPT)") { Pair(it.surfaceSalinity, it.surfaceSalinityAlarmLevel) },
-    TableParameter("Độ mặn tầng\nđáy (PPT)") { Pair(it.bottomSalinity, it.bottomSalinityAlarmLevel) }
+    TableParameter("Lượng mưa 24h\n(mm)") { Triple(it.rainfall24h, it.rainfallAlarmLevel, it.rainfallEnable) },
+    TableParameter("Mực nước\n(m)") { Triple(it.waterLevel, it.waterLevelAlarmLevel, it.waterLevelEnable) },
+    TableParameter("Độ mặn tầng\nmặt (PPT)") { Triple(it.surfaceSalinity, it.surfaceSalinityAlarmLevel, it.surfaceSalinityEnable) },
+    TableParameter("Độ mặn tầng\nđáy (PPT)") { Triple(it.bottomSalinity, it.bottomSalinityAlarmLevel, it.bottomSalinityEnable) }
 )
 
 /**
