@@ -19,6 +19,7 @@ import android.net.Uri
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -89,32 +90,50 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkAppUpdate() {
+        // 1. Initial manual fetch
+        lifecycleScope.launch {
+            performUpdateCheck()
+        }
+
+        // 2. Real-time updates listener
+        lifecycleScope.launch {
+            remoteConfigRepository.configUpdates.collect {
+                Timber.d("Real-time config update received")
+                performUpdateCheck()
+            }
+        }
+
+        // 3. Keep the periodic fetch as a fallback (every 1 hour is enough now)
         lifecycleScope.launch {
             while (true) {
-                try {
-                    val fetched = remoteConfigRepository.fetchAndActivate()
-                    if (fetched) {
-                        val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
-                        val apkUrl = remoteConfigRepository.getApkDownloadUrl()
-                        val passwordHash = remoteConfigRepository.getPasswordHash()
-                        val sleepConfig = remoteConfigRepository.getSleepTimeConfig()
-                        
-                        viewModel.updatePasswordHash(passwordHash)
-                        viewModel.updateSleepTimeConfig(sleepConfig)
-                        
-                        if (updateManager.isUpdateAvailable(latestVersionCode)) {
-                            android.widget.Toast.makeText(this@MainActivity, "Found new update: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()
-                            android.widget.Toast.makeText(this@MainActivity, "Downloading update...", android.widget.Toast.LENGTH_SHORT).show()
-                            updateManager.downloadAndInstallApk(apkUrl, latestVersionCode)
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                
-                // Check every 20 minutes
-                kotlinx.coroutines.delay(20 * 60 * 1000L)
+                kotlinx.coroutines.delay(60 * 60 * 1000L)
+                performUpdateCheck()
             }
+        }
+    }
+
+    private suspend fun performUpdateCheck() {
+        try {
+            // activate() is already called inside configUpdates flow, 
+            // but for manual polling we still need fetchAndActivate()
+            val fetched = remoteConfigRepository.fetchAndActivate()
+            if (fetched) {
+                val latestVersionCode = remoteConfigRepository.getLatestVersionCode()
+                val apkUrl = remoteConfigRepository.getApkDownloadUrl()
+                val passwordHash = remoteConfigRepository.getPasswordHash()
+                val sleepConfig = remoteConfigRepository.getSleepTimeConfig()
+                
+                viewModel.updatePasswordHash(passwordHash)
+                viewModel.updateSleepTimeConfig(sleepConfig)
+                
+                if (updateManager.isUpdateAvailable(latestVersionCode)) {
+                    android.widget.Toast.makeText(this@MainActivity, "Phát hiện bản cập nhật mới: $latestVersionCode", android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(this@MainActivity, "Đang tải bản cập nhật...", android.widget.Toast.LENGTH_SHORT).show()
+                    updateManager.downloadAndInstallApk(apkUrl, latestVersionCode)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error during update check")
         }
     }
 }

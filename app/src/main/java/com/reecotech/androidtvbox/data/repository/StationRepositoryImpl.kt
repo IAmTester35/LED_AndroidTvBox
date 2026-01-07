@@ -13,13 +13,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class StationRepositoryImpl @Inject constructor(
-    private val apiService: StationApiService
+    private val apiService: StationApiService,
+    private val apiLogger: com.reecotech.androidtvbox.util.ApiLogger
 ) : StationRepository {
 
     private val _stations = MutableStateFlow<List<StationData>>(emptyList())
@@ -58,23 +61,39 @@ class StationRepositoryImpl @Inject constructor(
             var consecutiveFailures = 0
             while (isActive) {
                 var nextDelay = currentPollingInterval // Use dynamic interval
+                val startTime = System.currentTimeMillis()
+                var result = "Unknown"
+                var capturedResponse: String? = null
+
                 try {
-                    _lastAttemptTime.value = System.currentTimeMillis()
+                    _lastAttemptTime.value = startTime
                     // Add timeout to force failure if connection hangs (so retry count increments)
                     kotlinx.coroutines.withTimeout(10_000L) {
                         val response = apiService.getLatestStationData()
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null && body.success) {
+                                // Capture response as JSON for logging
+                                capturedResponse = try {
+                                    kotlinx.serialization.json.Json.encodeToString(body)
+                                } catch (e: Exception) {
+                                    body.toString()
+                                }
+                                
                                 val stationDataList = mapToStationData(body)
                                 _stations.value = stationDataList
                                 _status.value = ConnectionStatus.Connected
                                 consecutiveFailures = 0
+                                result = "Success"
                             } else {
+                                result = "Error: API returned success=false"
+                                capturedResponse = body?.toString() ?: response.errorBody()?.string()
                                 throw Exception("API returned success=false")
                             }
                         } else {
                             // Handle HTTP errors explicitly (502, 503, 404, etc.)
+                            result = "Error: HTTP ${response.code()} ${response.message()}"
+                            capturedResponse = response.errorBody()?.string()
                             throw Exception("HTTP ${response.code()} ${response.message()}")
                         }
                     }
@@ -91,9 +110,16 @@ class StationRepositoryImpl @Inject constructor(
                          "API returned success=false"
                     } else if (e is kotlinx.serialization.SerializationException) {
                         "Lỗi dữ liệu: API trả về không đúng định dạng (có thể là HTML lỗi 502/503)"
+                    } else if (e is kotlinx.coroutines.TimeoutCancellationException) {
+                        "Quá thời gian chờ (10s)"
                     } else {
                         "${e.javaClass.simpleName}: ${e.message}"
                     }
+                    
+                    if (result == "Unknown") {
+                        result = "Error: $errorMessage"
+                    }
+                    
                     _status.value = ConnectionStatus.Error(errorMessage, consecutiveFailures)
 
                     nextDelay = when (consecutiveFailures) {
@@ -101,6 +127,9 @@ class StationRepositoryImpl @Inject constructor(
                         2 -> 15_000L
                         else -> 30_000L
                     }
+                } finally {
+                    val endTime = System.currentTimeMillis()
+                    apiLogger.logApiCall(startTime, endTime, result, capturedResponse)
                 }
 
                 delay(nextDelay)

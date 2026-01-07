@@ -28,8 +28,8 @@ android {
         applicationId = "com.reecotech.androidtvbox"
         minSdk = 24
         targetSdk = 36
-        versionCode = 45
-        versionName = "1.3.0"
+        versionCode = 48
+        versionName = "1.4.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -125,4 +125,5 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
     implementation(libs.firebase.config)
+    implementation(libs.firebase.firestore)
 }

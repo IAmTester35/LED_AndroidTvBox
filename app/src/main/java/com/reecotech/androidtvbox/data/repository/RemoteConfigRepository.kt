@@ -1,8 +1,14 @@
 package com.reecotech.androidtvbox.data.repository
 
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.ConfigUpdate
+import com.google.firebase.remoteconfig.ConfigUpdateListener
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +33,28 @@ class RemoteConfigRepository @Inject constructor() {
             KEY_PASSWORD_HASH to "99edc2b391da70f08d8aed876b0c2bb1e976bcaff860abc0f29dcd45fd09d1dc",
             KEY_SLEEP_TIME to "{\"fr\": \"17:00\", \"to\": \"07:00\"}"
         ))
+    }
+
+    /**
+     * Listen for real-time config updates.
+     */
+    val configUpdates: Flow<Unit> = callbackFlow {
+        val listener = remoteConfig.addOnConfigUpdateListener(object : ConfigUpdateListener {
+            override fun onUpdate(configUpdate: ConfigUpdate) {
+                Timber.d("Remote Config updated: ${configUpdate.updatedKeys}")
+                // When config is updated, fetch and activate manually to get new values
+                remoteConfig.activate().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        trySend(Unit)
+                    }
+                }
+            }
+
+            override fun onError(error: FirebaseRemoteConfigException) {
+                Timber.e(error, "Remote Config update error")
+            }
+        })
+        awaitClose { listener.remove() }
     }
 
     suspend fun fetchAndActivate(): Boolean = suspendCoroutine { continuation ->
