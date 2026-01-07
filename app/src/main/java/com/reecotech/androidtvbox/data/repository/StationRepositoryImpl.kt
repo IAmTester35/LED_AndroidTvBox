@@ -68,7 +68,7 @@ class StationRepositoryImpl @Inject constructor(
                 try {
                     _lastAttemptTime.value = startTime
                     // Add timeout to force failure if connection hangs (so retry count increments)
-                    kotlinx.coroutines.withTimeout(10_000L) {
+                    kotlinx.coroutines.withTimeout(15_000L) {
                         val response = apiService.getLatestStationData()
                         if (response.isSuccessful) {
                             val body = response.body()
