@@ -37,8 +37,8 @@ class StationRepositoryImpl @Inject constructor(
     private var pollingJob: Job? = null
     private val pollingScope = CoroutineScope(Dispatchers.IO)
     
-    // Default 180 seconds (optimized to reduce server load)
-    private var currentPollingInterval = 180_000L
+    // Default 60 seconds
+    private var currentPollingInterval = 60_000L
 
     override fun setPollingInterval(intervalMs: Long) {
         if (currentPollingInterval == intervalMs) return
