@@ -28,6 +28,11 @@ class StationRepositoryImpl @Inject constructor(
     private val _stations = MutableStateFlow<List<StationData>>(emptyList())
     override val stations = _stations.asStateFlow()
 
+    init {
+        // Log to identify if the App is restarting constantly
+        apiLogger.logApiCall(System.currentTimeMillis(), System.currentTimeMillis(), "REPO_INIT", "Application/Repository Started")
+    }
+
     private val _status = MutableStateFlow<ConnectionStatus>(ConnectionStatus.Disconnected)
     override val status = _status.asStateFlow()
 
@@ -35,7 +40,8 @@ class StationRepositoryImpl @Inject constructor(
     override val lastAttemptTime = _lastAttemptTime.asStateFlow()
 
     private var pollingJob: Job? = null
-    private val pollingScope = CoroutineScope(Dispatchers.IO)
+    // Use SupervisorJob so that a failure in one poll iteration doesn't kill the whole scope
+    private val pollingScope = CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
     
     // Default 60 seconds
     private var currentPollingInterval = 60_000L
@@ -59,67 +65,50 @@ class StationRepositoryImpl @Inject constructor(
         _status.value = ConnectionStatus.Connecting
         pollingJob = pollingScope.launch {
             var consecutiveFailures = 0
+            var loopCount = 0
             while (isActive) {
-                var nextDelay = currentPollingInterval // Use dynamic interval
+                loopCount++
+                var nextDelay = currentPollingInterval
                 val startTime = System.currentTimeMillis()
-                var result = "Unknown"
+                var result = "Success"
                 var capturedResponse: String? = null
 
                 try {
                     _lastAttemptTime.value = startTime
-                    // Add timeout to force failure if connection hangs (so retry count increments)
-                    kotlinx.coroutines.withTimeout(15_000L) {
+                    
+                    // Increased timeout to 20s for slow TV Box connections
+                    kotlinx.coroutines.withTimeout(20_000L) {
                         val response = apiService.getLatestStationData()
                         if (response.isSuccessful) {
                             val body = response.body()
                             if (body != null && body.success) {
-                                // Capture response as JSON for logging
-                                capturedResponse = try {
-                                    kotlinx.serialization.json.Json.encodeToString(body)
-                                } catch (e: Exception) {
-                                    body.toString()
-                                }
+                                // Simplified: Only log a summary to save memory
+                                capturedResponse = "Success (Items: ${body.data.size}, Iteration: $loopCount)"
                                 
                                 val stationDataList = mapToStationData(body)
                                 _stations.value = stationDataList
                                 _status.value = ConnectionStatus.Connected
                                 consecutiveFailures = 0
-                                result = "Success"
                             } else {
-                                result = "Error: API returned success=false"
-                                capturedResponse = body?.toString() ?: response.errorBody()?.string()
-                                throw Exception("API returned success=false")
+                                throw Exception("API business error: success=false")
                             }
                         } else {
-                            // Handle HTTP errors explicitly (502, 503, 404, etc.)
-                            result = "Error: HTTP ${response.code()} ${response.message()}"
-                            capturedResponse = response.errorBody()?.string()
-                            throw Exception("HTTP ${response.code()} ${response.message()}")
+                            throw Exception("HTTP Error: ${response.code()}")
                         }
                     }
-                } catch (e: Exception) {
-                    // Rethrow CancellationException (unless it's a Timeout, which we want to retry)
+                } catch (e: Throwable) {
                     if (e is kotlinx.coroutines.CancellationException && e !is kotlinx.coroutines.TimeoutCancellationException) {
                         throw e
                     }
 
                     consecutiveFailures++
-                    Timber.e(e, "Error fetching station data (Attempt $consecutiveFailures)")
-                    
-                    val errorMessage = if (e.message == "API returned success=false") {
-                         "API returned success=false"
-                    } else if (e is kotlinx.serialization.SerializationException) {
-                        "Lỗi dữ liệu: API trả về không đúng định dạng (có thể là HTML lỗi 502/503)"
-                    } else if (e is kotlinx.coroutines.TimeoutCancellationException) {
-                        "Quá thời gian chờ (10s)"
-                    } else {
-                        "${e.javaClass.simpleName}: ${e.message}"
+                    val errorMessage = when (e) {
+                        is kotlinx.coroutines.TimeoutCancellationException -> "Timeout (20s)"
+                        is kotlinx.serialization.SerializationException -> "Parse Error"
+                        else -> e.message ?: "Unknown error"
                     }
                     
-                    if (result == "Unknown") {
-                        result = "Error: $errorMessage"
-                    }
-                    
+                    result = "Error_$errorMessage"
                     _status.value = ConnectionStatus.Error(errorMessage, consecutiveFailures)
 
                     nextDelay = when (consecutiveFailures) {
@@ -128,13 +117,13 @@ class StationRepositoryImpl @Inject constructor(
                         else -> 30_000L
                     }
                 } finally {
-                    val endTime = System.currentTimeMillis()
-                    apiLogger.logApiCall(startTime, endTime, result, capturedResponse)
+                    apiLogger.logApiCall(startTime, System.currentTimeMillis(), result, capturedResponse)
                 }
 
                 delay(nextDelay)
             }
         }
+    }
     }
 
     override fun stopPolling() {

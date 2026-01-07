@@ -7,7 +7,9 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -32,21 +34,35 @@ class ApiLogger @Inject constructor(
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown_device"
     }
 
+    // Use SupervisorJob to prevent the entire logger from dying if one log sync fails
+    private val loggerScope = CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
+
     /**
-     * Logs an API call with timing, result and raw response.
-     * Guaranteed not to crash due to file I/O or Firestore errors.
+     * Logs an API call. Now completely non-blocking and crash-resistant.
      */
-    suspend fun logApiCall(startTime: Long, endTime: Long, result: String, responseBody: String? = null) {
+    fun logApiCall(startTime: Long, endTime: Long, result: String, responseBody: String? = null) {
         val duration = endTime - startTime
         
-        // 1. Log to local file
-        logToLocalFile(startTime, endTime, duration, result, responseBody)
+        // Limit string size to prevent OOM or Firestore document size limits (max 1MB)
+        val safelyLimitedResponse = responseBody?.let {
+            if (it.length > 50_000) it.take(50_000) + "... [TRUNCATED]" else it
+        }
 
-        // 2. Sync to Firestore for remote monitoring
-        syncToFirestore(startTime, endTime, duration, result, responseBody)
+        loggerScope.launch {
+            try {
+                // 1. Sync to Firestore first (Higher priority)
+                syncToFirestore(startTime, endTime, duration, result, safelyLimitedResponse)
 
-        // 3. Periodically cleanup old logs (once a day or every X calls)
-        cleanupOldLogs()
+                // 2. Log to local file (Lower priority, potential I/O hang)
+                logToLocalFile(startTime, endTime, duration, result, safelyLimitedResponse)
+
+                // 3. Periodically cleanup old logs
+                cleanupOldLogs()
+            } catch (e: Throwable) {
+                // Catching Throwable (including OOM) to ensure scope doesn't die
+                Timber.e(e, "Fatal error during async logging: ${e.message}")
+            }
+        }
     }
 
     private var lastCleanupTime = 0L
