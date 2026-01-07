@@ -15,6 +15,9 @@ class MainApplication : Application() {
         if (BuildConfig.DEBUG) {
             timber.log.Timber.plant(timber.log.Timber.DebugTree())
         }
+        
+        // Start foreground service as backup (in case MainActivity is not created)
+        startStationPollingService()
     }
     
     /**
@@ -67,6 +70,23 @@ class MainApplication : Application() {
             } catch (deleteError: Exception) {
                 timber.log.Timber.e(deleteError, "Failed to delete corrupted DataStore file")
             }
+        }
+    }
+
+    private fun startStationPollingService() {
+        try {
+            val serviceIntent = android.content.Intent(
+                this,
+                com.reecotech.androidtvbox.service.StationPollingService::class.java
+            )
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+            timber.log.Timber.i("MainApplication: StationPollingService start requested")
+        } catch (e: Exception) {
+            timber.log.Timber.e(e, "MainApplication: Failed to start StationPollingService")
         }
     }
 }

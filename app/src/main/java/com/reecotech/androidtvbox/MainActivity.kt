@@ -45,6 +45,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Start the foreground service for unstoppable polling
+        startStationPollingService()
+        
         checkAccessibilityService()
         checkAppUpdate()
 
@@ -134,6 +137,20 @@ class MainActivity : ComponentActivity() {
             }
         } catch (e: Exception) {
             Timber.e(e, "Error during update check")
+        }
+    }
+
+    private fun startStationPollingService() {
+        try {
+            val serviceIntent = Intent(this, com.reecotech.androidtvbox.service.StationPollingService::class.java)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+            Timber.i("MainActivity: StationPollingService start requested")
+        } catch (e: Exception) {
+            Timber.e(e, "MainActivity: Failed to start StationPollingService")
         }
     }
 }

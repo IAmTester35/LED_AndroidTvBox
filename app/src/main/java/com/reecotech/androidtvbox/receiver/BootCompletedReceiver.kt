@@ -18,7 +18,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
         )
 
         if (intent.action in actions) {
-            Timber.i("Boot event detected (${intent.action}). Attempting to start MainActivity.")
+            Timber.i("Boot event detected (${intent.action}). Starting services and MainActivity.")
             
             // Show a Toast to confirm receiver is triggered (helper for manual verification)
             try {
@@ -27,6 +27,20 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 Timber.w("Failed to show toast: ${e.message}")
             }
             
+            // Start the foreground polling service FIRST (critical!)
+            try {
+                val serviceIntent = Intent(context, com.reecotech.androidtvbox.service.StationPollingService::class.java)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent)
+                } else {
+                    context.startService(serviceIntent)
+                }
+                Timber.i("StationPollingService start requested on boot")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to start StationPollingService on boot")
+            }
+            
+            // Then start MainActivity
             val i = Intent(context, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }

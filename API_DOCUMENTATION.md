@@ -161,3 +161,46 @@ export interface IStationResponse {
   data: IStation[];
 }
 ```
+
+## 6. Firebase Integration
+
+Ứng dụng sử dụng Firebase để quản lý cấu hình từ xa và ghi nhật ký hoạt động (logging).
+
+### 6.1. Firebase Remote Config
+
+Được sử dụng để thay đổi hành vi và thông số của app mà không cần cập nhật phiên bản mới.
+
+*   **Các Key quan trọng:**
+
+| Key | Kiểu dữ liệu | Mô tả | Giá trị mặc định |
+| :--- | :--- | :--- | :--- |
+| `latest_version_code` | Long | Mã phiên bản (version code) mới nhất để gợi ý cập nhật. | `0` |
+| `apk_download_url` | String | Link tải file APK mới nhất. | `""` |
+| `password_hash` | String | Mã hash SHA-256 của mật khẩu truy cập cài đặt. | `99edc2b...` |
+| `sleep_time` | JSON String | Cấu hình giờ nghỉ của màn hình (hẹn giờ tắt/bật). | `{"fr": "17:00", "to": "07:00"}` |
+
+*   **Cơ chế hoạt động:**
+    *   **Cache:** Fetch interval được đặt là 20 phút.
+    *   **Real-time:** App có lắng nghe sự thay đổi real-time từ Firebase Console. Khi có thay đổi, app sẽ tự động fetch và apply cấu hình mới ngay lập tức.
+
+### 6.2. Firebase Firestore (Logs)
+
+Được sử dụng để lưu trữ nhật ký các lần gọi API từ thiết bị, phục vụ mục đích giám sát và gỡ lỗi từ xa.
+
+*   **Cấu trúc dữ liệu:**
+    *   **Path:** `devices/{deviceId}/api_logs_{yyyyMMdd}/{HHmmss_Result}`
+    *   **Ghi chú:** `deviceId` là mã định danh duy nhất của thiết bị (Android ID).
+
+*   **Các trường thông tin (Fields):**
+
+| Field | Data Type | Mô tả |
+| :--- | :--- | :--- |
+| `startTime` | String | Thời điểm bắt đầu gọi API (`yyyy-MM-dd HH:mm:ss.SSS`). |
+| `endTime` | String | Thời điểm nhận được phản hồi. |
+| `durationMs` | Number | Thời gian thực thi (miliseconds). |
+| `result` | String | Kết quả (`Success` hoặc thông báo lỗi). |
+| `apiResponse` | String | Toàn bộ nội dung JSON trả về từ API (giới hạn 50,000 ký tự). |
+| `timestamp` | Timestamp | Thời gian server Firebase nhận log. |
+
+*   **Cơ chế dọn dẹp (Cleanup):**
+    *   Mỗi khi ghi log, app sẽ kiểm tra và tự động xóa các log cũ từ **8 ngày trước** trên Firestore để tiết kiệm bộ nhớ.

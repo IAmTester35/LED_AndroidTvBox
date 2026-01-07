@@ -124,7 +124,6 @@ class StationRepositoryImpl @Inject constructor(
             }
         }
     }
-    }
 
     override fun stopPolling() {
         pollingJob?.cancel()

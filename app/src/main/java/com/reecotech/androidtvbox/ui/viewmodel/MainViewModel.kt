@@ -57,17 +57,12 @@ class MainViewModel @Inject constructor(
 
     private fun startSleepTimer() {
         viewModelScope.launch {
-            var lastSetPollingInterval = 60_000L // Track last interval to avoid redundant calls
+            // No longer adjust polling interval based on sleep mode
+            // Polling always stays at 60 seconds
 
             while (true) {
                 var delayTime = 60000L // Default to 60s check
                 val currentState = _uiState.value
-                val targetPollingInterval = if (currentState.isSleepMode) 3_600_000L else 60_000L
-                
-                if (targetPollingInterval != lastSetPollingInterval) {
-                    stationRepository.setPollingInterval(targetPollingInterval)
-                    lastSetPollingInterval = targetPollingInterval
-                }
 
                 // Priority: Handle Active Countdown
                 if (currentState.showSleepWarning && !currentState.isSleepMode) {
@@ -204,7 +199,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun startDataFlow() {
-        stationRepository.startPolling()
+        // Polling is now handled by StationPollingService - do not start here
 
         viewModelScope.launch {
             combine(
@@ -252,8 +247,7 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        if (!useMockData) {
-            stationRepository.stopPolling()
-        }
+        // DO NOT stop polling here - StationPollingService manages the polling lifecycle
+        // The service must run continuously regardless of ViewModel state
     }
 }
