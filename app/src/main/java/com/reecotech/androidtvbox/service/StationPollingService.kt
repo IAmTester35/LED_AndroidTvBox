@@ -5,9 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.reecotech.androidtvbox.MainActivity
 import com.reecotech.androidtvbox.R
@@ -22,6 +24,7 @@ import javax.inject.Inject
  * - Runs independently from Activity/ViewModel lifecycle
  * - Cannot be stopped (no stop mechanism)
  * - Auto-restarts if killed by system (START_STICKY)
+ * - Uses PARTIAL_WAKE_LOCK to survive Doze Mode
  * - Starts on boot via BootCompletedReceiver
  * - Shows persistent notification (required for foreground service)
  */
@@ -31,15 +34,21 @@ class StationPollingService : Service() {
     @Inject
     lateinit var stationRepository: StationRepository
 
+    private var wakeLock: PowerManager.WakeLock? = null
+
     companion object {
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "station_polling_channel"
         private const val CHANNEL_NAME = "Station Data Polling"
+        private const val WAKE_LOCK_TAG = "StationPolling::WakeLock"
     }
 
     override fun onCreate() {
         super.onCreate()
         Timber.i("StationPollingService: onCreate() - Starting unstoppable polling")
+
+        // Acquire PARTIAL_WAKE_LOCK to survive Doze Mode
+        acquireWakeLock()
 
         // Create notification channel for Android 8.0+
         createNotificationChannel()
@@ -51,7 +60,7 @@ class StationPollingService : Service() {
         // Start polling - THIS WILL NEVER STOP
         stationRepository.startPolling()
         
-        Timber.i("StationPollingService: Polling started successfully")
+        Timber.i("StationPollingService: Polling started successfully with WakeLock")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -79,6 +88,9 @@ class StationPollingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.w("StationPollingService: onDestroy() - Service is being destroyed")
+        
+        // Release WakeLock
+        releaseWakeLock()
         
         // Note: We do NOT call stopPolling() here
         // The service should auto-restart via START_STICKY
@@ -136,5 +148,34 @@ class StationPollingService : Service() {
         // The repository will handle duplicate startPolling() calls gracefully
         // So we can safely call it without checking
         return true
+    }
+
+    private fun acquireWakeLock() {
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                WAKE_LOCK_TAG
+            ).apply {
+                acquire()
+            }
+            Timber.i("StationPollingService: WakeLock acquired to prevent Doze mode sleep")
+        } catch (e: Exception) {
+            Timber.e(e, "StationPollingService: Failed to acquire WakeLock")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                    Timber.i("StationPollingService: WakeLock released")
+                }
+            }
+            wakeLock = null
+        } catch (e: Exception) {
+            Timber.e(e, "StationPollingService: Failed to release WakeLock")
+        }
     }
 }
