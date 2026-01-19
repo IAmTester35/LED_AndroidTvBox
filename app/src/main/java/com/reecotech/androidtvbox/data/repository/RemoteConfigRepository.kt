@@ -31,7 +31,8 @@ class RemoteConfigRepository @Inject constructor() {
             KEY_LATEST_VERSION_CODE to 0,
             KEY_APK_DOWNLOAD_URL to "",
             KEY_PASSWORD_HASH to "99edc2b391da70f08d8aed876b0c2bb1e976bcaff860abc0f29dcd45fd09d1dc",
-            KEY_SLEEP_TIME to "{\"fr\": \"17:00\", \"to\": \"07:00\"}"
+            KEY_SLEEP_TIME to "{\"fr\": \"17:00\", \"to\": \"07:00\"}",
+            KEY_IS_DEBUG to true
         ))
     }
 
@@ -82,11 +83,16 @@ class RemoteConfigRepository @Inject constructor() {
         return remoteConfig.getString(KEY_PASSWORD_HASH)
     }
 
+    fun isDebug(): Boolean {
+        return remoteConfig.getBoolean(KEY_IS_DEBUG)
+    }
+
     companion object {
         const val KEY_LATEST_VERSION_CODE = "latest_version_code"
         const val KEY_APK_DOWNLOAD_URL = "apk_download_url"
         const val KEY_PASSWORD_HASH = "password_hash"
         const val KEY_SLEEP_TIME = "sleep_time"
+        const val KEY_IS_DEBUG = "is_debug"
     }
 
     @kotlinx.serialization.Serializable

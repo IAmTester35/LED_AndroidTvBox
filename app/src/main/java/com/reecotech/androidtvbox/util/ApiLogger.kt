@@ -23,7 +23,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ApiLogger @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val remoteConfigRepository: com.reecotech.androidtvbox.data.repository.RemoteConfigRepository
 ) {
     private val mutex = Mutex()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
@@ -51,7 +52,10 @@ class ApiLogger @Inject constructor(
         loggerScope.launch {
             try {
                 // 1. Sync to Firestore first (Higher priority)
-                syncToFirestore(startTime, endTime, duration, result, safelyLimitedResponse)
+                // Only sync if is_debug is enabled in Remote Config
+                if (remoteConfigRepository.isDebug()) {
+                    syncToFirestore(startTime, endTime, duration, result, safelyLimitedResponse)
+                }
 
                 // 2. Log to local file (Lower priority, potential I/O hang)
                 logToLocalFile(startTime, endTime, duration, result, safelyLimitedResponse)
@@ -90,33 +94,8 @@ class ApiLogger @Inject constructor(
                 Timber.e(e, "Error cleaning up local logs")
             }
 
-            // --- 2. Cleanup Firestore Collection (Day 8 ago) ---
-            try {
-                // Calculate name of collection from exactly 8 days ago
-                val targetMillis = now - (8 * 24 * 60 * 60 * 1000L)
-                val oldCollectionName = "api_logs_${fileDateFormat.format(Date(targetMillis))}"
-
-                firestore.collection("devices")
-                    .document(deviceId)
-                    .collection(oldCollectionName)
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        if (snapshot.isEmpty) return@addOnSuccessListener
-                        
-                        val batch = firestore.batch()
-                        snapshot.documents.forEach { doc ->
-                            batch.delete(doc.reference)
-                        }
-                        batch.commit().addOnFailureListener { e ->
-                            Timber.w("Batch delete for $oldCollectionName failed: ${e.message}")
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        Timber.w("Failed to fetch old collection $oldCollectionName: ${e.message}")
-                    }
-            } catch (e: Exception) {
-                Timber.e(e, "Error starting Firestore cleanup")
-            }
+            // --- 2. Cleanup Firestore Collection ---
+            // Removed as per request (Logic moved to keep logs permanently or managed elsewhere)
         }
     }
 
@@ -152,26 +131,25 @@ class ApiLogger @Inject constructor(
             val logData = hashMapOf(
                 "startTime" to dateFormat.format(Date(startTime)),
                 "endTime" to dateFormat.format(Date(endTime)),
+                "logDate" to fileDateFormat.format(Date(startTime)), // YYYYMMDD
                 "durationMs" to duration,
                 "result" to result,
                 "apiResponse" to (responseBody ?: "N/A"),
-                "timestamp" to FieldValue.serverTimestamp()
+                "timestamp" to FieldValue.serverTimestamp(),
+                "expireAt" to Date(startTime + (7L * 24 * 60 * 60 * 1000L))
             )
 
-            // Collection per day: api_logs_20240107
-            val dailyCollectionName = "api_logs_${fileDateFormat.format(Date(startTime))}"
-            
-            // Format ID as HHmmss_Result (since date is in collection name)
-            val idTimeFormat = SimpleDateFormat("HHmmss", Locale.getDefault())
+            // Format ID as YYYYMMDD_HHmmss_Result
+            val idTimeFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             val logId = "${idTimeFormat.format(Date(startTime))}_$result"
                 .replace(" ", "_")
                 .replace("/", "_")
                 .replace(":", "-")
 
-            // Collection structure: devices/{deviceId}/{dailyCollectionName}/{logId}
+            // New Collection structure: devices/{deviceId}/api_logs/{logId}
             firestore.collection("devices")
                 .document(deviceId)
-                .collection(dailyCollectionName)
+                .collection("api_logs")
                 .document(logId)
                 .set(logData)
                 .addOnFailureListener { e ->

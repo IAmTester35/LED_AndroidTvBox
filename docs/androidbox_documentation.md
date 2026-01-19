@@ -9,16 +9,19 @@ Sử dụng tài khoản developer.reecotech@gmail.com trên Firebase với proj
 *   **Firebase Crashlytics:** Theo dõi và báo cáo sự cố (crash) của ứng dụng.
 *   **Firebase Performance Monitoring:** Theo dõi hiệu năng mạng và ứng dụng.
 *   **Firebase Remote Config:** Quản lý cấu hình từ xa (cập nhật mật khẩu, phiên bản ứng dụng).
+*   **Firebase Firestore:** Ghi lại nhật ký (logs) cuộc gọi API để theo dõi trạng thái hoạt động của từng thiết bị.
 *   **App Release Monitoring:** Theo dõi việc phân phối phiên bản.
 
 ## 2. Cấu hình Firebase Remote Config
 Để quản lý ứng dụng, bạn cần thiết lập các tham số sau trên Firebase Console -> Remote Config.
-Thời gian cache là 15 phút nên khi thay đổi giá trị trong Remote Config, cần đợi tối đa 15 phút để giá trị mới được áp dụng trong app.
+Thời gian cache là **20 phút** nên khi thay đổi giá trị trong Remote Config, cần đợi tối đa 20 phút để giá trị mới được áp dụng trong app (Trừ khi app khởi động lại). Ứng dụng cũng hỗ trợ **Real-time Remote Config**, sẽ cập nhật ngay lập tức nếu app đang mở.
 | Key | Kiểu dữ liệu | Mô tả | Giá trị ví dụ |
 | :--- | :--- | :--- | :--- |
 | `password_hash` | String | Mã hóa SHA256 của mật khẩu quản trị. | `99e...fd09d1dc` |
 | `latest_version_code` | Number | Mã phiên bản mới nhất của ứng dụng. Dùng để kích hoạt cập nhật. | `28` |
 | `apk_download_url` | String | Đường dẫn tải trực tiếp file APK (Direct Link). | `https://example.com/app-release.apk` |
+| `sleep_time` | JSON String | Cấu hình thời gian bắt đầu và kết thúc chế độ ngủ tiêu chuẩn. | `{"fr": "17:00", "to": "07:00"}` |
+| `is_debug` | Boolean | Bật/Tắt việc gửi log lên Firebase Firestore. | `true` |
 
 ### Chi tiết các trường:
 
@@ -209,15 +212,14 @@ Khi gặp sự cố, màn hình sẽ hiển thị Overlay cảnh báo màu đỏ
 Hệ thống được lập trình để **tự phục hồi** (self-healing) mà không cần can thiệp thủ công:
 
 1.  **Chế độ Thử lại (Retry Policy):**
-    *   Ngay khi gặp lỗi, hệ thống sẽ thực hiện thử lại theo chiến lược "Exponential Backoff" (Tăng dần thời gian chờ) để tránh spam server:
-        *   Lần 1: Chờ 2 giây
-        *   Lần 2: Chờ 4 giây
-        *   Lần 3: Chờ 8 giây
-        *   Lần 4+: Chờ 10 giây (Cố định).
+    *   Ngay khi gặp lỗi, hệ thống sẽ thực hiện thử lại theo chiến lược tăng dần để tránh spam server:
+        *   Lần lỗi 1: Chờ 10 giây.
+        *   Lần lỗi 2: Chờ 15 giây.
+        *   Lần lỗi 3+: Chờ 30 giây (Cố định).
     *   Quy trình này lặp lại vô tận cho đến khi kết nối thành công.
 
 2.  **Thời gian chờ (Timeout):**
-    *   Mỗi request có thời gian chờ tối đa là **10 giây**. Nếu quá 10 giây không có phản hồi, Request bị hủy và tính là 1 lần lỗi (chuyển sang chế độ retry).
+    *   Mỗi request có thời gian chờ tối đa (Network Timeout) là **20 giây** (được cấu hình để phù hợp với tốc độ mạng không ổn định của TV Box qua 4G/Wifi). Nếu quá 20 giây không có phản hồi, Request bị hủy và tính là 1 lần lỗi (chuyển sang chế độ retry).
 
 3.  **Tần suất cập nhật chuẩn:**
     *   Khi hệ thống hoạt động bình thường, dữ liệu được làm mới mỗi **60 giây**.
@@ -350,7 +352,8 @@ Tài liệu này mô tả chi tiết về endpoint lấy dữ liệu quan trắc
     *   **Thư viện:** Retrofit 2 + OkHttp 3.
     *   **SSL/TLS:** API có chứng chỉ SSL/TLS hợp lệ.
     *   **Authentication:** API này là Public Endpoint, **không yêu cầu** API Key hoặc Token xác thực trong Header.
-    *   **Retry Policy:** Timeout kết nối và đọc dữ liệu là 60 giây.
+    *   **Retry Policy:** Xem mục 4.4 để biết chi tiết về Retry và Timeout (20s).
+    *   **Logging:** Mọi yêu cầu API đều được Log lại vào **Firebase Firestore** và file local để phục vụ bảo trì.
 
 ## 2. Request
 
@@ -393,6 +396,7 @@ Mỗi object trong mảng này đại diện cho một loại cảm biến đo �
 | `value` | Number | Yes | Giá trị đo được. Nếu `null` nghĩa là không có dữ liệu hoặc lỗi cảm biến. |
 | `timestamp` | String | Yes | Thời gian đo (ISO 8601: `YYYY-MM-DDTHH:mm:ss.sssZ`). |
 | `alarmLevel` | Number | Yes | Mức độ cảnh báo (0-5). 0 là bình thường, 5 là thảm họa. |
+| `isEnable` | Boolean | Yes | Trạng thái hiển thị của cảm biến (`true`: hiển thị, `false`: ẩn/không sử dụng). |
 
 **Bảng Mapping Parameter ID:**
 
@@ -520,4 +524,42 @@ Key mới được hỗ trợ: `sleep_time`
     *   Màn hình đen biến mất.
     *   Độ sáng hệ thống được trả về mặc định (`-1.0f`).
     *   Tần suất gọi API được khôi phục.
+
+
+# Phụ lục: Cấu trúc Log & Giám sát (Firestore & Local Logs)
+
+Để hỗ trợ việc giám sát vận hành từ xa, ứng dụng tích hợp hệ thống Log thông minh.
+
+## 1. Firebase Firestore Logs
+Nhật ký API được đồng bộ lên Firestore theo cấu trúc phân cấp để dễ dàng truy vấn theo từng thiết bị và từng ngày.
+
+*   **Đường dẫn (Path):** `devices/{android_id}/api_logs/{log_id}`
+*   **Chi tiết:**
+    *   `android_id`: Mã định danh duy nhất của Box (Settings.Secure.ANDROID_ID).
+    *   `api_logs`: Collection cố định chứa toàn bộ log.
+    *   `log_id`: Format `YYYYMMDD_HHmmss_Result` (ví dụ: `20240520_143005_Success` hoặc `20240520_143120_Error_Timeout`).
+
+**Cấu trúc Document:**
+| Field | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `startTime` | String | Thời điểm bắt đầu request (`yyyy-MM-dd HH:mm:ss.SSS`). |
+| `endTime` | String | Thời điểm kết thúc request. |
+| `logDate` | String | Ngày ghi log dạng `YYYYMMDD` để dễ dàng lọc/truy vấn. |
+| `durationMs` | Number | Thời gian phản hồi của server (miliseconds). |
+| `result` | String | `Success`, `Error_Timeout (20s)`, `REPO_INIT` hoặc mã lỗi khác. |
+| `apiResponse` | String | Nội dung tóm tắt response (Số lượng trạm) hoặc 50,000 ký tự đầu tiên của JSON nếu lỗi. |
+| `timestamp` | ServerTimestamp | Thời gian thực tế lưu vào Firestore. |
+| `expireAt` | Timestamp | Thời điểm hết hạn của log (Được app set = thời điểm tạo + 7 ngày). |
+
+## 2. Nhật ký Local (Local Logs)
+Dành cho trường hợp thiết bị mất mạng không thể đẩy log lên Firestore ngay lập tức.
+*   **Đường dẫn:** `/data/user/0/com.reecotech.androidtvbox/files/logs/`
+*   **Tên file:** `api_log_{yyyyMMdd}.txt`
+*   **Định dạng:** Dòng text phân tách bởi dấu `|`.
+
+## 3. Chính sách Tự động Xoá (Retention Policy)
+Để tránh đầy bộ nhớ Box:
+*   **Firestore:** Không tự động xoá (Quản lý thủ công trên Console hoặc script riêng).
+*   **Local Files:** Tự động xoá các file log cũ hơn **7 ngày**.
+*   **Tần suất dọn dẹp:** Kiểm tra và thực hiện 1 lần mỗi 24 giờ khi ứng dụng đang chạy.
 
