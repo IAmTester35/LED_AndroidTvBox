@@ -2,19 +2,17 @@ package com.reecotech.androidtvbox.ui.screen.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
 import com.reecotech.androidtvbox.domain.model.StationData
 import com.reecotech.androidtvbox.ui.theme.HeaderBackground
 import com.reecotech.androidtvbox.ui.theme.HeaderText
@@ -24,81 +22,46 @@ import com.reecotech.androidtvbox.ui.theme.HeaderText
  */
 @Composable
 fun StationTable(stations: List<StationData>, modifier: Modifier = Modifier) {
+    val parameters = createTableParameters()
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL)
+            .padding(horizontal = UiConstants.PADDING_L, vertical = UiConstants.PADDING_SMALL)
             .clip(androidx.compose.foundation.shape.RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM)),
     ) {
-        val firstColWidth = maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_FIRST
-        val otherColWidth = maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_OTHERS
+        val firstColWidth = this@BoxWithConstraints.maxWidth * UiConstants.COLUMN_WIDTH_PERCENT_FIRST
+        val remainingWidth = this@BoxWithConstraints.maxWidth - firstColWidth
+        val otherColWidth = if (parameters.isNotEmpty()) remainingWidth / parameters.size else 0.dp
+        
+        val headerWeight = 1.4f
+        val totalWeights = stations.size + headerWeight
+        val rowHeight = this@BoxWithConstraints.maxHeight / totalWeights
+        val density = LocalDensity.current
+        
+        // Base font size for standard rows
+        val baseFontSize = with(density) { (rowHeight.toPx() * 0.42f).toSp() }
+        val headerFontSize = with(density) { ((rowHeight * headerWeight).toPx() * 0.25f).toSp() }
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM))
         ) {
-            TableHeaderRow(stations = stations, firstColWidth = firstColWidth, otherColWidth = otherColWidth)
-            TableParameterRows(
-                stations = stations,
-                parameters = createTableParameters(),
-                firstColWidth = firstColWidth,
-                otherColWidth = otherColWidth
+            TableHeaderRow(
+                parameters = parameters, 
+                firstColWidth = firstColWidth, 
+                otherColWidth = otherColWidth,
+                fontSize = headerFontSize,
+                modifier = Modifier.weight(headerWeight)
             )
-        }
-    }
-}
-
-@Composable
-private fun TableHeaderRow(stations: List<StationData>, firstColWidth: androidx.compose.ui.unit.Dp, otherColWidth: androidx.compose.ui.unit.Dp) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        CornerHeaderCell(Modifier.width(firstColWidth))
-        stations.forEach { station ->
-            TableHeaderCell(station.stationName, Modifier.width(otherColWidth))
-        }
-    }
-}
-
-@Composable
-private fun TableParameterRows(
-    stations: List<StationData>,
-    parameters: List<TableParameter>,
-    firstColWidth: androidx.compose.ui.unit.Dp,
-    otherColWidth: androidx.compose.ui.unit.Dp
-) {
-    parameters.forEach { parameter ->
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            TableCell(
-                text = parameter.name,
-                modifier = Modifier.width(firstColWidth),
-                backgroundColor = HeaderBackground,
-                textColor = HeaderText,
-                isParameterCell = true
-            )
-            stations.forEach { station ->
-                val (textValue, alarmValue) = parameter.valueExtractor(station)
-                val bgColor = getValueBackgroundColor(textValue)
-                val isNoData = textValue == UiConstants.NO_DATA_PLACEHOLDER
-
-                // Fix Logic: If NO DATA, prioritize No Data Color (Gray) over Alarm Color.
-                val txtColor = if (isNoData) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
-                
-                val fontSize = if (isNoData) UiConstants.FONT_SIZE_HEADER_TITLE else UiConstants.FONT_SIZE_MEDIUM
-                val fontWeight = if (isNoData) FontWeight.Black else FontWeight.Bold
-                
-                TableCell(
-                    text = textValue,
-                    modifier = Modifier.width(otherColWidth),
-                    backgroundColor = bgColor,
-                    textColor = txtColor,
-                    fontSize = fontSize,
-                    fontWeight = fontWeight
+            if (stations.isNotEmpty()) {
+                TableStationRows(
+                    stations = stations,
+                    parameters = parameters,
+                    firstColWidth = firstColWidth,
+                    otherColWidth = otherColWidth,
+                    baseFontSize = baseFontSize,
+                    modifier = Modifier.weight(stations.size.toFloat())
                 )
             }
         }
@@ -106,10 +69,76 @@ private fun TableParameterRows(
 }
 
 @Composable
-fun CornerHeaderCell(modifier: Modifier = Modifier) {
+private fun TableHeaderRow(
+    parameters: List<TableParameter>, 
+    firstColWidth: androidx.compose.ui.unit.Dp, 
+    otherColWidth: androidx.compose.ui.unit.Dp,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        CornerHeaderCell(Modifier.width(firstColWidth).fillMaxHeight(), fontSize = fontSize)
+        parameters.forEach { parameter ->
+            TableHeaderCell(parameter.name, Modifier.width(otherColWidth).fillMaxHeight(), isOnline = true, fontSize = fontSize)
+        }
+    }
+}
+
+@Composable
+private fun TableStationRows(
+    stations: List<StationData>,
+    parameters: List<TableParameter>,
+    firstColWidth: androidx.compose.ui.unit.Dp,
+    otherColWidth: androidx.compose.ui.unit.Dp,
+    baseFontSize: androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        stations.forEach { station ->
+            Row(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TableCell(
+                    text = station.stationName,
+                    modifier = Modifier.width(firstColWidth).fillMaxHeight(),
+                    backgroundColor = if (station.isOnline) UiConstants.STATION_NAME_BACKGROUND else UiConstants.STATION_NAME_DISCONNECTED_BACKGROUND,
+                    textColor = UiConstants.STATION_NAME_TEXT,
+                    isParameterCell = true,
+                    fontSize = baseFontSize * 0.85f // Station name slightly smaller
+                )
+                parameters.forEach { parameter ->
+                    val (rawValue, alarmValue, isEnabled) = parameter.valueExtractor(station)
+                    val textValue = if (isEnabled) rawValue else ""
+                    val isNoData = textValue == UiConstants.NO_DATA_PLACEHOLDER
+                    
+                    val bgColor = if (isEnabled) getValueBackgroundColor(textValue) else UiConstants.NO_DATA_COLOR_DISABLE
+                    val txtColor = if (isNoData || !station.isOnline) UiConstants.NO_DATA_COLOR else getTextColorForValue(alarmValue)
+                    
+                    val fontSize = if (isNoData) baseFontSize * 1.2f else baseFontSize
+                    val fontWeight = if (isNoData) FontWeight.Black else FontWeight.ExtraBold
+                    
+                    TableCell(
+                        text = textValue,
+                        modifier = Modifier.width(otherColWidth).fillMaxHeight(),
+                        backgroundColor = bgColor,
+                        textColor = txtColor,
+                        fontSize = fontSize,
+                        fontWeight = fontWeight
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CornerHeaderCell(modifier: Modifier = Modifier, fontSize: androidx.compose.ui.unit.TextUnit) {
     Box(
         modifier = modifier
-            .height(UiConstants.TABLE_HEADER_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -157,19 +186,19 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
                     lineTo(0f, y_left) // Intersection with Left Edge
                     close()
                 },
-                color = HeaderBackground
+                color = UiConstants.STATION_NAME_BACKGROUND
             )
         }
         
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = UiConstants.PADDING_SMALL, end = 0.dp)
+                .padding(top = 0.dp, end = UiConstants.PADDING_SMALL)
         ) {
             Text(
-                text = UiConstants.TABLE_HEADER_STATION,
+                text = UiConstants.TABLE_HEADER_PARAMETER,
                 color = HeaderText,
-                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontSize = fontSize * 0.8f,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.End
             )
@@ -181,9 +210,9 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
                 .padding(bottom = 0.dp, start = UiConstants.PADDING_SMALL)
         ) {
             Text(
-                text = UiConstants.TABLE_HEADER_PARAMETER,
-                color = HeaderText,
-                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                text = UiConstants.TABLE_HEADER_STATION,
+                color = UiConstants.STATION_NAME_TEXT,
+                fontSize = fontSize * 0.8f,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
             )
@@ -192,22 +221,21 @@ fun CornerHeaderCell(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TableHeaderCell(text: String, modifier: Modifier = Modifier) {
+fun TableHeaderCell(text: String, modifier: Modifier = Modifier, isOnline: Boolean = true, fontSize: androidx.compose.ui.unit.TextUnit) {
     Box(
         modifier = modifier
-            .height(UiConstants.TABLE_HEADER_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
-            .background(HeaderBackground)
+            .background(if (isOnline) HeaderBackground else UiConstants.NO_DATA_COLOR)
             .padding(UiConstants.PADDING_SMALL),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             color = HeaderText,
-            fontSize = UiConstants.FONT_SIZE_NORMAL,
+            fontSize = fontSize,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            lineHeight = UiConstants.LINE_HEIGHT_SMALL
+            lineHeight = fontSize
         )
     }
 }
@@ -219,12 +247,11 @@ fun TableCell(
     backgroundColor: Color,
     textColor: Color = Color.White,
     isParameterCell: Boolean = false,
-    fontSize: androidx.compose.ui.unit.TextUnit = UiConstants.FONT_SIZE_MEDIUM,
+    fontSize: androidx.compose.ui.unit.TextUnit,
     fontWeight: FontWeight = FontWeight.Bold
 ) {
     Box(
         modifier = modifier
-            .height(UiConstants.TABLE_CELL_HEIGHT)
             .padding(UiConstants.BORDER_WIDTH / 2)
             .background(backgroundColor)
             .padding(
@@ -239,7 +266,7 @@ fun TableCell(
             fontSize = fontSize,
             fontWeight = fontWeight,
             textAlign = TextAlign.Center,
-            lineHeight = if (isParameterCell) UiConstants.FONT_SIZE_MEDIUM else UiConstants.LINE_HEIGHT_SMALL
+            lineHeight = fontSize
         )
     }
 }

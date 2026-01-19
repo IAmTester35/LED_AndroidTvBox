@@ -50,6 +50,7 @@ cat <<EOF > privapp-permissions-com.reecotech.androidtvbox.xml
     <privapp-permissions package="com.reecotech.androidtvbox">
         <permission name="android.permission.INSTALL_PACKAGES"/>
         <permission name="android.permission.DELETE_PACKAGES"/>
+        <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND"/>
     </privapp-permissions>
 </permissions>
 EOF
@@ -78,9 +79,19 @@ echo "Setting permissions..."
 adb shell chmod -R 755 $DEST_DIR
 adb shell chmod 644 $DEST_DIR/app.apk
 
+# Disable Stock Launchers to force our app as Home
+echo "Disabling stock launchers to prevent reset..."
+adb shell pm disable-user --user 0 com.chihim.launcher || echo "Device might not have com.chihim.launcher"
+adb shell pm disable-user --user 0 com.google.android.leanbacklauncher || echo "Device might not have Leanback Launcher"
+
 echo "Setting as Home Activity (attempt)..."
 # This often fails before reboot because package isn't scanned yet.
 adb shell cmd package set-home-activity $PKG_NAME/.MainActivity || echo "⚠️ Warning: Could not set Home Activity yet. This is expected. It will work after reboot."
+
+echo "Granting special permissions (AppOps)..."
+# Force grant special permissions that often reset
+adb shell appops set $PKG_NAME SYSTEM_ALERT_WINDOW allow
+adb shell appops set $PKG_NAME REQUEST_INSTALL_PACKAGES allow
 
 echo "Rebooting device..."
 adb reboot

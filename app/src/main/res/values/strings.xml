@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AndroidTVBox</string>
+    <string name="accessibility_service_description">Dịch vụ này giúp tự động xác nhận cập nhật ứng dụng cho chế độ Kiosk.</string>
 </resources>

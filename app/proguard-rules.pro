@@ -29,35 +29,42 @@
 -keepattributes InnerClasses
 -dontwarn com.google.gson.**
 
-# Retrofit
--keepattributes Signature
--keepattributes Exceptions
--dontwarn okhttp3.**
+# Robust Retrofit Rules
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
+-keepattributes AnnotationDefault
+
+-keep class retrofit2.** { *; }
 -dontwarn retrofit2.**
--keepclasseswithmembers class * {
-    @retrofit2.http.* <methods>;
-}
 
-# Kotlin
--keep class kotlin.reflect.** { *; }
--keep interface kotlin.reflect.** { *; }
-
-# Data Models (Keep them to avoid obfuscation issues with reflection/serialization)
--keep class com.reecotech.androidtvbox.data.model.** { *; }
-
-# OkHttp
--keepattributes Signature
--keepattributes *Annotation*
--keep class okhttp3.** { *; }
--keep interface okhttp3.** { *; }
--dontwarn okhttp3.**
-
-# Coroutines (Crucial for Retrofit suspend functions)
--keep class kotlinx.coroutines.** { *; }
--keep class kotlin.coroutines.** { *; }
--keep class kotlin.Result { *; }
+# Keep generic signature of Response (Critical for Response<T>)
+-keep class retrofit2.Response { *; }
 
 # Keep all application classes that might be used via reflection or serialization
 -keep class com.reecotech.androidtvbox.data.remote.** { *; }
+-keep interface com.reecotech.androidtvbox.data.remote.** { *; }
+-keep class com.reecotech.androidtvbox.data.model.** { *; }
 -keep class com.reecotech.androidtvbox.di.** { *; }
 -keep class com.reecotech.androidtvbox.domain.model.** { *; }
+
+# Kotlin Serialization
+-keep class kotlinx.serialization.** { *; }
+-keepattributes *Annotation*, InnerClasses
+-dontwarn kotlinx.serialization.**
+
+# Coroutines
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlin.coroutines.** { *; }
+
+# DataStore - Prevent R8 from stripping corruption handler
+-keep class androidx.datastore.** { *; }
+-keep class androidx.datastore.core.** { *; }
+-keep class androidx.datastore.preferences.** { *; }
+-keep class androidx.datastore.preferences.core.** { *; }
+-keepclassmembers class * extends com.google.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+
+# Protobuf Lite (used by DataStore internally)
+-keep class com.google.protobuf.** { *; }
+-dontwarn com.google.protobuf.**

@@ -28,8 +28,8 @@ android {
         applicationId = "com.reecotech.androidtvbox"
         minSdk = 24
         targetSdk = 36
-        versionCode = 19
-        versionName = "1.0.14"
+        versionCode = 53
+        versionName = "1.4.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,7 +45,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -101,8 +101,7 @@ dependencies {
     // implementation(libs.moshi)
     // ksp(libs.moshi.codegen)
 
-    // DataStore
-    implementation(libs.datastore.preferences)
+
 
     // Logging
     implementation(libs.timber)
@@ -126,4 +125,5 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
     implementation(libs.firebase.config)
+    implementation(libs.firebase.firestore)
 }

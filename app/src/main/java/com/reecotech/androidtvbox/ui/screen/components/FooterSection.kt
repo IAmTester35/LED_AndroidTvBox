@@ -3,14 +3,17 @@ package com.reecotech.androidtvbox.ui.screen.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -19,69 +22,187 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.reecotech.androidtvbox.R
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import androidx.compose.ui.text.style.TextAlign
+
 /**
- * Footer section with legend, support info, and branding
+ * Footer section with map, support info and branding
+ * Designed to match the provided UI image
  */
 @Composable
 fun FooterSection(modifier: Modifier = Modifier) {
-    Row(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxHeight()
             .background(UiConstants.FOOTER_BACKGROUND)
             .padding(
                 horizontal = UiConstants.PADDING_LARGE,
                 vertical = UiConstants.PADDING_SMALL
             ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        LegendAndSupportSection(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
-        BrandingSection()
-        Spacer(modifier = Modifier.width(UiConstants.SPACING_MEDIUM))
-        MonitoringDataQRSection()
+        // Header title bar
+        MapTitleBar()
+        
+        // Map image
+        MapSection(
+            modifier = Modifier.weight(1f)
+        )
+        
+        // Bottom section with support info, social QR codes, and branding
+        BottomInfoSection()
     }
 }
 
+/**
+ * Blue title bar for the map section
+ */
 @Composable
-private fun LegendAndSupportSection(modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+private fun MapTitleBar() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+            .background(UiConstants.STATION_NAME_BACKGROUND)
+            .padding(vertical = 6.dp, horizontal = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Bản đồ vị trí 11 trạm Khí tượng thủy văn tỉnh Vĩnh Long",
+            color = Color.White,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+/**
+ * Map image section
+ */
+@Composable
+private fun MapSection(modifier: Modifier = Modifier) {
+    Image(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)),
+        painter = painterResource(id = R.drawable.map),
+        contentDescription = "Bản đồ vị trí 11 trạm KTTV",
+        contentScale = ContentScale.FillBounds
+    )
+}
+
+/**
+ * Bottom section containing support info, social QR codes, large QR code and logo
+ */
+@Composable
+private fun BottomInfoSection() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(UiConstants.FOOTER_BACKGROUND),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Column 1: Occupies 75% width
+        Column(
+            modifier = Modifier.weight(0.75f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            SupportPhoneSection()
+            
+            SocialQRCodeRow()
+            
+            Image(
+                painter = painterResource(id = R.drawable.logo_reeco),
+                contentDescription = "REECO Logo",
+                modifier = Modifier
+                    .width(UiConstants.LOGO_REECO_WIDTH)
+                    .height(UiConstants.LOGO_REECO_HEIGHT)
+                    .align(Alignment.End)
+                    .padding(end = UiConstants.PADDING_LARGE),
+                contentScale = ContentScale.Fit
+            )
+        }
+        
+        // Column 2: Occupies the remaining width (approx 25%)
+        Column(
+            modifier = Modifier
+                .weight(0.25f),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.qr_code),
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .size(100.dp) // Increased size
+                    .background(Color.White)
+                    .padding(5.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Support phone number section
+ */
+@Composable
+private fun SupportPhoneSection() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(UiConstants.FOOTER_BACKGROUND)
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PhoneIcon(
+            size = 16.dp,
+            color = Color.White
+        )
+        
+        Spacer(modifier = Modifier.width(8.dp))
+        
+        Text(
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("Hỗ trợ kỹ thuật: ")
+                }
+                withStyle(style = SpanStyle(fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)) {
+                    append("0901 880 386")
+                }
+            },
+            color = Color.White,
+            fontSize = 14.sp
+        )
+    }
+}
+
+/**
+ * Legend section with scrolling warning levels (for use in parent layout)
+ */
+@Composable
+fun LegendSection(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = UiConstants.LEGEND_TITLE,
             color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
+            fontSize = UiConstants.FONT_SIZE_LARGE,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = UiConstants.PADDING_SMALL)
+            modifier = Modifier.padding(end = UiConstants.PADDING_SMALL)
         )
         
-        LegendGrid()
-        
-        Spacer(modifier = Modifier.height(UiConstants.PADDING_SMALL))
-        
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            PhoneIcon(
-                size = 12.dp,
-                color = Color.White
-            )
-            
-            Spacer(modifier = Modifier.width(UiConstants.SPACING_SMALL))
-            
-            Text(
-                text = buildAnnotatedString {
-                    append("Hỗ trợ kỹ thuật: ")
-                    withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
-                        append("0901 880 386")
-                    }
-                },
-                color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_SMALL,
-                fontWeight = FontWeight.SemiBold
-            )
-            
-            Spacer(modifier = Modifier.width(UiConstants.SPACING_LARGE))
-            
-            SocialQRCodeRow()
-        }
+        LegendMarquee(modifier = Modifier.weight(1f))
     }
 }
 
@@ -121,24 +242,46 @@ private fun PhoneIcon(
 }
 
 @Composable
-private fun LegendGrid() {
+private fun LegendMarquee(modifier: Modifier = Modifier) {
     val legendItems = getLegendItems()
-    val columnCount = 2
-    
-    Row(modifier = Modifier.fillMaxWidth()) {
-        for (columnIndex in 0 until columnCount) {
-            Column(modifier = Modifier.weight(1f)) {
-                legendItems
-                    .chunked(legendItems.size / columnCount + legendItems.size % columnCount)
-                    .getOrNull(columnIndex)
-                    ?.forEach { item ->
-                        LegendItemRow(item.text, item.color)
-                        Spacer(modifier = Modifier.height(UiConstants.SPACING_TINY))
-                    }
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        delay(1000) // Initial delay to ensure layout is ready
+        while (true) {
+            val max = scrollState.maxValue
+            if (max > 0) {
+                scrollState.scrollTo(0)
+                // Speed: 60 pixels per second approx
+                val duration = max * 16
+                scrollState.animateScrollTo(
+                    value = max,
+                    animationSpec = tween(
+                        durationMillis = duration,
+                        easing = LinearEasing
+                    )
+                )
+            } else {
+                delay(100)
             }
-            if (columnIndex < columnCount - 1) {
-                Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL))
+        }
+    }
+
+    BoxWithConstraints(modifier = modifier) {
+        val screenWidth = this@BoxWithConstraints.maxWidth
+        Row(
+            modifier = Modifier
+                .horizontalScroll(scrollState, enabled = false),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(screenWidth))
+            
+            legendItems.forEach { item ->
+                LegendItemRow(item.text, item.color)
+                Spacer(modifier = Modifier.width(UiConstants.PADDING_EXTRA_LARGE))
             }
+            
+            Spacer(modifier = Modifier.width(screenWidth))
         }
     }
 }
@@ -151,27 +294,11 @@ private fun LegendItemRow(text: String, color: Color) {
                 .size(UiConstants.LEGEND_INDICATOR_SIZE)
                 .background(color, RoundedCornerShape(UiConstants.CORNER_RADIUS_SMALL))
         )
-        Spacer(modifier = Modifier.width(UiConstants.PADDING_SMALL))
+        Spacer(modifier = Modifier.width(UiConstants.PADDING_MEDIUM))
         Text(
             text = text,
             color = Color.White,
-            fontSize = UiConstants.FONT_SIZE_TINY
-        )
-    }
-}
-
-@Composable
-private fun BrandingSection() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo_reeco),
-            contentDescription = "REECO Logo",
-            modifier = Modifier
-                .width(UiConstants.LOGO_REECO_WIDTH)
-                .height(UiConstants.LOGO_REECO_HEIGHT)
+            fontSize = UiConstants.FONT_SIZE_LARGE
         )
     }
 }
@@ -179,52 +306,25 @@ private fun BrandingSection() {
 @Composable
 private fun SocialQRCodeRow() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.End),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = UiConstants.PADDING_LARGE),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         listOf(
             R.drawable.qr_eec,
-            R.drawable.qr_linkedin,
-            R.drawable.qr_youtube,
-            R.drawable.qr_tiktok,
             R.drawable.qr_facebook,
-            R.drawable.qr_zalo
+            R.drawable.qr_tiktok,
+            R.drawable.qr_youtube,
+            R.drawable.qr_zalo,
+            R.drawable.qr_linkedin
         ).forEach { qrDrawable ->
             Image(
                 painter = painterResource(id = qrDrawable),
                 contentDescription = "QR Code",
-                modifier = Modifier.size(UiConstants.QR_CODE_SIZE * 1.65f)
+                modifier = Modifier.size(35.dp)
             )
         }
     }
 }
-
-@Composable
-private fun MonitoringDataQRSection() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(UiConstants.CORNER_RADIUS_SMALL)
-            )
-            .padding(UiConstants.PADDING_SMALL)
-    ) {
-        Text(
-            text = "Số liệu quan trắc",
-            color = Color.Black,
-            fontSize = UiConstants.FONT_SIZE_SMALL,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = UiConstants.SPACING_TINY)
-        )
-        
-        Image(
-            painter = painterResource(id = R.drawable.qr_code),
-            contentDescription = "Monitoring Data QR Code",
-            modifier = Modifier.size(UiConstants.QR_CODE_LARGE_SIZE)
-        )
-    }
-}
-

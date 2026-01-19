@@ -2,61 +2,52 @@ package com.reecotech.androidtvbox.ui.screen.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-
 /**
  * Overlay displayed when connection is lost or data error occurs
  */
 @Composable
 fun DisconnectOverlay(
-    isWebSocketConnected: Boolean,
+    isConnected: Boolean,
     hasJsonError: Boolean,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    retryCount: Int = 0
 ) {
+    if (retryCount <= 15) return
+    
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(UiConstants.OVERLAY_DARK),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopStart
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        val (title, description, errorCode) = getErrorDetails(isConnected, hasJsonError, errorMessage)
+
+        Row(
             modifier = Modifier
-                .background(
-                    UiConstants.ERROR_RED,
-                    RoundedCornerShape(UiConstants.CORNER_RADIUS_MEDIUM)
-                )
-                .padding(UiConstants.PADDING_EXTRA_LARGE)
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = UiConstants.PADDING_LARGE, vertical = UiConstants.PADDING_SMALL),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(UiConstants.SPACING_MEDIUM)
         ) {
-            Icon(
-                imageVector = Icons.Default.Warning,
-                contentDescription = "Warning",
-                tint = Color.White,
-                modifier = Modifier.size(UiConstants.WARNING_ICON_SIZE)
-            )
-            
-            Spacer(modifier = Modifier.height(UiConstants.SPACING_LARGE))
-            
             Text(
-                text = errorMessage ?: getErrorMessage(isWebSocketConnected, hasJsonError),
-                color = Color.White,
-                fontSize = UiConstants.FONT_SIZE_HUGE,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                text = "$title - $description ($errorCode)",
+                color = Color.Black,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier.weight(1f)
             )
-            
-            Spacer(modifier = Modifier.height(UiConstants.PADDING_MEDIUM))
+
+            Text(
+                text = "Thử lại: $retryCount",
+                color = Color.Black,
+                fontSize = UiConstants.FONT_SIZE_NORMAL,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

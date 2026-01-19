@@ -1,17 +1,22 @@
 package com.reecotech.androidtvbox.ui.screen.components
 
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.reecotech.androidtvbox.domain.model.StationData
 
 /**
@@ -20,10 +25,9 @@ import com.reecotech.androidtvbox.domain.model.StationData
 @Composable
 fun BodySection(
     stations: List<StationData>,
-    lastUpdateTime: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = UiConstants.PADDING_SMALL)
@@ -55,11 +59,41 @@ fun BodySection(
                 drawRect(brush = brush)
             }
     ) {
-        UpdateTimeBadge(lastUpdateTime = lastUpdateTime)
-        StationTable(
-            stations = stations,
-            modifier = Modifier.weight(1f)
-        )
-        FooterSection(modifier = Modifier.wrapContentHeight())
+        // Main content layer with Table and Legend
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
+            ) {
+                StationTable(
+                    stations = stations,
+                    modifier = Modifier
+                        .weight(0.64f)
+                        .fillMaxHeight()
+                )
+                Spacer(modifier = Modifier.weight(0.36f))
+            }
+            LegendSection(
+                modifier = Modifier
+                    .fillMaxWidth(0.75f)
+                    .wrapContentHeight()
+            )
+        }
+
+        // Overlay layer for FooterSection
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.weight(0.59f))
+            FooterSection(
+                modifier = Modifier
+                    .weight(0.36f)
+                    .fillMaxHeight()
+            )
+        }
     }
 }

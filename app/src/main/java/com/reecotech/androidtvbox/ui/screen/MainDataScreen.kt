@@ -12,6 +12,10 @@ import com.reecotech.androidtvbox.ui.screen.components.DisconnectOverlay
 import com.reecotech.androidtvbox.ui.screen.components.HeaderSection
 import com.reecotech.androidtvbox.ui.screen.components.LoadingOverlay
 import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.zIndex
 
 // ============================================================================
 // Main Screen Composable
@@ -23,27 +27,63 @@ import com.reecotech.androidtvbox.ui.viewmodel.MainUiState
  * @param state Current UI state containing station data and connection status
  */
 @Composable
-fun MainDataScreen(state: MainUiState) {
+fun MainDataScreen(
+    state: MainUiState,
+    onConfirmSleep: () -> Unit = {},
+    onCancelSleep: () -> Unit = {}
+) {
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)
+        .background(Color.Black)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+        ) {
             HeaderSection(state = state)
             BodySection(
                 stations = state.stations,
-                lastUpdateTime = state.lastUpdateTime,
                 modifier = Modifier.weight(1f)
             )
         }
         
         if (state.isLoading) {
+
             LoadingOverlay()
-        } else if (!state.isWebSocketConnected || state.hasJsonError) {
+        } else if (!state.isConnected || state.hasJsonError) {
             DisconnectOverlay(
-                isWebSocketConnected = state.isWebSocketConnected,
+                isConnected = state.isConnected,
                 hasJsonError = state.hasJsonError,
-                errorMessage = state.errorMessage
+                errorMessage = state.errorMessage,
+                retryCount = state.retryCount
+            )
+        }
+
+        if (state.showSleepWarning) {
+            AlertDialog(
+                onDismissRequest = { /* Prevent dismiss by clicking outside */ },
+                title = { Text(text = "Cảnh báo") },
+                text = { Text(text = "Đã đến giờ tắt màn hình, bạn có muốn tắt không?\nTự động tắt sau ${state.sleepWarningSecondsLeft} giây") },
+                confirmButton = {
+                    Button(onClick = onConfirmSleep) {
+                        Text("Có")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = onCancelSleep) {
+                        Text("Không")
+                    }
+                },
+                modifier = Modifier.zIndex(100f) // Ensure dialog sits on top
+            )
+        }
+
+        if (state.isSleepMode) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .zIndex(200f) // Highest z-index to cover everything
             )
         }
     }
